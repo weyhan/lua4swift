@@ -4,6 +4,11 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
+        
+        Keycode.setup()
+        
+        return
+        
         let js = JavaScript()
         
         js["Window"] = JSWindow.self
