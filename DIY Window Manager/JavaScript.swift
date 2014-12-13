@@ -4,6 +4,8 @@ import JavaScriptCore
 @objc
 protocol JSWindowProtocol: JSExport {
     class func focusedWindow() -> JSWindow?
+    
+    func title() -> String?
 }
 
 @objc
@@ -19,6 +21,10 @@ class JSWindow: NSObject, JSWindowProtocol {
         if win == nil { return nil }
         return JSWindow(win!)
     }
+    
+    func title() -> String? {
+        return window.title()
+    }
 }
 
 class JavaScript {
@@ -33,6 +39,15 @@ class JavaScript {
     
     func handleException(ctx: JSContext!, val: JSValue!) {
         println("js error: \(val)")
+    }
+    
+    func eval(str: String) -> JSValue? {
+        return self.ctx.evaluateScript(str)
+    }
+    
+    subscript(key: NSObject?) -> AnyObject? {
+        get { return self.ctx.objectForKeyedSubscript(key) }
+        set { self.ctx.setObject(newValue, forKeyedSubscript: key) }
     }
     
 }
