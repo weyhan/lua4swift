@@ -13,6 +13,7 @@
 		9407F73D1A3CBBBD00BE8C7A /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */; };
 		9407F73F1A3CBD7C00BE8C7A /* Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F73E1A3CBD7C00BE8C7A /* Hotkeys.swift */; };
 		9407F7441A3CBD9900BE8C7A /* Hotkeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7411A3CBD9900BE8C7A /* Hotkeys.m */; };
+		9407F7461A3CBE3800BE8C7A /* JavaScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7451A3CBE3800BE8C7A /* JavaScript.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		9407F7411A3CBD9900BE8C7A /* Hotkeys.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Hotkeys.m; sourceTree = "<group>"; };
 		9407F7421A3CBD9900BE8C7A /* Hotkeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hotkeys.h; sourceTree = "<group>"; };
 		9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DIY Window Manager-Bridging-Header.h"; sourceTree = "<group>"; };
+		9407F7451A3CBE3800BE8C7A /* JavaScript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JavaScript.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				9407F73E1A3CBD7C00BE8C7A /* Hotkeys.swift */,
 				9407F7411A3CBD9900BE8C7A /* Hotkeys.m */,
 				9407F7421A3CBD9900BE8C7A /* Hotkeys.h */,
+				9407F7451A3CBE3800BE8C7A /* JavaScript.swift */,
 				9407F7231A3CBA8500BE8C7A /* Images.xcassets */,
 				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
 			);
@@ -149,6 +152,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9407F7441A3CBD9900BE8C7A /* Hotkeys.m in Sources */,
+				9407F7461A3CBE3800BE8C7A /* JavaScript.swift in Sources */,
 				9407F73D1A3CBBBD00BE8C7A /* Accessibility.swift in Sources */,
 				9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */,
 				9407F73F1A3CBD7C00BE8C7A /* Hotkeys.swift in Sources */,
