@@ -195,10 +195,10 @@ class Hotkey {
     
     typealias HotkeyCallback = () -> ()
     
-    var key: String
-    var mods: [Mod]
-    var downFn: HotkeyCallback
-    var upFn: HotkeyCallback?
+    let key: String
+    let mods: [Mod]
+    let downFn: HotkeyCallback
+    let upFn: HotkeyCallback?
     
     var carbonHotkey: EventHotKey?
     
@@ -207,6 +207,7 @@ class Hotkey {
         self.mods = mods
         self.downFn = downFn
         self.upFn = upFn
+        self.carbonHotkey = nil
     }
     
     func enable() -> (Bool, String) {
@@ -220,7 +221,7 @@ class Hotkey {
         let id = UInt32(enabledHotkeys.count)
         enabledHotkeys[id] = self
         
-        let internalHotkey = SDegutisRegisterHotkey(
+        let hk = SDegutisRegisterHotkey(
             id,
             UInt32(code!),
             contains(self.mods, Mod.Command),
@@ -228,7 +229,7 @@ class Hotkey {
             contains(self.mods, Mod.Shift),
             contains(self.mods, Mod.Option))
         
-        self.carbonHotkey = internalHotkey
+        self.carbonHotkey = hk
         
         return (true, "")
     }
@@ -236,6 +237,7 @@ class Hotkey {
     func disable() {
         if self.carbonHotkey == nil { return }
         UnregisterEventHotKey(self.carbonHotkey)
+        self.carbonHotkey = nil
     }
     
     class func callback(i: UInt32, down: Bool) -> Bool {
