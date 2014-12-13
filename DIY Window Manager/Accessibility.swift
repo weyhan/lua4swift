@@ -64,132 +64,136 @@ extension AXValue {
     
 }
 
-class AccessibilityObject: Equatable {
-    
-    var element: AXUIElement!
-    
-    init?(_ el: AXUIElement?) {
-        if el == nil { return nil }
-        element = el
-    }
-    
-    init(_ el: AXUIElement) { element = el }
-    
-    func title() -> String? {
-        return element.getAttribute(NSAccessibilityTitleAttribute)
-    }
-    
-    internal func subrole() -> String? {
-        return element.getAttribute(NSAccessibilitySubroleAttribute)
-    }
-    
-    internal func role() -> String? {
-        return element.getAttribute(NSAccessibilityRoleAttribute)
-    }
-    
-}
-
-func ==(left: AccessibilityObject, right: AccessibilityObject) -> Bool {
+func ==(left: Accessibility.AccessibilityObject, right: Accessibility.AccessibilityObject) -> Bool {
     return CFEqual(left.element, right.element) != 0
 }
 
-class App: AccessibilityObject {
+class Accessibility {
     
-    var pid: pid_t {
-        var pid: pid_t = 0
-        AXUIElementGetPid(element, &pid)
-        return pid
+    class AccessibilityObject: Equatable {
+        
+        var element: AXUIElement!
+        
+        init?(_ el: AXUIElement?) {
+            if el == nil { return nil }
+            element = el
+        }
+        
+        init(_ el: AXUIElement) { element = el }
+        
+        func title() -> String? {
+            return element.getAttribute(NSAccessibilityTitleAttribute)
+        }
+        
+        internal func subrole() -> String? {
+            return element.getAttribute(NSAccessibilitySubroleAttribute)
+        }
+        
+        internal func role() -> String? {
+            return element.getAttribute(NSAccessibilityRoleAttribute)
+        }
+        
     }
     
-    var app: NSRunningApplication? {
-        return NSRunningApplication(processIdentifier: pid)?
+    class App: AccessibilityObject {
+        
+        var pid: pid_t {
+            var pid: pid_t = 0
+            AXUIElementGetPid(element, &pid)
+            return pid
+        }
+        
+        var app: NSRunningApplication? {
+            return NSRunningApplication(processIdentifier: pid)?
+        }
+        
+        convenience init(_ app: NSRunningApplication) {
+            self.init(AXUIElementCreateApplication(app.processIdentifier).takeRetainedValue())
+        }
+        
+        class func allApps() -> [App]? {
+            return (NSWorkspace.sharedWorkspace().runningApplications as [NSRunningApplication]).map{ App($0) }
+        }
+        
+        class func focusedApp() -> App? {
+            return App(systemWideElement.getAttribute("AXFocusedApplication"))
+        }
+        
+        func mainWindow() -> Window? {
+            return Window(element.getAttribute("AXMainWindow"))
+        }
+        
+        func focusedWindow() -> Window? {
+            return Window(element.getAttribute(NSAccessibilityFocusedWindowAttribute))
+        }
+        
+        func allWindows() -> [Window]? {
+            return (element.getAttributes("AXWindows") as [AXUIElement]?)?.map{ Window($0) }
+        }
+        
+        func activate(allWindows: Bool) -> Bool? {
+            var opts = NSApplicationActivationOptions.ActivateIgnoringOtherApps
+            if allWindows { opts |= .ActivateAllWindows }
+            return app?.activateWithOptions(opts)
+        }
+        
+        func isHidden() -> Bool? {
+            return element.getAttribute(NSAccessibilityHiddenAttribute)
+        }
+        
+        func terminate(force: Bool = false) -> Bool? {
+            return force ? app?.forceTerminate() : app?.terminate()
+        }
+        
+        func hide() -> Bool? {
+            return element.setAttribute(NSAccessibilityHiddenAttribute, value: true)
+        }
+        
+        func unhide() -> Bool? {
+            return element.setAttribute(NSAccessibilityHiddenAttribute, value: false)
+        }
+        
     }
     
-    convenience init(_ app: NSRunningApplication) {
-        self.init(AXUIElementCreateApplication(app.processIdentifier).takeRetainedValue())
-    }
-    
-    class func allApps() -> [App]? {
-        return (NSWorkspace.sharedWorkspace().runningApplications as [NSRunningApplication]).map{ App($0) }
-    }
-    
-    class func focusedApp() -> App? {
-        return App(systemWideElement.getAttribute("AXFocusedApplication"))
-    }
-    
-    func mainWindow() -> Window? {
-        return Window(element.getAttribute("AXMainWindow"))
-    }
-    
-    func focusedWindow() -> Window? {
-        return Window(element.getAttribute(NSAccessibilityFocusedWindowAttribute))
-    }
-    
-    func allWindows() -> [Window]? {
-        return (element.getAttributes("AXWindows") as [AXUIElement]?)?.map{ Window($0) }
-    }
-    
-    func activate(allWindows: Bool) -> Bool? {
-        var opts = NSApplicationActivationOptions.ActivateIgnoringOtherApps
-        if allWindows { opts |= .ActivateAllWindows }
-        return app?.activateWithOptions(opts)
-    }
-    
-    func isHidden() -> Bool? {
-        return element.getAttribute(NSAccessibilityHiddenAttribute)
-    }
-    
-    func terminate(force: Bool = false) -> Bool? {
-        return force ? app?.forceTerminate() : app?.terminate()
-    }
-    
-    func hide() -> Bool? {
-        return element.setAttribute(NSAccessibilityHiddenAttribute, value: true)
-    }
-    
-    func unhide() -> Bool? {
-        return element.setAttribute(NSAccessibilityHiddenAttribute, value: false)
-    }
-    
-}
-
-class Window: AccessibilityObject {
-    
-    class func focusedWindow() -> Window? {
-        return App.focusedApp()?.focusedWindow()
-    }
-    
-    func topLeft() -> NSPoint? {
-        return (element.getAttribute(NSAccessibilityPositionAttribute) as AXValue?)?.convertToStruct()
-    }
-    
-    func size() -> NSSize? {
-        return (element.getAttribute(NSAccessibilitySizeAttribute) as AXValue?)?.convertToStruct()
-    }
-    
-    func frame() -> NSRect? {
-        let p = topLeft()
-        let s = size()
-        if p == nil || s == nil { return nil }
-        return NSRect(origin: p!, size: s!)
-    }
-    
-    func setTopLeft(p: NSPoint) -> Bool {
-        return element.setAttribute(NSAccessibilityPositionAttribute, value: AXValue.fromPoint(p))
-    }
-    
-    func setSize(s: NSSize) -> Bool {
-        return element.setAttribute(NSAccessibilitySizeAttribute, value: AXValue.fromSize(s))
-    }
-    
-    func setFrame(f: NSRect) -> Bool {
-        return self.setSize(f.size) &&
-            self.setTopLeft(f.origin) &&
-            self.setSize(f.size)
-    }
-    
-    func isStandard() -> Bool? {
-        return subrole()? == "AXStandardWindow"
+    class Window: AccessibilityObject {
+        
+        class func focusedWindow() -> Window? {
+            return App.focusedApp()?.focusedWindow()
+        }
+        
+        func topLeft() -> NSPoint? {
+            return (element.getAttribute(NSAccessibilityPositionAttribute) as AXValue?)?.convertToStruct()
+        }
+        
+        func size() -> NSSize? {
+            return (element.getAttribute(NSAccessibilitySizeAttribute) as AXValue?)?.convertToStruct()
+        }
+        
+        func frame() -> NSRect? {
+            let p = topLeft()
+            let s = size()
+            if p == nil || s == nil { return nil }
+            return NSRect(origin: p!, size: s!)
+        }
+        
+        func setTopLeft(p: NSPoint) -> Bool {
+            return element.setAttribute(NSAccessibilityPositionAttribute, value: AXValue.fromPoint(p))
+        }
+        
+        func setSize(s: NSSize) -> Bool {
+            return element.setAttribute(NSAccessibilitySizeAttribute, value: AXValue.fromSize(s))
+        }
+        
+        func setFrame(f: NSRect) -> Bool {
+            return self.setSize(f.size) &&
+                self.setTopLeft(f.origin) &&
+                self.setSize(f.size)
+        }
+        
+        func isStandard() -> Bool? {
+            return subrole()? == "AXStandardWindow"
+        }
+        
     }
     
 }
