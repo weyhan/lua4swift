@@ -200,14 +200,13 @@ class Hotkey {
     let downFn: Callback
     let upFn: Callback?
     
-    var carbonHotkey: EventHotKey?
+    var carbonHotkey: UnsafeMutablePointer<Void>?
     
     init(key: String, mods: [Mod], downFn: Callback, upFn: Callback? = nil) {
         self.key = key
         self.mods = mods
         self.downFn = downFn
         self.upFn = upFn
-        self.carbonHotkey = nil
     }
     
     func enable() -> (Bool, String) {
@@ -236,7 +235,7 @@ class Hotkey {
     
     func disable() {
         if self.carbonHotkey == nil { return }
-        UnregisterEventHotKey(self.carbonHotkey)
+        SDegutisUnregisterHotkey(self.carbonHotkey!)
         self.carbonHotkey = nil
     }
     
