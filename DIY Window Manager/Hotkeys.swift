@@ -21,6 +21,8 @@ private func pushCode(code: Int, key: String) {
     codeToKey[code] = key
 }
 
+private let lazilySetupKeycodes: () = Keycode.setup()
+
 struct Keycode {
     
     static func setup() {
@@ -168,26 +170,84 @@ struct Keycode {
     }
     
     static func keyForCode(code: Int) -> String? {
+        lazilySetupKeycodes
         return codeToKey[code]
     }
     
     static func codeForKey(key: String) -> Int? {
+        lazilySetupKeycodes
         return keyToCode[key]
     }
     
 }
 
+private var enabledHotkeys = [UInt32 : Hotkey]()
+private let lazilySetupHotkeys: Void = SDegutisSetupHotkeyCallback(Hotkey.callback)
+
 class Hotkey {
     
-    class func setup() {
+    enum Mod {
+        case Command
+        case Control
+        case Option
+        case Shift
+    }
+    
+    typealias HotkeyCallback = () -> Void
+    
+    var key: String
+    var mods: [Mod]
+    var downFn: HotkeyCallback
+    var upFn: HotkeyCallback?
+    
+    var internalHotkey: EventHotKey?
+    
+    init(key: String, mods: [Mod], downFn: HotkeyCallback, upFn: HotkeyCallback? = nil) {
+        self.key = key
+        self.mods = mods
+        self.downFn = downFn
+        self.upFn = upFn
+    }
+    
+    func enable() -> (Bool, String) {
+        lazilySetupHotkeys
         
-        SDegutisSetupHotkeyCallback { i, down in
-            println("swift callback!!! \(i) \(down)")
-            return false
+        if self.internalHotkey != nil { return (false, "Hotkey already enabled; disable first.") }
+        
+        let code = Keycode.codeForKey(key)
+        if code == nil { return (false, "Hotkey's key is not valid.") }
+        
+        let id = UInt32(enabledHotkeys.count)
+        enabledHotkeys[id] = self
+        
+        self.internalHotkey = SDegutisRegisterHotkey(
+            id,
+            UInt32(code!),
+            contains(self.mods, Mod.Command),
+            contains(self.mods, Mod.Control),
+            contains(self.mods, Mod.Shift),
+            contains(self.mods, Mod.Option))
+            .takeUnretainedValue()
+        
+        return (true, "")
+    }
+    
+    func disable() {
+        if self.internalHotkey == nil { return }
+        UnregisterEventHotKey(self.internalHotkey)
+    }
+    
+    class func callback(i: UInt32, down: Bool) -> Bool {
+        if let hotkey = enabledHotkeys[i] {
+            if down {
+                hotkey.downFn()
+            }
+            else if let upFn = hotkey.upFn {
+                upFn()
+            }
         }
         
-        SDegutisRegisterHotkey(1, 12, true, false, false, false)
-        
+        return false
     }
     
 }
