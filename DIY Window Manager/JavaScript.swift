@@ -2,24 +2,23 @@ import Foundation
 import JavaScriptCore
 
 @objc
-protocol JSWindowProtocol: JSExport {
+private protocol JSWindowProtocol: JSExport {
     class func focusedWindow() -> JSWindow?
-    
     func title() -> String?
 }
 
 @objc
 class JSWindow: NSObject, JSWindowProtocol {
-    let window: Accessibility.Window
+    let window: Accessibility.Window!
     
-    init(_ win: Accessibility.Window) {
-        window = win
+    init?(_ win: Accessibility.Window?) {
+        super.init()
+        if win == nil { return nil }
+        window = win!
     }
     
     class func focusedWindow() -> JSWindow? {
-        let win = Accessibility.Window.focusedWindow()
-        if win == nil { return nil }
-        return JSWindow(win!)
+        return JSWindow(Accessibility.Window.focusedWindow())
     }
     
     func title() -> String? {
