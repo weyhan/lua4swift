@@ -5,6 +5,6 @@
 #import <Carbon/Carbon.h>
 
 void SDegutisSetupHotkeyCallback(BOOL(^thing)(UInt32 i, BOOL down));
-EventHotKeyRef SDegutisRegisterHotkey(UInt32 uid, UInt32 keycode, BOOL cmd, BOOL ctrl, BOOL shift, BOOL alt);
+CF_RETURNS_NOT_RETAINED EventHotKeyRef SDegutisRegisterHotkey(UInt32 uid, UInt32 keycode, BOOL cmd, BOOL ctrl, BOOL shift, BOOL alt);
 
 #endif

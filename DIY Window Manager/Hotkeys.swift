@@ -193,14 +193,14 @@ class Hotkey {
         case Shift
     }
     
-    typealias HotkeyCallback = () -> Void
+    typealias HotkeyCallback = () -> ()
     
     var key: String
     var mods: [Mod]
     var downFn: HotkeyCallback
     var upFn: HotkeyCallback?
     
-    var internalHotkey: EventHotKey?
+    var carbonHotkey: EventHotKey?
     
     init(key: String, mods: [Mod], downFn: HotkeyCallback, upFn: HotkeyCallback? = nil) {
         self.key = key
@@ -212,7 +212,7 @@ class Hotkey {
     func enable() -> (Bool, String) {
         lazilySetupHotkeys
         
-        if self.internalHotkey != nil { return (false, "Hotkey already enabled; disable first.") }
+        if self.carbonHotkey != nil { return (false, "Hotkey already enabled; disable first.") }
         
         let code = Keycode.codeForKey(key)
         if code == nil { return (false, "Hotkey's key is not valid.") }
@@ -220,21 +220,22 @@ class Hotkey {
         let id = UInt32(enabledHotkeys.count)
         enabledHotkeys[id] = self
         
-        self.internalHotkey = SDegutisRegisterHotkey(
+        let internalHotkey = SDegutisRegisterHotkey(
             id,
             UInt32(code!),
             contains(self.mods, Mod.Command),
             contains(self.mods, Mod.Control),
             contains(self.mods, Mod.Shift),
             contains(self.mods, Mod.Option))
-            .takeUnretainedValue()
+        
+        self.carbonHotkey = internalHotkey
         
         return (true, "")
     }
     
     func disable() {
-        if self.internalHotkey == nil { return }
-        UnregisterEventHotKey(self.internalHotkey)
+        if self.carbonHotkey == nil { return }
+        UnregisterEventHotKey(self.carbonHotkey)
     }
     
     class func callback(i: UInt32, down: Bool) -> Bool {
