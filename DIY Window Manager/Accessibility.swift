@@ -64,13 +64,13 @@ extension AXValue {
     
 }
 
-func ==(left: Accessibility.AccessibilityObject, right: Accessibility.AccessibilityObject) -> Bool {
+func ==(left: Accessibility.Object, right: Accessibility.Object) -> Bool {
     return CFEqual(left.element, right.element) != 0
 }
 
 class Accessibility {
     
-    class AccessibilityObject: Equatable {
+    class Object: Equatable {
         
         var element: AXUIElement!
         
@@ -95,7 +95,7 @@ class Accessibility {
         
     }
     
-    class App: AccessibilityObject {
+    class App: Object {
         
         var pid: pid_t {
             var pid: pid_t = 0
@@ -155,7 +155,7 @@ class Accessibility {
         
     }
     
-    class Window: AccessibilityObject {
+    class Window: Object {
         
         class func focusedWindow() -> Window? {
             return App.focusedApp()?.focusedWindow()
