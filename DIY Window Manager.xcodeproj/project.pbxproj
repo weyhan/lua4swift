@@ -64,10 +64,10 @@
 				9407F7251A3CBA8500BE8C7A /* MainMenu.xib */,
 				9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */,
 				9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */,
+				9407F7451A3CBE3800BE8C7A /* JavaScript.swift */,
 				9407F73E1A3CBD7C00BE8C7A /* Hotkeys.swift */,
 				9407F7411A3CBD9900BE8C7A /* Hotkeys.m */,
 				9407F7421A3CBD9900BE8C7A /* Hotkeys.h */,
-				9407F7451A3CBE3800BE8C7A /* JavaScript.swift */,
 				9407F7231A3CBA8500BE8C7A /* Images.xcassets */,
 				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
 			);
