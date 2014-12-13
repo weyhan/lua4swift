@@ -1,0 +1,408 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */; };
+		9407F7241A3CBA8500BE8C7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7231A3CBA8500BE8C7A /* Images.xcassets */; };
+		9407F7271A3CBA8500BE8C7A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7251A3CBA8500BE8C7A /* MainMenu.xib */; };
+		9407F7331A3CBA8500BE8C7A /* DIY_Window_ManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7321A3CBA8500BE8C7A /* DIY_Window_ManagerTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9407F72D1A3CBA8500BE8C7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9407F7141A3CBA8500BE8C7A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9407F71B1A3CBA8500BE8C7A;
+			remoteInfo = "DIY Window Manager";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		9407F71C1A3CBA8500BE8C7A /* DIY Window Manager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DIY Window Manager.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9407F7201A3CBA8500BE8C7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9407F7231A3CBA8500BE8C7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		9407F7261A3CBA8500BE8C7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		9407F72C1A3CBA8500BE8C7A /* DIY Window ManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DIY Window ManagerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9407F7311A3CBA8500BE8C7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9407F7321A3CBA8500BE8C7A /* DIY_Window_ManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIY_Window_ManagerTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9407F7191A3CBA8500BE8C7A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9407F7291A3CBA8500BE8C7A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9407F7131A3CBA8500BE8C7A = {
+			isa = PBXGroup;
+			children = (
+				9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */,
+				9407F72F1A3CBA8500BE8C7A /* DIY Window ManagerTests */,
+				9407F71D1A3CBA8500BE8C7A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9407F71D1A3CBA8500BE8C7A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9407F71C1A3CBA8500BE8C7A /* DIY Window Manager.app */,
+				9407F72C1A3CBA8500BE8C7A /* DIY Window ManagerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */ = {
+			isa = PBXGroup;
+			children = (
+				9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */,
+				9407F7231A3CBA8500BE8C7A /* Images.xcassets */,
+				9407F7251A3CBA8500BE8C7A /* MainMenu.xib */,
+				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
+			);
+			path = "DIY Window Manager";
+			sourceTree = "<group>";
+		};
+		9407F71F1A3CBA8500BE8C7A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9407F7201A3CBA8500BE8C7A /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9407F72F1A3CBA8500BE8C7A /* DIY Window ManagerTests */ = {
+			isa = PBXGroup;
+			children = (
+				9407F7321A3CBA8500BE8C7A /* DIY_Window_ManagerTests.swift */,
+				9407F7301A3CBA8500BE8C7A /* Supporting Files */,
+			);
+			path = "DIY Window ManagerTests";
+			sourceTree = "<group>";
+		};
+		9407F7301A3CBA8500BE8C7A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9407F7311A3CBA8500BE8C7A /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9407F71B1A3CBA8500BE8C7A /* DIY Window Manager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9407F7361A3CBA8500BE8C7A /* Build configuration list for PBXNativeTarget "DIY Window Manager" */;
+			buildPhases = (
+				9407F7181A3CBA8500BE8C7A /* Sources */,
+				9407F7191A3CBA8500BE8C7A /* Frameworks */,
+				9407F71A1A3CBA8500BE8C7A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "DIY Window Manager";
+			productName = "DIY Window Manager";
+			productReference = 9407F71C1A3CBA8500BE8C7A /* DIY Window Manager.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9407F72B1A3CBA8500BE8C7A /* DIY Window ManagerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9407F7391A3CBA8500BE8C7A /* Build configuration list for PBXNativeTarget "DIY Window ManagerTests" */;
+			buildPhases = (
+				9407F7281A3CBA8500BE8C7A /* Sources */,
+				9407F7291A3CBA8500BE8C7A /* Frameworks */,
+				9407F72A1A3CBA8500BE8C7A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9407F72E1A3CBA8500BE8C7A /* PBXTargetDependency */,
+			);
+			name = "DIY Window ManagerTests";
+			productName = "DIY Window ManagerTests";
+			productReference = 9407F72C1A3CBA8500BE8C7A /* DIY Window ManagerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9407F7141A3CBA8500BE8C7A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Tiny Robot Software";
+				TargetAttributes = {
+					9407F71B1A3CBA8500BE8C7A = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					9407F72B1A3CBA8500BE8C7A = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = 9407F71B1A3CBA8500BE8C7A;
+					};
+				};
+			};
+			buildConfigurationList = 9407F7171A3CBA8500BE8C7A /* Build configuration list for PBXProject "DIY Window Manager" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9407F7131A3CBA8500BE8C7A;
+			productRefGroup = 9407F71D1A3CBA8500BE8C7A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9407F71B1A3CBA8500BE8C7A /* DIY Window Manager */,
+				9407F72B1A3CBA8500BE8C7A /* DIY Window ManagerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9407F71A1A3CBA8500BE8C7A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9407F7241A3CBA8500BE8C7A /* Images.xcassets in Resources */,
+				9407F7271A3CBA8500BE8C7A /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9407F72A1A3CBA8500BE8C7A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9407F7181A3CBA8500BE8C7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9407F7281A3CBA8500BE8C7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9407F7331A3CBA8500BE8C7A /* DIY_Window_ManagerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9407F72E1A3CBA8500BE8C7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9407F71B1A3CBA8500BE8C7A /* DIY Window Manager */;
+			targetProxy = 9407F72D1A3CBA8500BE8C7A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		9407F7251A3CBA8500BE8C7A /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9407F7261A3CBA8500BE8C7A /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		9407F7341A3CBA8500BE8C7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9407F7351A3CBA8500BE8C7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9407F7371A3CBA8500BE8C7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "DIY Window Manager/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9407F7381A3CBA8500BE8C7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "DIY Window Manager/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		9407F73A1A3CBA8500BE8C7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "DIY Window ManagerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DIY Window Manager.app/Contents/MacOS/DIY Window Manager";
+			};
+			name = Debug;
+		};
+		9407F73B1A3CBA8500BE8C7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "DIY Window ManagerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DIY Window Manager.app/Contents/MacOS/DIY Window Manager";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9407F7171A3CBA8500BE8C7A /* Build configuration list for PBXProject "DIY Window Manager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9407F7341A3CBA8500BE8C7A /* Debug */,
+				9407F7351A3CBA8500BE8C7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9407F7361A3CBA8500BE8C7A /* Build configuration list for PBXNativeTarget "DIY Window Manager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9407F7371A3CBA8500BE8C7A /* Debug */,
+				9407F7381A3CBA8500BE8C7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		9407F7391A3CBA8500BE8C7A /* Build configuration list for PBXNativeTarget "DIY Window ManagerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9407F73A1A3CBA8500BE8C7A /* Debug */,
+				9407F73B1A3CBA8500BE8C7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9407F7141A3CBA8500BE8C7A /* Project object */;
+}
