@@ -1,37 +1,38 @@
-//
-//  Wrappers.swift
-//  DIY Window Manager
-//
-//  Created by Steven Degutis on 11/25/14.
-//  Copyright (c) 2014 Tiny Robot Software. All rights reserved.
-//
-
 import Foundation
 import JavaScriptCore
 
 @objc
-protocol FooProtocol: JSExport {
-    var thing: Int { get set}
-    
-    func bla() -> Int
+protocol JSWindowProtocol: JSExport {
+    class func focusedWindow() -> JSWindow?
 }
 
 @objc
-class Foo: NSObject, FooProtocol {
-    var thing = 2
+class JSWindow: NSObject, JSWindowProtocol {
+    let window: Accessibility.Window
     
-    func bla() -> Int {
-        return thing + 3
+    init(_ win: Accessibility.Window) {
+        window = win
+    }
+    
+    class func focusedWindow() -> JSWindow? {
+        let win = Accessibility.Window.focusedWindow()
+        if win == nil { return nil }
+        return JSWindow(win!)
     }
 }
 
-func testWrappers() {
-    var vm = JSVirtualMachine()
-    var ctx = JSContext(virtualMachine: vm)
-    ctx.exceptionHandler = { ctx, val in
+class JavaScript {
+    
+    let vm = JSVirtualMachine()
+    let ctx: JSContext
+    
+    init() {
+        ctx = JSContext(virtualMachine: vm)
+        ctx.exceptionHandler = self.handleException
+    }
+    
+    func handleException(ctx: JSContext!, val: JSValue!) {
         println("js error: \(val)")
     }
-    ctx.setObject(Foo(), forKeyedSubscript: "k")
-    ctx.evaluateScript("k.thing = 9")
-    println(ctx.evaluateScript("k.bla()"))
+    
 }
