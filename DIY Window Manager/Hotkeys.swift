@@ -193,16 +193,16 @@ class Hotkey {
         case Shift
     }
     
-    typealias HotkeyCallback = () -> ()
+    typealias Callback = () -> ()
     
     let key: String
     let mods: [Mod]
-    let downFn: HotkeyCallback
-    let upFn: HotkeyCallback?
+    let downFn: Callback
+    let upFn: Callback?
     
     var carbonHotkey: EventHotKey?
     
-    init(key: String, mods: [Mod], downFn: HotkeyCallback, upFn: HotkeyCallback? = nil) {
+    init(key: String, mods: [Mod], downFn: Callback, upFn: Callback? = nil) {
         self.key = key
         self.mods = mods
         self.downFn = downFn
