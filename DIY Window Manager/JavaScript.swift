@@ -44,7 +44,7 @@ class JSHotkey: NSObject, JSHotkeyProtocol {
             return () // lol swift
         }
         
-        hotkey = Hotkey(key: key, modStrings: mods, downFn: downCallback, upFn: nil)
+        hotkey = Hotkey(key: key, mods: mods, downFn: downCallback, upFn: nil)
     }
     
     class func bind(key: NSString, mods: NSArray, downFn: JSValue) -> JSHotkey {

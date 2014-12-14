@@ -192,15 +192,13 @@ class Hotkey {
         case Option
         case Shift
         
-        case Invalid
-        
-        static func fromString(str: String) -> Mod {
+        static func fromString(str: String) -> Mod? {
             switch str.lowercaseString {
             case "command", "cmd": return Command
             case "control", "ctrl": return Control
             case "option", "opt", "alt": return Option
             case "shift": return Shift // good old shift, only going by one name
-            default: return Invalid
+            default: return nil
             }
         }
         
@@ -210,7 +208,6 @@ class Hotkey {
             case .Control: return controlKey
             case .Option: return optionKey
             case .Shift: return shiftKey
-            case .Invalid: return 0
             }
         }
     }
@@ -224,8 +221,13 @@ class Hotkey {
     
     var carbonHotkey: UnsafeMutablePointer<Void>?
     
-    convenience init(key: String, modStrings: [String], downFn: Callback, upFn: Callback? = nil) {
-        let mods: [Hotkey.Mod] = modStrings.map(Hotkey.Mod.fromString)
+    convenience init(key: String, mods: [String], downFn: Callback, upFn: Callback? = nil) {
+        let mods: [Hotkey.Mod?] = mods.map(Hotkey.Mod.fromString)
+        self.init(key: key, mods: mods, downFn: downFn, upFn: upFn)
+    }
+    
+    convenience init(key: String, mods: [Mod?], downFn: Callback, upFn: Callback? = nil) {
+        let mods = mods.filter{$0 != nil}.map{$0!}
         self.init(key: key, mods: mods, downFn: downFn, upFn: upFn)
     }
     
