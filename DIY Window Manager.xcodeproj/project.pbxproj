@@ -60,7 +60,6 @@
 		9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */ = {
 			isa = PBXGroup;
 			children = (
-				9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */,
 				9407F7251A3CBA8500BE8C7A /* MainMenu.xib */,
 				9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */,
 				9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */,
@@ -68,7 +67,6 @@
 				9407F73E1A3CBD7C00BE8C7A /* Hotkeys.swift */,
 				9407F7411A3CBD9900BE8C7A /* Hotkeys.m */,
 				9407F7421A3CBD9900BE8C7A /* Hotkeys.h */,
-				9407F7231A3CBA8500BE8C7A /* Images.xcassets */,
 				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
 			);
 			path = "DIY Window Manager";
@@ -77,6 +75,8 @@
 		9407F71F1A3CBA8500BE8C7A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */,
+				9407F7231A3CBA8500BE8C7A /* Images.xcassets */,
 				9407F7201A3CBA8500BE8C7A /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -296,6 +296,7 @@
 				9407F7381A3CBA8500BE8C7A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

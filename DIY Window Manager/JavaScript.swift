@@ -26,6 +26,51 @@ class JSWindow: NSObject, JSWindowProtocol {
     }
 }
 
+@objc
+private protocol JSHotkeyProtocol: JSExport {
+    class func bind(key: NSString, mods: NSArray, downFn: JSValue) -> JSHotkey
+    func enable()
+}
+
+@objc
+class JSHotkey: NSObject, JSHotkeyProtocol {
+    let hotkey: Hotkey!
+    
+    init(key: String, mods: [String], downFn: JSValue?) {
+        super.init()
+        
+        let downCallback: Hotkey.Callback = {
+            downFn?.callWithArguments([])
+            return () // lol swift
+        }
+        
+        hotkey = Hotkey(key: key, modStrings: mods, downFn: downCallback, upFn: nil)
+    }
+    
+    class func bind(key: NSString, mods: NSArray, downFn: JSValue) -> JSHotkey {
+        println("welp")
+        let k = JSHotkey(key: key, mods: mods as [String], downFn: downFn)
+        k.hotkey.enable()
+        return k
+    }
+    
+    func enable() {
+        hotkey.enable()
+    }
+}
+
+@objc
+private protocol JSUtilsProtocol: JSExport {
+    class func print(str: AnyObject)
+}
+
+@objc
+class JSUtils: NSObject, JSUtilsProtocol {
+    class func print(str: AnyObject) {
+        println(str)
+    }
+}
+
 class JavaScript {
     
     let vm = JSVirtualMachine()
