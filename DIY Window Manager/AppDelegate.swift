@@ -5,6 +5,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
+        let x = LuaSingleton
+        
+        println(x)
+        
 //        let hotkey = Hotkey(key: "s", mods: [Hotkey.Mod.Command, Hotkey.Mod.Shift]) { println("woo!") }
 //        hotkey.enable()
 //        

@@ -40,3 +40,23 @@ struct Lua {
     }
     
 }
+
+let LuaSingleton = setupSingleton()
+
+let funcs: [String:Lua.Function] = [
+    "foo": { L in
+        
+        return 0
+    }
+]
+
+private func setupSingleton() -> Lua {
+    let L = Lua()
+    
+    for (name, fn) in funcs {
+        L.pushFunction(fn)
+        L.setGlobal(name)
+    }
+    
+    return L
+}
