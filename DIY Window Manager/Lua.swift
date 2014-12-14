@@ -45,8 +45,9 @@ let LuaSingleton = setupSingleton()
 
 let funcs: [String:Lua.Function] = [
     "foo": { L in
-        
-        return 0
+        println("woot!")
+        L.pushNumber(12)
+        return 1
     }
 ]
 
