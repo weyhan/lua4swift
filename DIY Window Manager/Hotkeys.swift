@@ -229,8 +229,8 @@ class Hotkey {
         let id = UInt32(enabledHotkeys.count)
         enabledHotkeys[id] = self
         
-        let mods = map(self.mods) { $0.toCarbonFlag() }
-        self.carbonHotkey = SDegutisRegisterHotkey(id, UInt32(code!), UInt32(reduce(mods, 0, |)))
+        let carbonModFlags = map(self.mods) { $0.toCarbonFlag() }
+        self.carbonHotkey = SDegutisRegisterHotkey(id, UInt32(code!), UInt32(reduce(carbonModFlags, 0, |)))
         
         return (true, "")
     }
