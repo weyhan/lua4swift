@@ -196,19 +196,10 @@ class Hotkey {
         
         static func fromString(str: String) -> Mod {
             switch str.lowercaseString {
-                
-            case "command": return Command
-            case "cmd": return Command
-                
-            case "control": return Control
-            case "ctrl": return Control
-                
-            case "option": return Option
-            case "opt": return Option
-            case "alt": return Option
-                
+            case "command", "cmd": return Command
+            case "control", "ctrl": return Control
+            case "option", "opt", "alt": return Option
             case "shift": return Shift // good old shift, only going by one name
-                
             default: return Invalid
             }
         }
