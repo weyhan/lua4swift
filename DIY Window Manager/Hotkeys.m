@@ -24,14 +24,8 @@ void SDegutisSetupHotkeyCallback(BOOL(^thing)(UInt32 i, BOOL down)) {
                         NULL);
 }
 
-void* SDegutisRegisterHotkey(UInt32 uid, UInt32 keycode, BOOL cmd, BOOL ctrl, BOOL shift, BOOL alt) {
+void* SDegutisRegisterHotkey(UInt32 uid, UInt32 keycode, UInt32 mods) {
     EventHotKeyID hotKeyID = {.signature = 1234, .id = uid};
-    
-    UInt32 mods = 0;
-    if (ctrl)  mods |= controlKey;
-    if (cmd)   mods |= cmdKey;
-    if (shift) mods |= shiftKey;
-    if (alt)   mods |= optionKey;
     
     EventHotKeyRef carbonHotKey;
     RegisterEventHotKey(keycode,

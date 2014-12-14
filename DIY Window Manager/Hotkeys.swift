@@ -191,6 +191,15 @@ class Hotkey {
         case Control
         case Option
         case Shift
+        
+        func toCarbonFlag() -> Int {
+            switch self {
+            case .Command: return cmdKey
+            case .Control: return controlKey
+            case .Option: return optionKey
+            case .Shift: return shiftKey
+            }
+        }
     }
     
     typealias Callback = () -> ()
@@ -220,15 +229,8 @@ class Hotkey {
         let id = UInt32(enabledHotkeys.count)
         enabledHotkeys[id] = self
         
-        let hk = SDegutisRegisterHotkey(
-            id,
-            UInt32(code!),
-            contains(self.mods, Mod.Command),
-            contains(self.mods, Mod.Control),
-            contains(self.mods, Mod.Shift),
-            contains(self.mods, Mod.Option))
-        
-        self.carbonHotkey = hk
+        let mods = map(self.mods) { $0.toCarbonFlag() }
+        self.carbonHotkey = SDegutisRegisterHotkey(id, UInt32(code!), UInt32(reduce(mods, 0, |)))
         
         return (true, "")
     }
