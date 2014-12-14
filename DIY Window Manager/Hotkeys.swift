@@ -192,12 +192,12 @@ class Hotkey {
         case Option
         case Shift
         
-        static func fromString(str: String) -> Mod? {
+        init?(_ str: String) {
             switch str.lowercaseString {
-            case "command", "cmd": return Command
-            case "control", "ctrl": return Control
-            case "option", "opt", "alt": return Option
-            case "shift": return Shift // good old shift, only going by one name
+            case "command", "cmd": self = Command
+            case "control", "ctrl": self = Control
+            case "option", "opt", "alt": self = Option
+            case "shift": self = Shift // good old shift, only going by one name
             default: return nil
             }
         }
@@ -222,7 +222,7 @@ class Hotkey {
     var carbonHotkey: UnsafeMutablePointer<Void>?
     
     convenience init(key: String, mods: [String], downFn: Callback, upFn: Callback? = nil) {
-        let mods: [Hotkey.Mod?] = mods.map(Hotkey.Mod.fromString)
+        let mods: [Mod?] = mods.map{Mod($0)}
         self.init(key: key, mods: mods, downFn: downFn, upFn: upFn)
     }
     
