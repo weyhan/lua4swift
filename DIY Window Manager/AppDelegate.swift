@@ -15,17 +15,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        
 //        return
         
-        let js = JavaScript()
-        
-        js["Window"] = JSWindow.self
-        js["Hotkey"] = JSHotkey.self
-        js["Utils"] = JSUtils.self
-        js.eval("print = Utils.print")
-        
-        println(js.eval("Hotkey"))
-        println(js.eval("Hotkey.bind"))
-        
-        println(js.eval("Hotkey.bind('s', ['cmd', 'shift'], function() { print('foo') })"))
+//        let js = JavaScript()
+//        
+//        js["Window"] = JSWindow.self
+//        js["Hotkey"] = JSHotkey.self
+//        js["Utils"] = JSUtils.self
+//        js.eval("print = Utils.print")
+//        
+//        println(js.eval("Hotkey"))
+//        println(js.eval("Hotkey.bind"))
+//        
+//        println(js.eval("Hotkey.bind('s', ['cmd', 'shift'], function() { print('foo') })"))
 //        println(js.eval("Window.focusedWindow().title()"))
     }
     
