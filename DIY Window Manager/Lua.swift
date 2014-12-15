@@ -3,6 +3,7 @@ import Foundation
 protocol LuaValueConvertible {}
 extension String: LuaValueConvertible {}
 extension Double: LuaValueConvertible {}
+extension Int64: LuaValueConvertible {}
 extension Lua.FunctionWrapper: LuaValueConvertible {}
 
 class Lua {
@@ -51,6 +52,10 @@ class Lua {
         lua_pushnumber(L, n)
     }
     
+    func pushInteger(n: Int64) {
+        lua_pushinteger(L, n)
+    }
+    
     func pushString(s: String) {
         lua_pushstring(L, (s as NSString).UTF8String)
     }
@@ -76,6 +81,9 @@ class Lua {
     
     func push(value: LuaValueConvertible) {
         switch value {
+        case let n as Int64:
+            pushInteger(n)
+            break
         case let n as Double:
             pushNumber(n)
             break
@@ -105,7 +113,7 @@ func testLua() {
             L.pushNumber(L.toNumber(1)! + 1)
             return 1
         })),
-        ("foo", 17.1),
+        ("foo", 17),
     ]
     
     let L = Lua(openLibs: true)
