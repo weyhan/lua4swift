@@ -12,9 +12,6 @@ class Lua {
         case Integer(Swift.Int64)
         case Double(Swift.Double)
         case Function(Lua.Function)
-        
-        init(n: Swift.Int64) { self = Integer(n) }
-        init(fn: Lua.Function) { self = Function(fn) }
     }
     
     init(openLibs: Bool = true) {
