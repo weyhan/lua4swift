@@ -5,13 +5,16 @@ class Lua {
     let L = luaL_newstate()
     
     typealias Function = (Lua) -> Int
-    typealias Definitions = [(String, Type)]
+    typealias Definitions = [(String, Value)]
     
-    enum Type {
+    enum Value {
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
         case Function(Lua.Function)
+        
+        init(_ n: Swift.Int64) { self = .Integer(n) }
+        init(_ fn: Lua.Function) { self = .Function(fn) }
     }
     
     init(openLibs: Bool = true) {
@@ -70,7 +73,7 @@ class Lua {
         return n
     }
     
-    func push(value: Type) {
+    func push(value: Value) {
         switch value {
         case let .Integer(n):
             pushInteger(n)
@@ -100,11 +103,11 @@ class Lua {
 
 func testLua() {
     let hotkeyLib: Lua.Definitions = [
-        ("bind", .Function({ L in
+        ("bind", Lua.Value({ L in
             L.pushNumber(L.toNumber(1)! + 1)
             return 1
         })),
-        ("foo", .Integer(17)),
+        ("foo", Lua.Value(17)),
     ]
     
     let L = Lua(openLibs: true)
