@@ -31,17 +31,7 @@ class Lua {
         if openLibs { luaL_openlibs(L) }
     }
     
-    func pushFunction(fn: Function, upvalues: Int = 0) {
-        let f: @objc_block (COpaquePointer) -> Int32 = { L in Int32(fn(self)) }
-        let block: AnyObject = unsafeBitCast(f, AnyObject.self)
-        let imp = imp_implementationWithBlock(block)
-        let fp = unsafeBitCast(imp, CFunctionPointer<(COpaquePointer) -> Int32>.self)
-        lua_pushcclosure(L, fp, Int32(upvalues))
-    }
-    
-    func setGlobal(name: String) {
-        lua_setglobal(L, (name as NSString).UTF8String)
-    }
+    // eval
     
     func loadString(str: String) {
         luaL_loadstring(L, (str as NSString).UTF8String)
@@ -52,29 +42,21 @@ class Lua {
         call(arguments: 0, returnValues: Int(LUA_MULTRET))
     }
     
-    func pushNumber(n: Double) {
-        lua_pushnumber(L, n)
-    }
-    
-    func pushInteger(n: Int64) {
-        lua_pushinteger(L, n)
-    }
-    
-    func pushString(s: String) {
-        lua_pushstring(L, (s as NSString).UTF8String)
-    }
-    
     func call(arguments: Int = 0, returnValues: Int = 0) {
         lua_pcallk(L, Int32(arguments), Int32(returnValues), 0, 0, nil)
+    }
+    
+    // set
+    
+    func setGlobal(name: String) {
+        lua_setglobal(L, (name as NSString).UTF8String)
     }
     
     func setField(name: String, table: Int) {
         lua_setfield(L, Int32(table), (name as NSString).UTF8String)
     }
     
-    func newTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
-        lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
-    }
+    // get
     
     func toNumber(position: Int) -> Double? {
         var isNumber: Int32 = 0
@@ -89,6 +71,8 @@ class Lua {
         let str = lua_tolstring(L, Int32(position), &len)
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
+    
+    // push
     
     func push(value: Value) {
         switch value {
@@ -105,8 +89,12 @@ class Lua {
         }
     }
     
+    func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
+        lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
+    }
+    
     func pushTable(table: Table) {
-        newTable(keyCapacity: table.count)
+        pushTable(keyCapacity: table.count)
         let i = lua_absindex(L, -1) // overkill? dunno.
         for (key, value) in table {
             push(key)
@@ -115,13 +103,33 @@ class Lua {
         }
     }
     
+    func pushNumber(n: Double) {
+        lua_pushnumber(L, n)
+    }
+    
+    func pushInteger(n: Int64) {
+        lua_pushinteger(L, n)
+    }
+    
+    func pushString(s: String) {
+        lua_pushstring(L, (s as NSString).UTF8String)
+    }
+    
+    func pushFunction(fn: Function, upvalues: Int = 0) {
+        let f: @objc_block (COpaquePointer) -> Int32 = { L in Int32(fn(self)) }
+        let block: AnyObject = unsafeBitCast(f, AnyObject.self)
+        let imp = imp_implementationWithBlock(block)
+        let fp = unsafeBitCast(imp, CFunctionPointer<(COpaquePointer) -> Int32>.self)
+        lua_pushcclosure(L, fp, Int32(upvalues))
+    }
+    
 }
 
 
 func testLua() {
     let L = Lua(openLibs: true)
     
-    let t = [
+    let hotkeyLib = %[
         (%"bind", %{ L in
             L.pushNumber(L.toNumber(1)! + 1)
             L.pushString("bla")
@@ -133,8 +141,7 @@ func testLua() {
         (%"foo", %17)
     ]
     
-    L.pushTable(t)
-    
+    L.push(hotkeyLib)
     L.setGlobal("Hotkey")
     
     L.doString("return Hotkey.bind")
