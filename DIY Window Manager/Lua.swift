@@ -5,7 +5,6 @@ class Lua {
     let L = luaL_newstate()
     
     typealias Function = (Lua) -> Int
-    typealias Definitions = [(String, Value)]
     
     enum Value {
         case String(Swift.String)
@@ -93,9 +92,9 @@ class Lua {
         }
     }
     
-    func newLib(defs: Definitions) {
-        newTable(keyCapacity: defs.count)
-        for (name, x) in defs {
+    func pushTable(pairs: (String, Value)...) {
+        newTable(keyCapacity: pairs.count)
+        for (name, x) in pairs {
             push(x)
             setField(name, table: -2)
         }
@@ -105,18 +104,17 @@ class Lua {
 
 
 func testLua() {
-    let hotkeyLib: Lua.Definitions = [
+    let L = Lua(openLibs: true)
+    
+    L.pushTable(
         ("bind", Lua.Value({ L in
             L.pushNumber(L.toNumber(1)! + 1)
             L.pushString("bla")
             return 2
         })),
-        ("foo", Lua.Value(17)),
-    ]
+        ("foo", Lua.Value(17))
+    )
     
-    let L = Lua(openLibs: true)
-    
-    L.newLib(hotkeyLib)
     L.setGlobal("Hotkey")
     
     L.doString("return Hotkey.bind")
