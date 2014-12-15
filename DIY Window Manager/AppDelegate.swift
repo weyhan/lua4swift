@@ -6,6 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
         testLua()
+        NSApplication.sharedApplication().terminate(nil)
         
 //        let hotkey = Hotkey(key: "s", mods: [Hotkey.Mod.Command, Hotkey.Mod.Shift]) { println("woo!") }
 //        hotkey.enable()

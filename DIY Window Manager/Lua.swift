@@ -20,7 +20,7 @@ class Lua {
     
     func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: CFunction = { L in Int32(fn(self)) }
-        lua_pushcclosure(L, SDLuaTrampoline(f), Int32(upvalues))
+        lua_pushcclosure(L, SDegutisLuaTrampoline(f), Int32(upvalues))
     }
     
     func setGlobal(name: String) {
@@ -29,6 +29,11 @@ class Lua {
     
     func loadString(str: String) {
         luaL_loadstring(L, (str as NSString).UTF8String)
+    }
+    
+    func doString(str: String) {
+        loadString(str)
+        call(arguments: 0, returnValues: Int(LUA_MULTRET))
     }
     
     func pushNumber(n: Double) {
@@ -74,11 +79,7 @@ class Lua {
 func testLua() {
     let hotkeyLib: Lua.Definitions = [
         "bind": .Fn({ L in
-            println(L)
-            println(lua_gettop(L.L))
-            let n = L.toNumber(1)
-            println(n)
-            L.pushNumber(n! + 1)
+            L.pushNumber(L.toNumber(1)! + 1)
             return 1
         }),
         "foo": .Number(17.1)
@@ -89,9 +90,9 @@ func testLua() {
     L.newLib(hotkeyLib)
     L.setGlobal("Hotkey")
     
-    L.loadString("return Hotkey.foo")
-//    L.pushNumber(3)
-    L.call(arguments: 0, returnValues: 1)
+    L.doString("return Hotkey.bind")
+    L.doString("return Hotkey.foo")
+    L.call(arguments: 1, returnValues: 1)
     
     println(L.toNumber(-1))
 }
