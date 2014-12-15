@@ -73,6 +73,13 @@ class Lua {
         return n
     }
     
+    func toString(position: Int) -> String? {
+        if lua_isstring(L, Int32(position)) == 0 { return nil }
+        var len: UInt = 0
+        let str = lua_tolstring(L, Int32(position), &len)
+        return NSString(CString: str, encoding: NSUTF8StringEncoding)
+    }
+    
     func push(value: Value) {
         switch value {
         case let .Integer(n):
@@ -85,8 +92,6 @@ class Lua {
             pushFunction(fn)
         case let .String(s):
             pushString(s)
-        default:
-            break
         }
     }
     
@@ -105,7 +110,8 @@ func testLua() {
     let hotkeyLib: Lua.Definitions = [
         ("bind", Lua.Value({ L in
             L.pushNumber(L.toNumber(1)! + 1)
-            return 1
+            L.pushString("bla")
+            return 2
         })),
         ("foo", Lua.Value(17)),
     ]
@@ -117,7 +123,8 @@ func testLua() {
     
     L.doString("return Hotkey.bind")
     L.doString("return Hotkey.foo")
-    L.call(arguments: 1, returnValues: 1)
+    L.call(arguments: 1, returnValues: 2)
     
-    println(L.toNumber(-1))
+    println(L.toNumber(-2))
+    println(L.toString(-1))
 }
