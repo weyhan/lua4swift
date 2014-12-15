@@ -11,8 +11,10 @@ class Lua {
         case Integer(Swift.Int64)
         case Double(Swift.Double)
         case Function(Lua.Function)
+        case Table([(Value, Value)])
         
         init(_ n: Swift.Int64) { self = .Integer(n) }
+        init(_ n: Swift.String) { self = .String(n) }
         init(_ fn: Lua.Function) { self = .Function(fn) }
     }
     
@@ -89,14 +91,18 @@ class Lua {
             pushFunction(fn)
         case let .String(s):
             pushString(s)
+        case let .Table(t):
+            pushTable(t)
         }
     }
     
-    func pushTable(pairs: (String, Value)...) {
+    func pushTable(pairs: [(Value, Value)]) {
         newTable(keyCapacity: pairs.count)
-        for (name, x) in pairs {
-            push(x)
-            setField(name, table: -2)
+        let i = lua_absindex(L, -1) // overkill? dunno.
+        for (k, v) in pairs {
+            push(k)
+            push(v)
+            lua_settable(L, i)
         }
     }
     
@@ -106,14 +112,19 @@ class Lua {
 func testLua() {
     let L = Lua(openLibs: true)
     
-    L.pushTable(
-        ("bind", Lua.Value({ L in
+    let t = [
+        (Lua.Value("bind"), Lua.Value({ L in
             L.pushNumber(L.toNumber(1)! + 1)
             L.pushString("bla")
             return 2
         })),
-        ("foo", Lua.Value(17))
-    )
+        (Lua.Value("t"), .Table([
+            (Lua.Value("bar"), Lua.Value(27))
+            ])),
+        (Lua.Value("foo"), Lua.Value(17))
+    ]
+    
+    L.pushTable(t)
     
     L.setGlobal("Hotkey")
     
