@@ -1,11 +1,18 @@
 import Foundation
 
-struct Lua {
+class Lua {
     
     let L = luaL_newstate()
     
-    private typealias CFunction = (COpaquePointer) -> Int32
+    enum Type {
+        case Number(Double)
+        case Fn(Function)
+    }
+    
     typealias Function = (Lua) -> Int
+    typealias Definitions = [String: Type]
+    
+    private typealias CFunction = (COpaquePointer) -> Int32
     
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
@@ -36,8 +43,8 @@ struct Lua {
         lua_setfield(L, Int32(table), (name as NSString).UTF8String)
     }
     
-    func newTable(sequenceCapacity: Int = 0, otherCapacity: Int = 0) {
-        lua_createtable(L, Int32(sequenceCapacity), Int32(otherCapacity))
+    func newTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
+        lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
     }
     
     func toNumber(position: Int) -> Double? {
@@ -47,30 +54,44 @@ struct Lua {
         return n
     }
     
+    func newLib(defs: Definitions) {
+        newTable(keyCapacity: defs.count)
+        for (name, x) in defs {
+            switch x {
+            case let .Number(n):
+                pushNumber(n)
+                break
+            case let .Fn(fn):
+                pushFunction(fn)
+            }
+            setField(name, table: -2)
+        }
+    }
+    
 }
 
 
 func testLua() {
-    let funcs: [String:Lua.Function] = [
-        "foo": { L in
-            println("woot!")
-            L.pushNumber(12)
+    let hotkeyLib: Lua.Definitions = [
+        "bind": .Fn({ L in
+            println(L)
+            println(lua_gettop(L.L))
+            let n = L.toNumber(1)
+            println(n)
+            L.pushNumber(n! + 1)
             return 1
-        }
+        }),
+        "foo": .Number(17.1)
     ]
     
-    let L = Lua()
+    let L = Lua(openLibs: true)
     
-    L.newTable(otherCapacity: funcs.count)
+    L.newLib(hotkeyLib)
+    L.setGlobal("Hotkey")
     
-    for (name, fn) in funcs {
-        L.pushFunction(fn)
-        L.setField(name, table: -2)
-    }
-    
-    L.setGlobal("haha")
-    
-    L.loadString("return haha.foo()")
+    L.loadString("return Hotkey.foo")
+//    L.pushNumber(3)
     L.call(arguments: 0, returnValues: 1)
+    
     println(L.toNumber(-1))
 }
