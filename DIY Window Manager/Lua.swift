@@ -1,21 +1,30 @@
 import Foundation
 
+prefix operator % { }
+prefix func % (x: Int64) -> Lua.Value { return Lua.Value(x) }
+prefix func % (x: String) -> Lua.Value { return Lua.Value(x) }
+prefix func % (x: Lua.Function) -> Lua.Value { return Lua.Value(x) }
+prefix func % (x: Lua.Table) -> Lua.Value { return Lua.Value(x) }
+
 class Lua {
     
     let L = luaL_newstate()
     
     typealias Function = (Lua) -> Int
+    typealias Table = [(Value, Value)]
     
     enum Value {
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
         case Function(Lua.Function)
-        case Table([(Value, Value)])
+        case Table(Lua.Table)
         
-        init(_ n: Swift.Int64) { self = .Integer(n) }
         init(_ n: Swift.String) { self = .String(n) }
+        init(_ n: Swift.Int64) { self = .Integer(n) }
+        init(_ n: Swift.Double) { self = .Double(n) }
         init(_ fn: Lua.Function) { self = .Function(fn) }
+        init(_ fn: Lua.Table) { self = .Table(fn) }
     }
     
     init(openLibs: Bool = true) {
@@ -96,12 +105,12 @@ class Lua {
         }
     }
     
-    func pushTable(pairs: [(Value, Value)]) {
-        newTable(keyCapacity: pairs.count)
+    func pushTable(table: Table) {
+        newTable(keyCapacity: table.count)
         let i = lua_absindex(L, -1) // overkill? dunno.
-        for (k, v) in pairs {
-            push(k)
-            push(v)
+        for (key, value) in table {
+            push(key)
+            push(value)
             lua_settable(L, i)
         }
     }
@@ -113,15 +122,15 @@ func testLua() {
     let L = Lua(openLibs: true)
     
     let t = [
-        (Lua.Value("bind"), Lua.Value({ L in
+        (%"bind", %{ L in
             L.pushNumber(L.toNumber(1)! + 1)
             L.pushString("bla")
             return 2
-        })),
-        (Lua.Value("t"), .Table([
-            (Lua.Value("bar"), Lua.Value(27))
-            ])),
-        (Lua.Value("foo"), Lua.Value(17))
+            }),
+        (%"t", %[
+            (%"bar", %27)
+            ]),
+        (%"foo", %17)
     ]
     
     L.pushTable(t)
