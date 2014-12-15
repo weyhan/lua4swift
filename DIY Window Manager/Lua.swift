@@ -1,26 +1,20 @@
 import Foundation
 
-protocol LuaValueConvertible {}
-extension String: LuaValueConvertible {}
-extension Double: LuaValueConvertible {}
-extension Int64: LuaValueConvertible {}
-extension Lua.FunctionWrapper: LuaValueConvertible {}
-
 class Lua {
     
     let L = luaL_newstate()
     
     typealias Function = (Lua) -> Int
-    typealias Definitions = [(String, LuaValueConvertible)]
-    
-    struct FunctionWrapper { // dang Swift
-        let fn: Function
-        init(_ f: Function) { fn = f }
-    }
+    typealias Definitions = [(String, Type)]
     
     enum Type {
-        case Number(Double)
-        case Fn(Function)
+        case String(Swift.String)
+        case Integer(Swift.Int64)
+        case Double(Swift.Double)
+        case Function(Lua.Function)
+        
+        init(n: Swift.Int64) { self = Integer(n) }
+        init(fn: Lua.Function) { self = Function(fn) }
     }
     
     init(openLibs: Bool = true) {
@@ -79,17 +73,17 @@ class Lua {
         return n
     }
     
-    func push(value: LuaValueConvertible) {
+    func push(value: Type) {
         switch value {
-        case let n as Int64:
+        case let .Integer(n):
             pushInteger(n)
             break
-        case let n as Double:
+        case let .Double(n):
             pushNumber(n)
             break
-        case let fn as FunctionWrapper:
-            pushFunction(fn.fn)
-        case let s as String:
+        case let .Function(fn):
+            pushFunction(fn)
+        case let .String(s):
             pushString(s)
         default:
             break
@@ -109,11 +103,11 @@ class Lua {
 
 func testLua() {
     let hotkeyLib: Lua.Definitions = [
-        ("bind", Lua.FunctionWrapper({ L in
+        ("bind", .Function({ L in
             L.pushNumber(L.toNumber(1)! + 1)
             return 1
         })),
-        ("foo", 17),
+        ("foo", .Integer(17)),
     ]
     
     let L = Lua(openLibs: true)
