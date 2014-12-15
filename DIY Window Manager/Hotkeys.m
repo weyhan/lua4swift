@@ -25,7 +25,7 @@ void SDegutisSetupHotkeyCallback(BOOL(^thing)(UInt32 i, BOOL down)) {
 }
 
 void* SDegutisRegisterHotkey(UInt32 uid, UInt32 keycode, UInt32 mods) {
-    EventHotKeyID hotKeyID = {.signature = 1234, .id = uid};
+    EventHotKeyID hotKeyID = {.signature = 'DYWM', .id = uid};
     
     EventHotKeyRef carbonHotKey;
     RegisterEventHotKey(keycode,
