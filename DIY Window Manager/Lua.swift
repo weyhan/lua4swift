@@ -129,7 +129,7 @@ func testLua() {
     L.setGlobal("Hotkey")
     
     L.doString("return Hotkey.bind")
-    L.doString("return Hotkey.foo")
+    L.doString("return Hotkey.t.bar")
     L.call(arguments: 1, returnValues: 2)
     
     println(L.toNumber(-2))
