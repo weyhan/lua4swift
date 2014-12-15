@@ -6,44 +6,14 @@ prefix func % (x: String) -> Lua.Value { return Lua.Value(x) }
 prefix func % (x: Lua.Function) -> Lua.Value { return Lua.Value(x) }
 prefix func % (x: Lua.Table) -> Lua.Value { return Lua.Value(x) }
 
-func == (lhs: Lua.Value, rhs: Lua.Value) -> Bool {
-    switch lhs {
-    case let .Integer(x):
-        switch rhs {
-        case let .Integer(y): return x == y
-        default: return false
-        }
-    case let .Double(x):
-        switch rhs {
-        case let .Double(y): return x == y
-        default: return false
-        }
-    case let .Function(x):
-        switch rhs {
-        case let .Function(y): return unsafeBitCast(x, UnsafeMutablePointer<Void>.self) == unsafeBitCast(y, UnsafeMutablePointer<Void>.self)
-        default: return false
-        }
-    case let .String(x):
-        switch rhs {
-        case let .String(y): return x == y
-        default: return false
-        }
-    case let .Table(x):
-        switch rhs {
-        case let .Table(y): return x == y
-        default: return false
-        }
-    }
-}
-
 class Lua {
     
     let L = luaL_newstate()
     
     typealias Function = (Lua) -> Int
-    typealias Table = [Value: Value]
+    typealias Table = [(Value, Value)]
     
-    enum Value: Hashable, Equatable {
+    enum Value {
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
@@ -55,16 +25,6 @@ class Lua {
         init(_ n: Swift.Double) { self = .Double(n) }
         init(_ fn: Lua.Function) { self = .Function(fn) }
         init(_ fn: Lua.Table) { self = .Table(fn) }
-        
-        var hashValue: Int {
-            switch self {
-            case let .Integer(x): return x.hashValue
-            case let .Double(x): return x.hashValue
-            case let .Function(x): return unsafeBitCast(x, Int.self)
-            case let .String(x): return x.hashValue
-            case let .Table(x): return unsafeBitCast(x, Int.self)
-            }
-        }
     }
     
     init(openLibs: Bool = true) {
@@ -116,11 +76,16 @@ class Lua {
     
     func push(value: Value) {
         switch value {
-        case let .Integer(n): pushInteger(n)
-        case let .Double(n): pushNumber(n)
-        case let .Function(fn): pushFunction(fn)
-        case let .String(s): pushString(s)
-        case let .Table(t): pushTable(t)
+        case let .Integer(n):
+            pushInteger(n)
+        case let .Double(n):
+            pushNumber(n)
+        case let .Function(fn):
+            pushFunction(fn)
+        case let .String(s):
+            pushString(s)
+        case let .Table(t):
+            pushTable(t)
         }
     }
     
@@ -165,15 +130,15 @@ func testLua() {
     let L = Lua(openLibs: true)
     
     let hotkeyLib = %[
-        %"bind": %{ L in
+        (%"bind", %{ L in
             L.pushNumber(L.toNumber(1)! + 1)
             L.pushString("bla")
             return 2
-        },
-        %"t": %[
-            %"bar": %27
-        ],
-        %"foo": %17,
+            }),
+        (%"t", %[
+            (%"bar", %27)
+            ]),
+        (%"foo", %17)
     ]
     
     L.push(hotkeyLib)
