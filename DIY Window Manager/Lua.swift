@@ -12,15 +12,16 @@ class Lua {
     typealias Function = (Lua) -> Int
     typealias Definitions = [String: Type]
     
-    private typealias CFunction = (COpaquePointer) -> Int32
-    
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
     }
     
     func pushFunction(fn: Function, upvalues: Int = 0) {
-        let f: CFunction = { L in Int32(fn(self)) }
-        lua_pushcclosure(L, SDegutisLuaTrampoline(f), Int32(upvalues))
+        let f: @objc_block (COpaquePointer) -> Int32 = { L in Int32(fn(self)) }
+        let block: AnyObject = unsafeBitCast(f, AnyObject.self)
+        let imp = imp_implementationWithBlock(block)
+        let fp = unsafeBitCast(imp, CFunctionPointer<(COpaquePointer) -> Int32>.self)
+        lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
     func setGlobal(name: String) {

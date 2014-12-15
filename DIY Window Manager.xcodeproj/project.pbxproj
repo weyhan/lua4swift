@@ -13,7 +13,6 @@
 		9407F73D1A3CBBBD00BE8C7A /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */; };
 		9407F73F1A3CBD7C00BE8C7A /* Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F73E1A3CBD7C00BE8C7A /* Hotkeys.swift */; };
 		9407F7441A3CBD9900BE8C7A /* Hotkeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7411A3CBD9900BE8C7A /* Hotkeys.m */; };
-		946DA8FA1A3E397B009C841F /* LuaSwift.m in Sources */ = {isa = PBXBuildFile; fileRef = 946DA8F91A3E397B009C841F /* LuaSwift.m */; };
 		946DA9371A3E39B6009C841F /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 946DA8FC1A3E39B5009C841F /* lapi.c */; };
 		946DA9381A3E39B6009C841F /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 946DA8FE1A3E39B5009C841F /* lauxlib.c */; };
 		946DA9391A3E39B6009C841F /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 946DA9001A3E39B5009C841F /* lbaselib.c */; };
@@ -61,8 +60,6 @@
 		9407F7411A3CBD9900BE8C7A /* Hotkeys.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Hotkeys.m; sourceTree = "<group>"; };
 		9407F7421A3CBD9900BE8C7A /* Hotkeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hotkeys.h; sourceTree = "<group>"; };
 		9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DIY Window Manager-Bridging-Header.h"; sourceTree = "<group>"; };
-		946DA8F81A3E397B009C841F /* LuaSwift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaSwift.h; sourceTree = "<group>"; };
-		946DA8F91A3E397B009C841F /* LuaSwift.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LuaSwift.m; sourceTree = "<group>"; };
 		946DA8FC1A3E39B5009C841F /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
 		946DA8FD1A3E39B5009C841F /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
 		946DA8FE1A3E39B5009C841F /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
@@ -246,8 +243,6 @@
 			isa = PBXGroup;
 			children = (
 				9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */,
-				946DA8F81A3E397B009C841F /* LuaSwift.h */,
-				946DA8F91A3E397B009C841F /* LuaSwift.m */,
 				9407F7411A3CBD9900BE8C7A /* Hotkeys.m */,
 				9407F7421A3CBD9900BE8C7A /* Hotkeys.h */,
 			);
@@ -353,7 +348,6 @@
 				9407F73D1A3CBBBD00BE8C7A /* Accessibility.swift in Sources */,
 				9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */,
 				9407F73F1A3CBD7C00BE8C7A /* Hotkeys.swift in Sources */,
-				946DA8FA1A3E397B009C841F /* LuaSwift.m in Sources */,
 				946DA93C1A3E39B6009C841F /* lcorolib.c in Sources */,
 				946DA9531A3E39B6009C841F /* ltm.c in Sources */,
 				946DA9471A3E39B6009C841F /* lmathlib.c in Sources */,
