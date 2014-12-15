@@ -5,10 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let x = LuaSingleton
-        x.loadString("return foo()")
-        x.call(arguments: 0, returnValues: 1)
-        println(x.toNumber(-1))
+        testLua()
         
 //        let hotkey = Hotkey(key: "s", mods: [Hotkey.Mod.Command, Hotkey.Mod.Shift]) { println("woo!") }
 //        hotkey.enable()

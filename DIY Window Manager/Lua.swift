@@ -32,6 +32,14 @@ struct Lua {
         lua_pcallk(L, Int32(arguments), Int32(returnValues), 0, 0, nil)
     }
     
+    func setField(name: String, table: Int) {
+        lua_setfield(L, Int32(table), (name as NSString).UTF8String)
+    }
+    
+    func newTable(sequenceCapacity: Int = 0, otherCapacity: Int = 0) {
+        lua_createtable(L, Int32(sequenceCapacity), Int32(otherCapacity))
+    }
+    
     func toNumber(position: Int) -> Double? {
         var isNumber: Int32 = 0
         let n = lua_tonumberx(L, Int32(position), &isNumber)
@@ -41,23 +49,28 @@ struct Lua {
     
 }
 
-let LuaSingleton = setupSingleton()
 
-let funcs: [String:Lua.Function] = [
-    "foo": { L in
-        println("woot!")
-        L.pushNumber(12)
-        return 1
-    }
-]
-
-private func setupSingleton() -> Lua {
+func testLua() {
+    let funcs: [String:Lua.Function] = [
+        "foo": { L in
+            println("woot!")
+            L.pushNumber(12)
+            return 1
+        }
+    ]
+    
     let L = Lua()
+    
+    L.newTable(otherCapacity: funcs.count)
     
     for (name, fn) in funcs {
         L.pushFunction(fn)
-        L.setGlobal(name)
+        L.setField(name, table: -2)
     }
     
-    return L
+    L.setGlobal("haha")
+    
+    L.loadString("return haha.foo()")
+    L.call(arguments: 0, returnValues: 1)
+    println(L.toNumber(-1))
 }
