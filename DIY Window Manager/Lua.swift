@@ -1,16 +1,26 @@
 import Foundation
 
+protocol LuaValueConvertible {}
+extension String: LuaValueConvertible {}
+extension Double: LuaValueConvertible {}
+extension Lua.FunctionWrapper: LuaValueConvertible {}
+
 class Lua {
     
     let L = luaL_newstate()
+    
+    typealias Function = (Lua) -> Int
+    typealias Definitions = [(String, LuaValueConvertible)]
+    
+    struct FunctionWrapper { // dang Swift
+        let fn: Function
+        init(_ f: Function) { fn = f }
+    }
     
     enum Type {
         case Number(Double)
         case Fn(Function)
     }
-    
-    typealias Function = (Lua) -> Int
-    typealias Definitions = [String: Type]
     
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
@@ -41,6 +51,10 @@ class Lua {
         lua_pushnumber(L, n)
     }
     
+    func pushString(s: String) {
+        lua_pushstring(L, (s as NSString).UTF8String)
+    }
+    
     func call(arguments: Int = 0, returnValues: Int = 0) {
         lua_pcallk(L, Int32(arguments), Int32(returnValues), 0, 0, nil)
     }
@@ -60,16 +74,24 @@ class Lua {
         return n
     }
     
+    func push(value: LuaValueConvertible) {
+        switch value {
+        case let n as Double:
+            pushNumber(n)
+            break
+        case let fn as FunctionWrapper:
+            pushFunction(fn.fn)
+        case let s as String:
+            pushString(s)
+        default:
+            break
+        }
+    }
+    
     func newLib(defs: Definitions) {
         newTable(keyCapacity: defs.count)
         for (name, x) in defs {
-            switch x {
-            case let .Number(n):
-                pushNumber(n)
-                break
-            case let .Fn(fn):
-                pushFunction(fn)
-            }
+            push(x)
             setField(name, table: -2)
         }
     }
@@ -79,11 +101,11 @@ class Lua {
 
 func testLua() {
     let hotkeyLib: Lua.Definitions = [
-        "bind": .Fn({ L in
+        ("bind", Lua.FunctionWrapper({ L in
             L.pushNumber(L.toNumber(1)! + 1)
             return 1
-        }),
-        "foo": .Number(17.1)
+        })),
+        ("foo", 17.1),
     ]
     
     let L = Lua(openLibs: true)
