@@ -84,10 +84,8 @@ class Lua {
         switch value {
         case let .Integer(n):
             pushInteger(n)
-            break
         case let .Double(n):
             pushNumber(n)
-            break
         case let .Function(fn):
             pushFunction(fn)
         case let .String(s):
