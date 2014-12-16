@@ -15,6 +15,40 @@ class Lua {
     typealias Table = [(Value, Value)]
     
     enum Value: NilLiteralConvertible {
+        enum Kind {
+            case String
+            case Number
+            case Bool
+            case Function
+            case Table
+            case Nil
+            case None
+            
+            init(_ t: Int32) {
+                switch t {
+                case LUA_TSTRING: self = .String
+                case LUA_TNUMBER: self = .Number
+                case LUA_TBOOLEAN: self = .Bool
+                case LUA_TFUNCTION: self = .Function
+                case LUA_TTABLE: self = .Table
+                case LUA_TNIL: self = .Nil
+                default: self = None
+                }
+            }
+            
+            func toLuaType() -> Int32 {
+                switch self {
+                case String: return LUA_TSTRING
+                case Number: return LUA_TNUMBER
+                case Bool: return LUA_TBOOLEAN
+                case Function: return LUA_TFUNCTION
+                case Table: return LUA_TTABLE
+                case Nil: return LUA_TNIL
+                default: return LUA_TNONE
+                }
+            }
+        }
+        
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
@@ -30,6 +64,18 @@ class Lua {
         init(_ x: Lua.Function) { self = .Function(x) }
         init(_ x: Lua.Table) { self = .Table(x) }
         init(nilLiteral: ()) { self = Nil }
+        
+        func toKind() -> Kind {
+            switch self {
+            case String: return .String
+            case Integer: return .Number
+            case Double: return .Number
+            case Bool: return .Bool
+            case Function: return .Function
+            case Table: return .Table
+            case Nil: return .Nil
+            }
+        }
     }
     
     init(openLibs: Bool = true) {
@@ -61,22 +107,14 @@ class Lua {
         lua_setfield(L, Int32(table), (name as NSString).UTF8String)
     }
     
-    // get
+    // helpers
     
-    func toNumber(position: Int) -> Double? {
-        if lua_isnumber(L, Int32(position)) == 0 { return nil }
-        return lua_tonumberx(L, Int32(position), nil)
-    }
-    
-    func toString(position: Int) -> String? {
-        if lua_isstring(L, Int32(position)) == 0 { return nil }
-        var len: UInt = 0
-        let str = lua_tolstring(L, Int32(position), &len)
-        return NSString(CString: str, encoding: NSUTF8StringEncoding)
-    }
-    
-    func toBool(position: Int) -> Bool {
-        return lua_toboolean(L, Int32(position)) != 0
+    private func get<T>(position: Int, _ type: Value.Kind, _ checkType: Bool, _ f: () -> T) -> T? {
+        if Value.Kind(lua_type(L, Int32(position))) != type {
+            if checkType { luaL_checktype(L, Int32(position), type.toLuaType()) }
+            return nil
+        }
+        return f()
     }
     
     func get(position: Int) -> Value? {
@@ -100,6 +138,26 @@ class Lua {
         }
     }
     
+    // get
+    
+    func toNumber(position: Int, useArgError: Bool = false) -> Double? {
+        return get(position, Value.Kind.Number, useArgError) {
+            return lua_tonumberx(self.L, Int32(position), nil)
+        }
+    }
+    
+    func toString(position: Int, useArgError: Bool = false) -> String? {
+        return get(position, .String, true) {
+            var len: UInt = 0
+            let str = lua_tolstring(self.L, Int32(position), &len)
+            return NSString(CString: str, encoding: NSUTF8StringEncoding)!
+        }
+    }
+    
+    func toBool(position: Int) -> Bool {
+        return lua_toboolean(L, Int32(position)) != 0
+    }
+    
     func toTable(position: Int) -> Table? {
         if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
         var t = Table()
@@ -110,6 +168,12 @@ class Lua {
             pop(1)
         }
         return t
+    }
+    
+    // check
+    
+    func check(position: Int, type: Int32) {
+        
     }
     
     // pop
@@ -189,7 +253,7 @@ func testLua() {
     
     let hotkeyLib = %[
         (%"new", %{ L in
-            let key = L.toString(1)
+            let key = L.toString(1, useArgError: true)
             let mods = L.toTable(2)
             luaL_checktype(L.L, 3, LUA_TFUNCTION)
             
