@@ -78,8 +78,8 @@ class Lua {
     
     func get(position: Int) -> Value? {
         switch lua_type(L, Int32(position)) {
-//        case LUA_TNIL:
-//            break
+        case LUA_TNIL:
+            return Value.Nil
 //        case LUA_TBOOLEAN:
 //            break
 //        case LUA_TLIGHTUSERDATA:
