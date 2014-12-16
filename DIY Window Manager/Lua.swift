@@ -75,10 +75,6 @@ class Lua {
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
     
-    func toFunction(position: Int) {
-        
-    }
-    
     func toBool(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
@@ -89,19 +85,15 @@ class Lua {
             return Value.Nil
         case LUA_TBOOLEAN:
             return Value(toBool(position))
-//        case LUA_TLIGHTUSERDATA:
-//            break
         case LUA_TNUMBER:
             return Value(toNumber(position)!)
         case LUA_TSTRING:
             return Value(toString(position)!)
         case LUA_TTABLE:
             return Value(toTable(position)!)
-//        case LUA_TFUNCTION:
-//            break
 //        case LUA_TUSERDATA:
 //            break
-//        case LUA_TTHREAD:
+//        case LUA_TLIGHTUSERDATA:
 //            break
         default:
             return nil
@@ -182,7 +174,7 @@ class Lua {
     }
     
     func pushFunction(fn: Function, upvalues: Int = 0) {
-        let f: @objc_block (COpaquePointer) -> Int32 = { L in Int32(fn(self)) }
+        let f: @objc_block (COpaquePointer) -> Int32 = { _ in Int32(fn(self)) }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
         let fp = unsafeBitCast(imp, CFunctionPointer<(COpaquePointer) -> Int32>.self)
@@ -199,8 +191,7 @@ func testLua() {
         (%"new", %{ L in
             let key = L.toString(1)
             let mods = L.toTable(2)
-            let fn = L.toFunction(3)
-            
+            luaL_checktype(L.L, 3, LUA_TFUNCTION)
             
             
             
@@ -212,12 +203,14 @@ func testLua() {
     L.push(hotkeyLib)
     L.setGlobal("Hotkey")
     
-    L.doString("Hotkey.new('s', ['cmd', 'shift'], function() end)")
+//    L.doString("Hotkey.new('s', ['cmd', 'shift'], function() end)")
     
-//    L.doString("return Hotkey.bind")
-//    L.doString("return Hotkey.t.bar")
-//    L.call(arguments: 1, returnValues: 2)
-//    
+    L.doString("return print")
+    
+    
+//    L.doString("return Hotkey.foo")
+//    L.call(arguments: 1, returnValues: 0)
+    
 //    println(L.toNumber(-2))
 //    println(L.toString(-1))
 }
