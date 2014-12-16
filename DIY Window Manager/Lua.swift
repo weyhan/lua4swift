@@ -13,18 +13,20 @@ class Lua {
     typealias Function = (Lua) -> Int
     typealias Table = [(Value, Value)]
     
-    enum Value {
+    enum Value: NilLiteralConvertible {
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
         case Function(Lua.Function)
         case Table(Lua.Table)
+        case Nil
         
         init(_ n: Swift.String) { self = .String(n) }
         init(_ n: Swift.Int64) { self = .Integer(n) }
         init(_ n: Swift.Double) { self = .Double(n) }
         init(_ fn: Lua.Function) { self = .Function(fn) }
         init(_ fn: Lua.Table) { self = .Table(fn) }
+        init(nilLiteral: ()) { self = Nil }
     }
     
     init(openLibs: Bool = true) {
@@ -59,10 +61,8 @@ class Lua {
     // get
     
     func toNumber(position: Int) -> Double? {
-        var isNumber: Int32 = 0
-        let n = lua_tonumberx(L, Int32(position), &isNumber)
-        if isNumber == 0 { return nil }
-        return n
+        if lua_isnumber(L, Int32(position)) == 0 { return nil }
+        return lua_tonumberx(L, Int32(position), nil)
     }
     
     func toString(position: Int) -> String? {
@@ -70,6 +70,52 @@ class Lua {
         var len: UInt = 0
         let str = lua_tolstring(L, Int32(position), &len)
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
+    }
+    
+    func toFunction(position: Int) {
+        
+    }
+    
+    func get(position: Int) -> Value? {
+        switch lua_type(L, Int32(position)) {
+//        case LUA_TNIL:
+//            break
+//        case LUA_TBOOLEAN:
+//            break
+//        case LUA_TLIGHTUSERDATA:
+//            break
+        case LUA_TNUMBER:
+            return Value(toNumber(position)!)
+        case LUA_TSTRING:
+            return Value(toString(position)!)
+//        case LUA_TTABLE:
+//            break
+//        case LUA_TFUNCTION:
+//            break
+//        case LUA_TUSERDATA:
+//            break
+//        case LUA_TTHREAD:
+//            break
+        default:
+            return nil
+        }
+    }
+    
+    func toTable(position: Int) -> Table {
+        var t = Table()
+        lua_pushnil(L);
+        while lua_next(L, Int32(position)) != 0 {
+            let pair = (get(-2)!, get(-1)!)
+            t.append(pair)
+            pop(1)
+        }
+        return t
+    }
+    
+    // pop
+    
+    func pop(n: Int) {
+        lua_settop(L, -Int32(n)-1)
     }
     
     // push
@@ -86,7 +132,13 @@ class Lua {
             pushString(s)
         case let .Table(t):
             pushTable(t)
+        case .Nil:
+            pushNil()
         }
+    }
+    
+    func pushNil() {
+        lua_pushnil(L)
     }
     
     func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
@@ -130,24 +182,28 @@ func testLua() {
     let L = Lua(openLibs: true)
     
     let hotkeyLib = %[
-        (%"bind", %{ L in
-            L.pushNumber(L.toNumber(1)! + 1)
-            L.pushString("bla")
-            return 2
+        (%"new", %{ L in
+            let key = L.toString(1)
+            let mods = L.toTable(2)
+            let fn = L.toFunction(3)
+            
+            
+            
+            
+            return 0
             }),
-        (%"t", %[
-            (%"bar", %27)
-            ]),
         (%"foo", %17)
     ]
     
     L.push(hotkeyLib)
     L.setGlobal("Hotkey")
     
-    L.doString("return Hotkey.bind")
-    L.doString("return Hotkey.t.bar")
-    L.call(arguments: 1, returnValues: 2)
+    L.doString("Hotkey.new('s', ['cmd', 'shift'], function() end)")
     
-    println(L.toNumber(-2))
-    println(L.toString(-1))
+//    L.doString("return Hotkey.bind")
+//    L.doString("return Hotkey.t.bar")
+//    L.call(arguments: 1, returnValues: 2)
+//    
+//    println(L.toNumber(-2))
+//    println(L.toString(-1))
 }
