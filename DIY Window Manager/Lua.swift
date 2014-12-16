@@ -95,8 +95,8 @@ class Lua {
             return Value(toNumber(position)!)
         case LUA_TSTRING:
             return Value(toString(position)!)
-//        case LUA_TTABLE:
-//            break
+        case LUA_TTABLE:
+            return Value(toTable(position)!)
 //        case LUA_TFUNCTION:
 //            break
 //        case LUA_TUSERDATA:
@@ -108,7 +108,8 @@ class Lua {
         }
     }
     
-    func toTable(position: Int) -> Table {
+    func toTable(position: Int) -> Table? {
+        if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
         var t = Table()
         lua_pushnil(L);
         while lua_next(L, Int32(position)) != 0 {
