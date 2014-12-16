@@ -3,6 +3,7 @@ import Foundation
 prefix operator % { }
 prefix func % (x: Int64) -> Lua.Value { return Lua.Value(x) }
 prefix func % (x: String) -> Lua.Value { return Lua.Value(x) }
+prefix func % (x: Bool) -> Lua.Value { return Lua.Value(x) }
 prefix func % (x: Lua.Function) -> Lua.Value { return Lua.Value(x) }
 prefix func % (x: Lua.Table) -> Lua.Value { return Lua.Value(x) }
 
@@ -17,15 +18,17 @@ class Lua {
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
+        case Bool(Swift.Bool)
         case Function(Lua.Function)
         case Table(Lua.Table)
         case Nil
         
-        init(_ n: Swift.String) { self = .String(n) }
-        init(_ n: Swift.Int64) { self = .Integer(n) }
-        init(_ n: Swift.Double) { self = .Double(n) }
-        init(_ fn: Lua.Function) { self = .Function(fn) }
-        init(_ fn: Lua.Table) { self = .Table(fn) }
+        init(_ x: Swift.String) { self = .String(x) }
+        init(_ x: Swift.Int64) { self = .Integer(x) }
+        init(_ x: Swift.Double) { self = .Double(x) }
+        init(_ x: Swift.Bool) { self = .Bool(x) }
+        init(_ x: Lua.Function) { self = .Function(x) }
+        init(_ x: Lua.Table) { self = .Table(x) }
         init(nilLiteral: ()) { self = Nil }
     }
     
@@ -76,12 +79,16 @@ class Lua {
         
     }
     
+    func toBool(position: Int) -> Bool {
+        return lua_toboolean(L, Int32(position)) != 0
+    }
+    
     func get(position: Int) -> Value? {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL:
             return Value.Nil
-//        case LUA_TBOOLEAN:
-//            break
+        case LUA_TBOOLEAN:
+            return Value(toBool(position))
 //        case LUA_TLIGHTUSERDATA:
 //            break
         case LUA_TNUMBER:
@@ -122,16 +129,18 @@ class Lua {
     
     func push(value: Value) {
         switch value {
-        case let .Integer(n):
-            pushInteger(n)
-        case let .Double(n):
-            pushNumber(n)
-        case let .Function(fn):
-            pushFunction(fn)
-        case let .String(s):
-            pushString(s)
-        case let .Table(t):
-            pushTable(t)
+        case let .Integer(x):
+            pushInteger(x)
+        case let .Double(x):
+            pushNumber(x)
+        case let .Bool(x):
+            pushBool(x)
+        case let .Function(x):
+            pushFunction(x)
+        case let .String(x):
+            pushString(x)
+        case let .Table(x):
+            pushTable(x)
         case .Nil:
             pushNil()
         }
@@ -139,6 +148,10 @@ class Lua {
     
     func pushNil() {
         lua_pushnil(L)
+    }
+    
+    func pushBool(value: Bool) {
+        lua_pushboolean(L, value ? 1 : 0)
     }
     
     func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
