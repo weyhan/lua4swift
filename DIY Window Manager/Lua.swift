@@ -217,6 +217,13 @@ class Lua {
                 return 0
             }
             setField("__gc", table: -2)
+            
+            pushFunction { L in
+                let other: T = L.toUserdata(1)
+                self.pushBool(other.equals(o))
+                return 1
+            }
+            setField("__eq", table: -2)
         }
     }
     
