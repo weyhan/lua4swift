@@ -7,9 +7,14 @@ prefix func % (x: Bool) -> Lua.Value { return .Bool(x) }
 prefix func % (x: Lua.Function) -> Lua.Value { return .Function(x) }
 prefix func % (x: Lua.Table) -> Lua.Value { return .Table(x) }
 
+class CountedSet<T> {
+    // TODO
+}
+
 class Lua {
     
     let L = luaL_newstate()
+    var userdatas = NSCountedSet()
     
     typealias Function = (Lua) -> Int
     typealias Table = [(Value, Value)]
@@ -181,17 +186,34 @@ class Lua {
     
     // userdata
     
-    func newUserdata<T>(o: T) {
+    func toUserdata<T>(position: Int) -> T {
+        let ud = UnsafeMutablePointer<T>(lua_touserdata(L, Int32(position)))
+        return ud.memory
+    }
+    
+    func pushUserdata<T: LuaUserdataEmbeddable>(o: T) {
         let ud = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
         ud.memory = o
         
-//        luaL_newmetatable(<#L: COpaquePointer#>, <#tname: UnsafePointer<Int8>#>)
+        userdatas.addObject(o)
+        
+        if luaL_newmetatable(L, (o.userdataName() as NSString).UTF8String) != 0 {
+            pushFunction { L in
+                
+                return 0
+            }
+            setField("__gc", table: -2)
+        }
     }
     
 }
 
+protocol LuaUserdataEmbeddable {
+    func userdataName() -> String
+}
 
-class LuaHotkey {
+
+class LuaHotkey: LuaUserdataEmbeddable {
     let fn: Int
     init(fn: Int) {self.fn=fn}
     
@@ -199,6 +221,8 @@ class LuaHotkey {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
         L.call(arguments: 1, returnValues: 0)
     }
+    
+    func userdataName() -> String { return "bla" }
 }
 
 
@@ -214,7 +238,9 @@ func testLua() {
             let i: Int = L.ref(Lua.RegistryIndex)
             
             let hk = LuaHotkey(fn: i)
-            L.newUserdata(hk)
+            L.pushUserdata(hk)
+            
+            let hk2: LuaHotkey = L.toUserdata(-1)
             
             return 0
             }),
