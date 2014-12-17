@@ -84,13 +84,13 @@ class Lua {
         case LUA_TNIL:
             return Value.Nil
         case LUA_TBOOLEAN:
-            return .Bool(toBool(position))
+            return .Bool(getBool(position))
         case LUA_TNUMBER:
-            return .Double(toNumber(position))
+            return .Double(getNumber(position))
         case LUA_TSTRING:
-            return .String(toString(position))
+            return .String(getString(position))
         case LUA_TTABLE:
-            return .Table(toTable(position))
+            return .Table(getTable(position))
 //        case LUA_TUSERDATA:
 //            break
 //        case LUA_TLIGHTUSERDATA:
@@ -102,21 +102,21 @@ class Lua {
     
     // get
     
-    func toNumber(position: Int, useArgError: Bool = false) -> Double {
+    func getNumber(position: Int) -> Double {
         return lua_tonumberx(L, Int32(position), nil)
     }
     
-    func toString(position: Int, useArgError: Bool = false) -> String {
+    func getString(position: Int) -> String {
         var len: UInt = 0
         let str = lua_tolstring(L, Int32(position), &len)
         return NSString(CString: str, encoding: NSUTF8StringEncoding)!
     }
     
-    func toBool(position: Int) -> Bool {
+    func getBool(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
     
-    func toTable(position: Int, useArgError: Bool = false) -> Table {
+    func getTable(position: Int) -> Table {
         var t = Table()
         lua_pushnil(L);
         while lua_next(L, Int32(position)) != 0 {
@@ -214,8 +214,8 @@ func testLua() {
     let hotkeyLib = %[
         (%"new", %{ L in
             L.checkArgs(.String, .Table, .Function, .None)
-            let key = L.toString(1)
-            let mods = L.toTable(2)
+            let key = L.getString(1)
+            let mods = L.getTable(2)
             
             
             return 0
@@ -231,8 +231,8 @@ func testLua() {
     L.doString("return print")
     
     
-//    L.doString("return Hotkey.foo")
-//    L.call(arguments: 1, returnValues: 0)
+    L.doString("return Hotkey.foo")
+    L.call(arguments: 1, returnValues: 0)
     
 //    println(L.toNumber(-2))
 //    println(L.toString(-1))
