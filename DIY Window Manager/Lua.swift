@@ -95,7 +95,7 @@ class Lua {
     }
     
     func toString(position: Int, useArgError: Bool = false) -> String? {
-        return get(position, LUA_TSTRING, true) {
+        return get(position, LUA_TSTRING, useArgError) {
             var len: UInt = 0
             let str = lua_tolstring(self.L, Int32(position), &len)
             return NSString(CString: str, encoding: NSUTF8StringEncoding)!
@@ -106,22 +106,23 @@ class Lua {
         return lua_toboolean(L, Int32(position)) != 0
     }
     
-    func toTable(position: Int) -> Table? {
-        if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
-        var t = Table()
-        lua_pushnil(L);
-        while lua_next(L, Int32(position)) != 0 {
-            let pair = (get(-2)!, get(-1)!)
-            t.append(pair)
-            pop(1)
+    func toTable(position: Int, useArgError: Bool = false) -> Table? {
+        return get(position, LUA_TTABLE, useArgError) {
+            var t = Table()
+            lua_pushnil(self.L);
+            while lua_next(self.L, Int32(position)) != 0 {
+                let pair = (self.get(-2)!, self.get(-1)!)
+                t.append(pair)
+                self.pop(1)
+            }
+            return t
         }
-        return t
     }
     
     // check
     
-    func check(position: Int, type: Int32) {
-        
+    func check(position: Int, _ type: Int32) {
+        luaL_checktype(L, Int32(position), type)
     }
     
     // pop
@@ -202,9 +203,8 @@ func testLua() {
     let hotkeyLib = %[
         (%"new", %{ L in
             let key = L.toString(1, useArgError: true)
-            let mods = L.toTable(2)
-            luaL_checktype(L.L, 3, LUA_TFUNCTION)
-            
+            let mods = L.toTable(2, useArgError: true)
+            L.check(3, LUA_TFUNCTION)
             
             
             return 0
