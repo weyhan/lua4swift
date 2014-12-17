@@ -7,14 +7,29 @@ prefix func % (x: Bool) -> Lua.Value { return .Bool(x) }
 prefix func % (x: Lua.Function) -> Lua.Value { return .Function(x) }
 prefix func % (x: Lua.Table) -> Lua.Value { return .Table(x) }
 
-class CountedSet<T> {
-    // TODO
-}
-
 class Lua {
     
+    private struct KeepAliveCollection {
+        
+        var bag = Array<LuaUserdataEmbeddable>()
+        
+        mutating func add(o: LuaUserdataEmbeddable) {
+            bag.append(o)
+        }
+        
+        mutating func remove(o: LuaUserdataEmbeddable) {
+            for (i, x) in enumerate(bag) {
+                if o.equals(x) {
+                    bag.removeAtIndex(i)
+                    return
+                }
+            }
+        }
+        
+    }
+    
     let L = luaL_newstate()
-    var userdatas = NSCountedSet()
+    private var userdatas = KeepAliveCollection()
     
     typealias Function = (Lua) -> Int
     typealias Table = [(Value, Value)]
@@ -194,12 +209,11 @@ class Lua {
     func pushUserdata<T: LuaUserdataEmbeddable>(o: T) {
         let ud = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
         ud.memory = o
-        
-        userdatas.addObject(o)
+        userdatas.add(o)
         
         if luaL_newmetatable(L, (o.userdataName() as NSString).UTF8String) != 0 {
             pushFunction { L in
-                
+                self.userdatas.remove(o)
                 return 0
             }
             setField("__gc", table: -2)
@@ -210,6 +224,7 @@ class Lua {
 
 protocol LuaUserdataEmbeddable {
     func userdataName() -> String
+    func equals(other: LuaUserdataEmbeddable) -> Bool // why not use Equatable, you say? because Swift is broken.
 }
 
 
@@ -223,6 +238,14 @@ class LuaHotkey: LuaUserdataEmbeddable {
     }
     
     func userdataName() -> String { return "bla" }
+    
+    func equals(other: LuaUserdataEmbeddable) -> Bool {
+        if let o = other as? LuaHotkey {
+            return fn == o.fn
+        }
+        return false
+    }
+    
 }
 
 
