@@ -186,13 +186,11 @@ func testLua() {
     L.push(hotkeyLib)
     L.setGlobal("Hotkey")
     
-//    L.doString("Hotkey.new('s', ['cmd', 'shift'], function() end)")
+    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
     
-    L.doString("return print")
-    
-    
-    L.doString("return Hotkey.foo")
-    L.call(arguments: 1, returnValues: 0)
+//    L.doString("return print")
+//    L.doString("return Hotkey.foo")
+//    L.call(arguments: 1, returnValues: 0)
     
 //    println(L.toNumber(-2))
 //    println(L.toString(-1))
