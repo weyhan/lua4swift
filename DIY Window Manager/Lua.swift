@@ -163,6 +163,32 @@ class Lua {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
+    func pushFromStack(position: Int) {
+        lua_pushvalue(L, Int32(position))
+    }
+    
+    // ref
+    
+    class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
+    
+    func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
+    
+    // raw get
+    
+    func rawGet(#tablePosition: Int, index: Int) {
+        lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
+    }
+    
+}
+
+
+struct LuaHotkey {
+    let fn: Int
+    
+    func call(L: Lua) {
+        L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
+        L.call(arguments: 1, returnValues: 0)
+    }
 }
 
 
@@ -174,9 +200,11 @@ func testLua() {
             L.checkArgs(.String, .Table, .Function, .None)
             let key = L.getString(1)
             let mods = L.getTable(2)
+            L.pushFromStack(3)
+            let i: Int = L.ref(Lua.RegistryIndex)
             
-//            luaL_ref(L.L, 3)
-            
+            let hk = LuaHotkey(fn: i)
+            // TODO: store this in a userdata
             
             return 0
             }),

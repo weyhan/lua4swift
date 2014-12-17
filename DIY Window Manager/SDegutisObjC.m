@@ -1,4 +1,4 @@
-#import "Hotkeys.h"
+#import "SDegutisObjC.h"
 
 static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
