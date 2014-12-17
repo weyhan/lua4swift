@@ -113,9 +113,8 @@ class Lua {
     // check
     
     func checkArgs(types: Kind...) {
-        var i = 0
-        for t in types {
-            luaL_checktype(L, Int32(++i), t.toLuaType())
+        for (i, t) in enumerate(types) {
+            luaL_checktype(L, Int32(i+1), t.toLuaType())
         }
     }
     
