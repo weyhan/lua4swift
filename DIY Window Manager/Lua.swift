@@ -159,6 +159,7 @@ class Lua {
         }
     }
     
+    // currently unused; is needed? maybe could be split up
     func pushTable(table: Table) {
         pushTable(keyCapacity: table.count)
         let i = Int(lua_absindex(L, -1)) // overkill? dunno.
@@ -245,27 +246,43 @@ class Lua {
 //        lua_setmetatable(L, -2)
     }
     
+    func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
+    
+    func pushOntoTable(position: Int, _ contents: StringTable) {
+        let tableIndex = absolutePosition(position)
+        for (key, value) in contents {
+            pushString(key)
+            push(value)
+            setTable(tableIndex)
+        }
+    }
+    
     func pushLibrary(lib: Library) {
+        // push lib table
         pushTable()
         
-        if luaL_newmetatable(L, (lib.name as NSString).UTF8String) != 0 {
-            
-            for (key, value) in lib.instanceMethods {
-                pushString(key)
-                push(value)
-                setTable(-2)
-            }
-            
-            
-        }
+        // add metatable, add meta methods to lib table
+        luaL_newmetatable(L, (lib.metaTableName as NSString).UTF8String)
+        pushOntoTable(-1, lib.metaMethods)
         lua_setmetatable(L, -2)
+        
+        // add instance methods to lib table
+        pushOntoTable(-1, lib.instanceMethods)
+        
+        // add class methods to lib table
+        pushOntoTable(-1, lib.instanceMethods)
+        
+        // set lib table as its own __index key
+        pushFromStack(-1)
+        setField("__index", table: -2)
     }
     
     struct Library {
-        var name: String
+        var metaTableName: String
         var instanceMethods: StringTable
         var classMethods: StringTable
         var metaMethods: StringTable
+        var gc: (() -> ())? = nil
     }
     
 }
@@ -284,30 +301,6 @@ class LuaHotkey: LuaUserdataEmbeddable {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
         L.call(arguments: 1, returnValues: 0)
     }
-    
-    class func userdataName() -> String { return "bla" }
-    
-    class func instanceMethods() -> Lua.Table {
-        return []
-    }
-    
-    class func classMethods() -> Lua.Table {
-        return []
-    }
-    
-    class func metaMethods() -> Lua.Table {
-        return []
-    }
-    
-    func gc() {}
-    
-    func equals(other: LuaUserdataEmbeddable) -> Bool {
-        if let o = other as? LuaHotkey {
-            return fn == o.fn
-        }
-        return false
-    }
-    
 }
 
 
@@ -315,7 +308,7 @@ func testLua() {
     let L = Lua(openLibs: true)
     
     let hotkeyLib = Lua.Library(
-        name: "Hotkey",
+        metaTableName: "Hotkey",
         instanceMethods: ["foo": %17],
         classMethods: ["new": %{ L in
             L.checkArgs(.String, .Table, .Function, .None)
@@ -331,7 +324,8 @@ func testLua() {
             
             return 0
         }],
-        metaMethods: [:])
+        metaMethods: [:],
+        gc: nil)
     
     
     
