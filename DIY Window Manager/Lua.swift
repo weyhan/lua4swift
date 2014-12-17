@@ -193,6 +193,21 @@ class Lua {
     
     func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
     
+    // uhh, convenience?
+    
+    // totally questionable function; avoid using in case it needs to just be deleted for being useless
+    func pushOntoTable(key: Value, _ value: Value, table: Int = -1) {
+        push(key)
+        push(value)
+        setTable(table-2)
+    }
+    
+    func pushMethod(key: Value, _ value: Function, table: Int = -1) {
+        push(key)
+        pushFunction(value)
+        setTable(table-2)
+    }
+    
     // raw get
     
     func rawGet(#tablePosition: Int, index: Int) {
@@ -212,28 +227,36 @@ class Lua {
         userdatas.add(swiftObject)
         
         if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
-            pushFunction { L in
+            pushMethod(%"__gc") { L in
                 let a: T = L.toUserdata(1)
                 self.userdatas.remove(a)
+                a.gc()
                 return 0
             }
-            setField("__gc", table: -2)
             
-            pushFunction { L in
+            pushMethod(%"__eq") { L in
                 let a: T = L.toUserdata(1)
                 let b: T = L.toUserdata(1)
                 self.pushBool(a.equals(b))
                 return 1
             }
-            setField("__eq", table: -2)
         }
         lua_setmetatable(L, -2)
+    }
+    
+    func pushLib<T: LuaUserdataEmbeddable>(t: T) {
+        
     }
     
 }
 
 protocol LuaUserdataEmbeddable {
     class func userdataName() -> String
+    class func instanceMethods() -> Lua.Table
+    class func classMethods() -> Lua.Table
+    class func metaMethods() -> Lua.Table
+    func gc()
+    
     func equals(other: LuaUserdataEmbeddable) -> Bool // why not use Equatable, you say? because Swift is broken.
 }
 
@@ -248,6 +271,20 @@ class LuaHotkey: LuaUserdataEmbeddable {
     }
     
     class func userdataName() -> String { return "bla" }
+    
+    class func instanceMethods() -> Lua.Table {
+        return []
+    }
+    
+    class func classMethods() -> Lua.Table {
+        return []
+    }
+    
+    class func metaMethods() -> Lua.Table {
+        return []
+    }
+    
+    func gc() {}
     
     func equals(other: LuaUserdataEmbeddable) -> Bool {
         if let o = other as? LuaHotkey {
@@ -280,10 +317,14 @@ func testLua() {
         (%"foo", %17)
     ]
     
-    L.push(hotkeyLib)
-    L.setGlobal("Hotkey")
+    L.pushLib(LuaHotkey)
     
-    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
+//    L.push(hotkeyLib)
+//    L.pushFromStack(-1)
+//    L.setField("__index", table: -2)
+//    L.setGlobal("Hotkey")
+    
+//    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
     
 //    L.doString("return print")
 //    L.doString("return Hotkey.foo")
