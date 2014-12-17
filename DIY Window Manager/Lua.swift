@@ -26,6 +26,28 @@ class Lua {
         init(nilLiteral: ()) { self = Nil }
     }
     
+    enum Kind {
+        case String
+        case Number
+        case Bool
+        case Function
+        case Table
+        case Nil
+        case None
+        
+        func toLuaType() -> Int32 {
+            switch self {
+            case String: return LUA_TSTRING
+            case Number: return LUA_TNUMBER
+            case Bool: return LUA_TBOOLEAN
+            case Function: return LUA_TFUNCTION
+            case Table: return LUA_TTABLE
+            case Nil: return LUA_TNIL
+            default: return LUA_TNONE
+            }
+        }
+    }
+    
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
     }
@@ -57,14 +79,6 @@ class Lua {
     
     // helpers
     
-    private func get<T>(position: Int, _ type: Int32, _ checkType: Bool, _ f: () -> T) -> T? {
-        if lua_type(L, Int32(position)) != type {
-            if checkType { luaL_checktype(L, Int32(position), type) }
-            return nil
-        }
-        return f()
-    }
-    
     func get(position: Int) -> Value? {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL:
@@ -72,11 +86,11 @@ class Lua {
         case LUA_TBOOLEAN:
             return .Bool(toBool(position))
         case LUA_TNUMBER:
-            return .Double(toNumber(position)!)
+            return .Double(toNumber(position))
         case LUA_TSTRING:
-            return .String(toString(position)!)
+            return .String(toString(position))
         case LUA_TTABLE:
-            return .Table(toTable(position)!)
+            return .Table(toTable(position))
 //        case LUA_TUSERDATA:
 //            break
 //        case LUA_TLIGHTUSERDATA:
@@ -88,41 +102,38 @@ class Lua {
     
     // get
     
-    func toNumber(position: Int, useArgError: Bool = false) -> Double? {
-        return get(position, LUA_TNUMBER, useArgError) {
-            return lua_tonumberx(self.L, Int32(position), nil)
-        }
+    func toNumber(position: Int, useArgError: Bool = false) -> Double {
+        return lua_tonumberx(L, Int32(position), nil)
     }
     
-    func toString(position: Int, useArgError: Bool = false) -> String? {
-        return get(position, LUA_TSTRING, useArgError) {
-            var len: UInt = 0
-            let str = lua_tolstring(self.L, Int32(position), &len)
-            return NSString(CString: str, encoding: NSUTF8StringEncoding)!
-        }
+    func toString(position: Int, useArgError: Bool = false) -> String {
+        var len: UInt = 0
+        let str = lua_tolstring(L, Int32(position), &len)
+        return NSString(CString: str, encoding: NSUTF8StringEncoding)!
     }
     
     func toBool(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
     
-    func toTable(position: Int, useArgError: Bool = false) -> Table? {
-        return get(position, LUA_TTABLE, useArgError) {
-            var t = Table()
-            lua_pushnil(self.L);
-            while lua_next(self.L, Int32(position)) != 0 {
-                let pair = (self.get(-2)!, self.get(-1)!)
-                t.append(pair)
-                self.pop(1)
-            }
-            return t
+    func toTable(position: Int, useArgError: Bool = false) -> Table {
+        var t = Table()
+        lua_pushnil(L);
+        while lua_next(L, Int32(position)) != 0 {
+            let pair = (get(-2)!, get(-1)!)
+            t.append(pair)
+            pop(1)
         }
+        return t
     }
     
     // check
     
-    func check(position: Int, _ type: Int32) {
-        luaL_checktype(L, Int32(position), type)
+    func checkArgs(types: Kind...) {
+        var i = 0
+        for t in types {
+            luaL_checktype(L, Int32(++i), t.toLuaType())
+        }
     }
     
     // pop
@@ -202,9 +213,9 @@ func testLua() {
     
     let hotkeyLib = %[
         (%"new", %{ L in
-            let key = L.toString(1, useArgError: true)
-            let mods = L.toTable(2, useArgError: true)
-            L.check(3, LUA_TFUNCTION)
+            L.checkArgs(.String, .Table, .Function, .None)
+            let key = L.toString(1)
+            let mods = L.toTable(2)
             
             
             return 0
