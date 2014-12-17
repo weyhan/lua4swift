@@ -164,7 +164,7 @@ class Lua {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in Int32(fn(self)) }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
-        let fp = unsafeBitCast(imp, CFunctionPointer<(COpaquePointer) -> Int32>.self)
+        let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
