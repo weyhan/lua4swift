@@ -206,21 +206,23 @@ class Lua {
         return ud.memory
     }
     
-    func pushUserdata<T: LuaUserdataEmbeddable>(o: T) {
-        let ud = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
-        ud.memory = o
-        userdatas.add(o)
+    func pushUserdata<T: LuaUserdataEmbeddable>(swiftObject: T) {
+        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+        userdata.memory = swiftObject
+        userdatas.add(swiftObject)
         
         if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
             pushFunction { L in
-                self.userdatas.remove(o)
+                let a: T = L.toUserdata(1)
+                self.userdatas.remove(a)
                 return 0
             }
             setField("__gc", table: -2)
             
             pushFunction { L in
-                let other: T = L.toUserdata(1)
-                self.pushBool(other.equals(o))
+                let a: T = L.toUserdata(1)
+                let b: T = L.toUserdata(1)
+                self.pushBool(a.equals(b))
                 return 1
             }
             setField("__eq", table: -2)
