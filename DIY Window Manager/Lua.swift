@@ -1,11 +1,11 @@
 import Foundation
 
 prefix operator % { }
-prefix func % (x: Int64) -> Lua.Value { return Lua.Value(x) }
-prefix func % (x: String) -> Lua.Value { return Lua.Value(x) }
-prefix func % (x: Bool) -> Lua.Value { return Lua.Value(x) }
-prefix func % (x: Lua.Function) -> Lua.Value { return Lua.Value(x) }
-prefix func % (x: Lua.Table) -> Lua.Value { return Lua.Value(x) }
+prefix func % (x: Int64) -> Lua.Value { return .Integer(x) }
+prefix func % (x: String) -> Lua.Value { return .String(x) }
+prefix func % (x: Bool) -> Lua.Value { return .Bool(x) }
+prefix func % (x: Lua.Function) -> Lua.Value { return .Function(x) }
+prefix func % (x: Lua.Table) -> Lua.Value { return .Table(x) }
 
 class Lua {
     
@@ -15,40 +15,6 @@ class Lua {
     typealias Table = [(Value, Value)]
     
     enum Value: NilLiteralConvertible {
-        enum Kind {
-            case String
-            case Number
-            case Bool
-            case Function
-            case Table
-            case Nil
-            case None
-            
-            init(_ t: Int32) {
-                switch t {
-                case LUA_TSTRING: self = .String
-                case LUA_TNUMBER: self = .Number
-                case LUA_TBOOLEAN: self = .Bool
-                case LUA_TFUNCTION: self = .Function
-                case LUA_TTABLE: self = .Table
-                case LUA_TNIL: self = .Nil
-                default: self = None
-                }
-            }
-            
-            func toLuaType() -> Int32 {
-                switch self {
-                case String: return LUA_TSTRING
-                case Number: return LUA_TNUMBER
-                case Bool: return LUA_TBOOLEAN
-                case Function: return LUA_TFUNCTION
-                case Table: return LUA_TTABLE
-                case Nil: return LUA_TNIL
-                default: return LUA_TNONE
-                }
-            }
-        }
-        
         case String(Swift.String)
         case Integer(Swift.Int64)
         case Double(Swift.Double)
@@ -57,25 +23,7 @@ class Lua {
         case Table(Lua.Table)
         case Nil
         
-        init(_ x: Swift.String) { self = .String(x) }
-        init(_ x: Swift.Int64) { self = .Integer(x) }
-        init(_ x: Swift.Double) { self = .Double(x) }
-        init(_ x: Swift.Bool) { self = .Bool(x) }
-        init(_ x: Lua.Function) { self = .Function(x) }
-        init(_ x: Lua.Table) { self = .Table(x) }
         init(nilLiteral: ()) { self = Nil }
-        
-        func toKind() -> Kind {
-            switch self {
-            case String: return .String
-            case Integer: return .Number
-            case Double: return .Number
-            case Bool: return .Bool
-            case Function: return .Function
-            case Table: return .Table
-            case Nil: return .Nil
-            }
-        }
     }
     
     init(openLibs: Bool = true) {
@@ -109,9 +57,9 @@ class Lua {
     
     // helpers
     
-    private func get<T>(position: Int, _ type: Value.Kind, _ checkType: Bool, _ f: () -> T) -> T? {
-        if Value.Kind(lua_type(L, Int32(position))) != type {
-            if checkType { luaL_checktype(L, Int32(position), type.toLuaType()) }
+    private func get<T>(position: Int, _ type: Int32, _ checkType: Bool, _ f: () -> T) -> T? {
+        if lua_type(L, Int32(position)) != type {
+            if checkType { luaL_checktype(L, Int32(position), type) }
             return nil
         }
         return f()
@@ -122,13 +70,13 @@ class Lua {
         case LUA_TNIL:
             return Value.Nil
         case LUA_TBOOLEAN:
-            return Value(toBool(position))
+            return .Bool(toBool(position))
         case LUA_TNUMBER:
-            return Value(toNumber(position)!)
+            return .Double(toNumber(position)!)
         case LUA_TSTRING:
-            return Value(toString(position)!)
+            return .String(toString(position)!)
         case LUA_TTABLE:
-            return Value(toTable(position)!)
+            return .Table(toTable(position)!)
 //        case LUA_TUSERDATA:
 //            break
 //        case LUA_TLIGHTUSERDATA:
@@ -141,13 +89,13 @@ class Lua {
     // get
     
     func toNumber(position: Int, useArgError: Bool = false) -> Double? {
-        return get(position, Value.Kind.Number, useArgError) {
+        return get(position, LUA_TNUMBER, useArgError) {
             return lua_tonumberx(self.L, Int32(position), nil)
         }
     }
     
     func toString(position: Int, useArgError: Bool = false) -> String? {
-        return get(position, .String, true) {
+        return get(position, LUA_TSTRING, true) {
             var len: UInt = 0
             let str = lua_tolstring(self.L, Int32(position), &len)
             return NSString(CString: str, encoding: NSUTF8StringEncoding)!
