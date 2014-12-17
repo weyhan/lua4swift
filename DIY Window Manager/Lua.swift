@@ -18,12 +18,12 @@ class Lua {
         }
         
         mutating func remove(o: LuaUserdataEmbeddable) {
-            for (i, x) in enumerate(bag) {
-                if o.equals(x) {
-                    bag.removeAtIndex(i)
-                    return
-                }
-            }
+//            for (i, x) in enumerate(bag) {
+//                if o.equals(x) {
+//                    bag.removeAtIndex(i)
+//                    return
+//                }
+//            }
         }
         
     }
@@ -33,6 +33,7 @@ class Lua {
     
     typealias Function = (Lua) -> Int
     typealias Table = [(Value, Value)]
+    typealias StringTable = [String: Value]
     
     enum Value: NilLiteralConvertible {
         case String(Swift.String)
@@ -226,38 +227,52 @@ class Lua {
         userdata.memory = swiftObject
         userdatas.add(swiftObject)
         
-        if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
-            pushMethod(%"__gc") { L in
-                let a: T = L.toUserdata(1)
-                self.userdatas.remove(a)
-                a.gc()
-                return 0
+//        if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
+//            pushMethod(%"__gc") { L in
+//                let a: T = L.toUserdata(1)
+//                self.userdatas.remove(a)
+//                a.gc()
+//                return 0
+//            }
+//            
+//            pushMethod(%"__eq") { L in
+//                let a: T = L.toUserdata(1)
+//                let b: T = L.toUserdata(1)
+//                self.pushBool(a.equals(b))
+//                return 1
+//            }
+//        }
+//        lua_setmetatable(L, -2)
+    }
+    
+    func pushLibrary(lib: Library) {
+        pushTable()
+        
+        if luaL_newmetatable(L, (lib.name as NSString).UTF8String) != 0 {
+            
+            for (key, value) in lib.instanceMethods {
+                pushString(key)
+                push(value)
+                setTable(-2)
             }
             
-            pushMethod(%"__eq") { L in
-                let a: T = L.toUserdata(1)
-                let b: T = L.toUserdata(1)
-                self.pushBool(a.equals(b))
-                return 1
-            }
+            
         }
         lua_setmetatable(L, -2)
     }
     
-    func pushLib<T: LuaUserdataEmbeddable>(t: T) {
-        
+    struct Library {
+        var name: String
+        var instanceMethods: StringTable
+        var classMethods: StringTable
+        var metaMethods: StringTable
     }
     
 }
 
+
+
 protocol LuaUserdataEmbeddable {
-    class func userdataName() -> String
-    class func instanceMethods() -> Lua.Table
-    class func classMethods() -> Lua.Table
-    class func metaMethods() -> Lua.Table
-    func gc()
-    
-    func equals(other: LuaUserdataEmbeddable) -> Bool // why not use Equatable, you say? because Swift is broken.
 }
 
 
@@ -299,8 +314,10 @@ class LuaHotkey: LuaUserdataEmbeddable {
 func testLua() {
     let L = Lua(openLibs: true)
     
-    let hotkeyLib = %[
-        (%"new", %{ L in
+    let hotkeyLib = Lua.Library(
+        name: "Hotkey",
+        instanceMethods: ["foo": %17],
+        classMethods: ["new": %{ L in
             L.checkArgs(.String, .Table, .Function, .None)
             let key = L.getString(1)
             let mods = L.getTable(2)
@@ -313,11 +330,12 @@ func testLua() {
             let hk2: LuaHotkey = L.toUserdata(-1)
             
             return 0
-            }),
-        (%"foo", %17)
-    ]
+        }],
+        metaMethods: [:])
     
-    L.pushLib(LuaHotkey)
+    
+    
+    L.pushLibrary(hotkeyLib)
     
 //    L.push(hotkeyLib)
 //    L.pushFromStack(-1)
