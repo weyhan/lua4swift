@@ -179,11 +179,21 @@ class Lua {
         lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
     }
     
+    // userdata
+    
+    func newUserdata<T>(o: T) {
+        let ud = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+        ud.memory = o
+        
+//        luaL_newmetatable(<#L: COpaquePointer#>, <#tname: UnsafePointer<Int8>#>)
+    }
+    
 }
 
 
-struct LuaHotkey {
+class LuaHotkey {
     let fn: Int
+    init(fn: Int) {self.fn=fn}
     
     func call(L: Lua) {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
@@ -204,7 +214,7 @@ func testLua() {
             let i: Int = L.ref(Lua.RegistryIndex)
             
             let hk = LuaHotkey(fn: i)
-            // TODO: store this in a userdata
+            L.newUserdata(hk)
             
             return 0
             }),
