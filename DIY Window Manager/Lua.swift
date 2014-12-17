@@ -75,22 +75,16 @@ class Lua {
     
     func get(position: Int) -> Value? {
         switch lua_type(L, Int32(position)) {
-        case LUA_TNIL:
-            return Value.Nil
-        case LUA_TBOOLEAN:
-            return .Bool(getBool(position))
-        case LUA_TNUMBER:
-            return .Double(getNumber(position))
-        case LUA_TSTRING:
-            return .String(getString(position))
-        case LUA_TTABLE:
-            return .Table(getTable(position))
+        case LUA_TNIL: return Value.Nil
+        case LUA_TBOOLEAN: return .Bool(getBool(position))
+        case LUA_TNUMBER: return .Double(getNumber(position))
+        case LUA_TSTRING: return .String(getString(position))
+        case LUA_TTABLE: return .Table(getTable(position))
 //        case LUA_TUSERDATA:
 //            break
 //        case LUA_TLIGHTUSERDATA:
 //            break
-        default:
-            return nil
+        default: return nil
         }
     }
     
@@ -135,20 +129,13 @@ class Lua {
     
     func push(value: Value) {
         switch value {
-        case let .Integer(x):
-            pushInteger(x)
-        case let .Double(x):
-            pushNumber(x)
-        case let .Bool(x):
-            pushBool(x)
-        case let .Function(x):
-            pushFunction(x)
-        case let .String(x):
-            pushString(x)
-        case let .Table(x):
-            pushTable(x)
-        case .Nil:
-            pushNil()
+        case let .Integer(x): pushInteger(x)
+        case let .Double(x): pushNumber(x)
+        case let .Bool(x): pushBool(x)
+        case let .Function(x): pushFunction(x)
+        case let .String(x): pushString(x)
+        case let .Table(x): pushTable(x)
+        case .Nil: pushNil()
         }
     }
     
@@ -163,7 +150,7 @@ class Lua {
     }
     
     func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) { lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity)) }
-    func pushNil() { lua_pushnil(L) }
+    func pushNil()             { lua_pushnil(L) }
     func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
     func pushNumber(n: Double) { lua_pushnumber(L, n) }
     func pushInteger(n: Int64) { lua_pushinteger(L, n) }
