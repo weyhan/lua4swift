@@ -54,9 +54,7 @@ class Lua {
     
     // eval
     
-    func loadString(str: String) {
-        luaL_loadstring(L, (str as NSString).UTF8String)
-    }
+    func loadString(str: String) { luaL_loadstring(L, (str as NSString).UTF8String) }
     
     func doString(str: String) {
         loadString(str)
@@ -69,13 +67,9 @@ class Lua {
     
     // set
     
-    func setGlobal(name: String) {
-        lua_setglobal(L, (name as NSString).UTF8String)
-    }
-    
-    func setField(name: String, table: Int) {
-        lua_setfield(L, Int32(table), (name as NSString).UTF8String)
-    }
+    func setGlobal(name: String) { lua_setglobal(L, (name as NSString).UTF8String) }
+    func setField(name: String, table: Int) { lua_setfield(L, Int32(table), (name as NSString).UTF8String) }
+    func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
     
     // helpers
     
@@ -102,19 +96,14 @@ class Lua {
     
     // get
     
-    func getNumber(position: Int) -> Double {
-        return lua_tonumberx(L, Int32(position), nil)
-    }
-    
     func getString(position: Int) -> String {
         var len: UInt = 0
         let str = lua_tolstring(L, Int32(position), &len)
         return NSString(CString: str, encoding: NSUTF8StringEncoding)!
     }
     
-    func getBool(position: Int) -> Bool {
-        return lua_toboolean(L, Int32(position)) != 0
-    }
+    func getBool(position: Int) -> Bool { return lua_toboolean(L, Int32(position)) != 0 }
+    func getNumber(position: Int) -> Double { return lua_tonumberx(L, Int32(position), nil) }
     
     func getTable(position: Int) -> Table {
         var t = Table()
@@ -163,39 +152,22 @@ class Lua {
         }
     }
     
-    func pushNil() {
-        lua_pushnil(L)
-    }
-    
-    func pushBool(value: Bool) {
-        lua_pushboolean(L, value ? 1 : 0)
-    }
-    
-    func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
-        lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
-    }
-    
     func pushTable(table: Table) {
         pushTable(keyCapacity: table.count)
-        let i = lua_absindex(L, -1) // overkill? dunno.
+        let i = Int(lua_absindex(L, -1)) // overkill? dunno.
         for (key, value) in table {
             push(key)
             push(value)
-            lua_settable(L, i)
+            setTable(i)
         }
     }
     
-    func pushNumber(n: Double) {
-        lua_pushnumber(L, n)
-    }
-    
-    func pushInteger(n: Int64) {
-        lua_pushinteger(L, n)
-    }
-    
-    func pushString(s: String) {
-        lua_pushstring(L, (s as NSString).UTF8String)
-    }
+    func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) { lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity)) }
+    func pushNil() { lua_pushnil(L) }
+    func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
+    func pushNumber(n: Double) { lua_pushnumber(L, n) }
+    func pushInteger(n: Int64) { lua_pushinteger(L, n) }
+    func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
     
     func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in Int32(fn(self)) }
@@ -216,6 +188,8 @@ func testLua() {
             L.checkArgs(.String, .Table, .Function, .None)
             let key = L.getString(1)
             let mods = L.getTable(2)
+            
+//            luaL_ref(L.L, 3)
             
             
             return 0
