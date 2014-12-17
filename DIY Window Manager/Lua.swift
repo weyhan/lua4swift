@@ -211,7 +211,7 @@ class Lua {
         ud.memory = o
         userdatas.add(o)
         
-        if luaL_newmetatable(L, (o.userdataName() as NSString).UTF8String) != 0 {
+        if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
             pushFunction { L in
                 self.userdatas.remove(o)
                 return 0
@@ -230,7 +230,7 @@ class Lua {
 }
 
 protocol LuaUserdataEmbeddable {
-    func userdataName() -> String
+    class func userdataName() -> String
     func equals(other: LuaUserdataEmbeddable) -> Bool // why not use Equatable, you say? because Swift is broken.
 }
 
@@ -244,7 +244,7 @@ class LuaHotkey: LuaUserdataEmbeddable {
         L.call(arguments: 1, returnValues: 0)
     }
     
-    func userdataName() -> String { return "bla" }
+    class func userdataName() -> String { return "bla" }
     
     func equals(other: LuaUserdataEmbeddable) -> Bool {
         if let o = other as? LuaHotkey {
