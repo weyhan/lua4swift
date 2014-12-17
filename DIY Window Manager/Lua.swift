@@ -281,8 +281,8 @@ class Lua {
         var metaTableName: String
         var instanceMethods: StringTable
         var classMethods: StringTable
-        var metaMethods: StringTable
-        var gc: (() -> ())? = nil
+        var metaMethods: StringTable // omit __gc
+        var gc: () -> ()
     }
     
 }
@@ -316,25 +316,16 @@ func testLua() {
             let mods = L.getTable(2)
             L.pushFromStack(3)
             let i: Int = L.ref(Lua.RegistryIndex)
-            
-            let hk = LuaHotkey(fn: i)
-            L.pushUserdata(hk)
-            
-            let hk2: LuaHotkey = L.toUserdata(-1)
-            
-            return 0
+            L.pushUserdata(LuaHotkey(fn: i))
+            return 1
         }],
         metaMethods: [:],
-        gc: nil)
+        gc: {})
     
     
     
     L.pushLibrary(hotkeyLib)
-    
-//    L.push(hotkeyLib)
-//    L.pushFromStack(-1)
-//    L.setField("__index", table: -2)
-//    L.setGlobal("Hotkey")
+    L.setGlobal("Hotkey")
     
 //    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
     
