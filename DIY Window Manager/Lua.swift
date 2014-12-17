@@ -225,6 +225,7 @@ class Lua {
             }
             setField("__eq", table: -2)
         }
+        lua_setmetatable(L, -2)
     }
     
 }
