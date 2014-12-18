@@ -1,5 +1,6 @@
 import Foundation
 
+// basics
 class Lua {
     
     let L = luaL_newstate()
@@ -17,40 +18,20 @@ class Lua {
         case Bool(Swift.Bool)
         case Function(Lua.Function)
         case Table(Lua.Table)
+        case Userdata(Lua.Userdata)
         case Nil
         
         init(nilLiteral: ()) { self = Nil }
-    }
-    
-    enum Kind {
-        case String
-        case Number
-        case Bool
-        case Function
-        case Table
-        case Nil
-        case None
-        case Userdata(LuaUserdataEmbeddable.Type)
-        
-        func toLuaType() -> Int32 {
-            switch self {
-            case String: return LUA_TSTRING
-            case Number: return LUA_TNUMBER
-            case Bool: return LUA_TBOOLEAN
-            case Function: return LUA_TFUNCTION
-            case Table: return LUA_TTABLE
-            case Nil: return LUA_TNIL
-            case let Userdata(type): return LUA_TUSERDATA
-            default: return LUA_TNONE
-            }
-        }
     }
     
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
     }
     
-    // eval
+}
+
+// execute
+extension Lua {
     
     func loadString(str: String) { luaL_loadstring(L, (str as NSString).UTF8String) }
     
@@ -63,42 +44,58 @@ class Lua {
         lua_pcallk(L, Int32(arguments), Int32(returnValues), 0, 0, nil)
     }
     
-    // set
+}
+
+// set
+extension Lua {
     
     func setGlobal(name: String) { lua_setglobal(L, (name as NSString).UTF8String) }
     func setField(name: String, table: Int) { lua_setfield(L, Int32(table), (name as NSString).UTF8String) }
     func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
     func setMetatable(position: Int) { lua_setmetatable(L, Int32(position)) }
     
-    // helpers
+}
+
+// internal helpers
+extension Lua {
     
     func get(position: Int) -> Value? {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL: return Value.Nil
-        case LUA_TBOOLEAN: return .Bool(getBool(position))
-        case LUA_TNUMBER: return .Double(getNumber(position))
-        case LUA_TSTRING: return .String(getString(position))
-        case LUA_TTABLE: return .Table(getTable(position))
-//        case LUA_TUSERDATA:
-//            break
-//        case LUA_TLIGHTUSERDATA:
-//            break
+        case LUA_TBOOLEAN: return .Bool(getBool(position)!)
+        case LUA_TNUMBER: return .Double(getDouble(position)!)
+        case LUA_TSTRING: return .String(getString(position)!)
+        case LUA_TTABLE: return .Table(getTable(position)!)
+        case LUA_TUSERDATA: return .Userdata(getUserdata(position)!)
+        case LUA_TLIGHTUSERDATA: return .Userdata(getUserdata(position)!)
         default: return nil
         }
     }
     
-    // get
+}
+
+// get
+extension Lua {
     
-    func getString(position: Int) -> String {
+    func getString(position: Int) -> String? {
+        if lua_type(L, Int32(position)) != LUA_TSTRING { return nil }
         var len: UInt = 0
         let str = lua_tolstring(L, Int32(position), &len)
-        return NSString(CString: str, encoding: NSUTF8StringEncoding)!
+        return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
     
-    func getBool(position: Int) -> Bool { return lua_toboolean(L, Int32(position)) != 0 }
-    func getNumber(position: Int) -> Double { return lua_tonumberx(L, Int32(position), nil) }
+    func getBool(position: Int) -> Bool? {
+        if lua_type(L, Int32(position)) != LUA_TBOOLEAN { return nil }
+        return lua_toboolean(L, Int32(position)) != 0
+    }
     
-    func getTable(position: Int) -> Table {
+    func getDouble(position: Int) -> Double? {
+        if lua_type(L, Int32(position)) != LUA_TNUMBER { return nil }
+        return lua_tonumberx(L, Int32(position), nil)
+    }
+    
+    func getTable(position: Int) -> Table? {
+        if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
         var t = Table()
         lua_pushnil(L);
         while lua_next(L, Int32(position)) != 0 {
@@ -109,26 +106,20 @@ class Lua {
         return t
     }
     
-    // check
-    
-    func checkArgs(types: Kind...) {
-        for (i, t) in enumerate(types) {
-            switch t {
-            case let .Userdata(ud):
-                luaL_checkudata(L, Int32(i+1), ud.metatableName())
-            default:
-                luaL_checktype(L, Int32(i+1), t.toLuaType())
-            }
-        }
+    func getUserdata(position: Int) -> Userdata? {
+        if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
+        // TODO: test by name too, like luaL_checkudata does
+        return Userdata(lua_touserdata(L, Int32(position)))
     }
     
-    // pop
-    
-    func pop(n: Int) {
-        lua_settop(L, -Int32(n)-1)
+    func getTruthy(position: Int) -> Bool {
+        return lua_toboolean(L, Int32(position)) != 0
     }
     
-    // push
+}
+
+// push
+extension Lua {
     
     func push(value: Value) {
         switch value {
@@ -142,7 +133,6 @@ class Lua {
         }
     }
     
-    // currently unused; is needed? maybe could be split up
     func pushTable(table: Table) {
         pushTable(keyCapacity: table.count)
         let i = Int(lua_absindex(L, -1)) // overkill? dunno.
@@ -185,17 +175,6 @@ class Lua {
         lua_pushvalue(L, Int32(position))
     }
     
-    // ref
-    
-    class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
-    
-    func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
-    func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
-    
-    // uhh, convenience?
-    
-    func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
-    
     func pushOntoTable(key: Value, _ value: Value, table: Int = -1) {
         push(key)
         push(value)
@@ -208,17 +187,37 @@ class Lua {
         setTable(table-2)
     }
     
-    // raw get
+    func pop(n: Int) {
+        lua_settop(L, -Int32(n)-1)
+    }
+    
+}
+
+// ref
+extension Lua {
+    
+    class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
+    
+    func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
+    func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
+    
+}
+
+// uhh, misc?
+extension Lua {
+    
+    func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
+    
+}
+
+// raw
+extension Lua {
     
     func rawGet(#tablePosition: Int, index: Int) {
         lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
     }
     
     // userdata
-    
-    func toUserdata<T>(position: Int) -> T {
-        return UnsafeMutablePointer<T>(lua_touserdata(L, Int32(position))).memory
-    }
     
     func pushUserdata<T: LuaUserdataEmbeddable>(swiftObject: T) {
         let userdata: Userdata = lua_newuserdata(L, UInt(sizeof(T)))
@@ -232,26 +231,25 @@ class Lua {
         userdatas[ud] = nil
     }
     
-    func pushMetaMethodGC<T: LuaMetaGCable>(_: T.Type) {
-        pushMethod("__gc") { L in
-            let a: T = self.toUserdata(1)
-            a.cleanup(L)
-            self.unregisterUserdata(1)
-            return 0
-        }
-    }
-    
 }
 
-protocol LuaMetaGCable {
-    func cleanup(L: Lua)
-}
+
+
+
+
+
+
+
+
+
+
+
 
 protocol LuaUserdataEmbeddable {
     class func metatableName() -> String
 }
 
-class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
+class LuaHotkey: LuaUserdataEmbeddable {
     let fn: Int
     init(fn: Int) { self.fn = fn }
     
@@ -273,21 +271,28 @@ class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
         // setup hotkey's metatable
         L.pushMetatable(metatableName()) {
             L.pushMethod("__eq") { L in
-                L.checkArgs(.Userdata(LuaHotkey), .None)
-                let a: LuaHotkey = L.toUserdata(1)
-                let b: LuaHotkey = L.toUserdata(2)
+//                L.checkArgs(.Userdata(LuaHotkey), .None)
+                let a: LuaHotkey = L.getUserdata(1)!.memory
+                let b: LuaHotkey = L.getUserdata(2)!.memory
                 L.pushBool(a.fn == b.fn)
                 return 1
             }
-            L.pushMetaMethodGC(self)
+            
+            L.pushMethod("__gc") { L in
+                let a: LuaHotkey = L.getUserdata(1)!.memory
+                a.cleanup(L)
+                L.unregisterUserdata(1)
+                return 0
+            }
         }
         
         // setup class methods
         L.pushMethod("new") { L in
-            L.checkArgs(.String, .Table, .Function, .None)
+//            L.checkArgs(.String, .Table, .Function, .None)
             let key = L.getString(1)
             let mods = L.getTable(2)
             L.pushFromStack(3)
+            
             let i = L.ref(Lua.RegistryIndex)
             L.pushUserdata(LuaHotkey(fn: i))
             return 1
