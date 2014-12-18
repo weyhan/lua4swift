@@ -33,7 +33,6 @@ class Lua {
     
     typealias Function = (Lua) -> Int
     typealias Table = [(Value, Value)]
-    typealias StringTable = [String: Value]
     
     enum Value: NilLiteralConvertible {
         case String(Swift.String)
@@ -240,10 +239,10 @@ class Lua {
     
     func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
     
-    func pushOntoTable(position: Int, _ contents: StringTable) {
+    func pushOntoTable(position: Int, _ contents: Table) {
         let tableIndex = absolutePosition(position)
         for (key, value) in contents {
-            pushString(key)
+            push(key)
             push(value)
             setTable(tableIndex)
         }
@@ -271,9 +270,9 @@ class Lua {
     
     struct Library {
         var metaTableName: String
-        var instanceMethods: StringTable
-        var classMethods: StringTable
-        var metaMethods: StringTable // omit __gc
+        var instanceMethods: Table
+        var classMethods: Table
+        var metaMethods: Table // omit __gc
     }
     
 }
@@ -302,8 +301,8 @@ func testLua() {
     
     let hotkeyLib = Lua.Library(
         metaTableName: "Hotkey",
-        instanceMethods: ["foo": %17],
-        classMethods: ["new": %{ L in
+        instanceMethods: [(%"foo", %17)],
+        classMethods: [(%"new", %{ L in
             L.checkArgs(.String, .Table, .Function, .None)
             let key = L.getString(1)
             let mods = L.getTable(2)
@@ -311,18 +310,18 @@ func testLua() {
             let i = L.ref(Lua.RegistryIndex)
             L.pushUserdata(LuaHotkey(fn: i))
             return 1
-        }],
-        metaMethods: ["__eq": %{ L in
+            })],
+        metaMethods: [(%"__eq", %{ L in
             let a: LuaHotkey = L.toUserdata(1)
             let b: LuaHotkey = L.toUserdata(2)
             L.pushBool(a == b)
             return 1
-            },
-            "__gc": %{ L in
+            }),
+            (%"__gc", %{ L in
                 let a: LuaHotkey = L.toUserdata(1)
                 L.unref(Lua.RegistryIndex, a.fn)
                 return 0
-        }])
+                })])
     
     L.pushLibrary(hotkeyLib)
     L.setGlobal("Hotkey")
