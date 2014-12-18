@@ -241,19 +241,15 @@ class Lua {
         }
     }
     
-    func pushMetaMethodEQ<T: LuaMetaEquatable>(_: T.Type) {
+    func pushMetaMethodEQ<T: Equatable>(_: T.Type) {
         pushMethod("__eq") { L in
             let a: T = self.toUserdata(1)
             let b: T = self.toUserdata(2)
-            self.pushBool(a.equals(b))
+            self.pushBool(a == b)
             return 1
         }
     }
     
-}
-
-protocol LuaMetaEquatable {
-    func equals(other: LuaMetaEquatable) -> Bool
 }
 
 protocol LuaMetaGCable {
@@ -262,20 +258,13 @@ protocol LuaMetaGCable {
 
 protocol LuaUserdataEmbeddable {}
 
-class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, LuaMetaEquatable {
+class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, Equatable {
     let fn: Int
     init(fn: Int) { self.fn = fn }
     
     func call(L: Lua) {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
         L.call(arguments: 1, returnValues: 0)
-    }
-    
-    func equals(other: LuaMetaEquatable) -> Bool {
-        if let otherHotkey = other as? LuaHotkey {
-            return self.fn == otherHotkey.fn
-        }
-        return false
     }
     
     func cleanup(L: Lua) {
@@ -314,6 +303,7 @@ class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, LuaMetaEquatable {
         L.setField("__index", table: -2)
     }
 }
+func ==(a: LuaHotkey, b: LuaHotkey) -> Bool { return a.fn == b.fn }
 
 
 func testLua() {
