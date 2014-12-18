@@ -262,13 +262,20 @@ protocol LuaMetaGCable {
 
 protocol LuaUserdataEmbeddable {}
 
-class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
-    let fn: Int = 0
+class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, LuaMetaEquatable {
+    let fn: Int
     init(fn: Int) { self.fn = fn }
     
     func call(L: Lua) {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
         L.call(arguments: 1, returnValues: 0)
+    }
+    
+    func equals(other: LuaMetaEquatable) -> Bool {
+        if let otherHotkey = other as? LuaHotkey {
+            return self.fn == otherHotkey.fn
+        }
+        return false
     }
     
     func cleanup(L: Lua) {
@@ -281,13 +288,7 @@ class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
         
         // setup hotkey's metatable
         L.pushMetatable("Hotkey") {
-            L.pushMethod("__eq") { L in
-                let a: LuaHotkey = L.toUserdata(1)
-                let b: LuaHotkey = L.toUserdata(2)
-                L.pushBool(a.fn == b.fn)
-                return 1
-            }
-            
+            L.pushMetaMethodEQ(self)
             L.pushMetaMethodGC(self)
         }
         
