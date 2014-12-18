@@ -108,15 +108,17 @@ extension Lua {
     
     func getUserdata(position: Int) -> Userdata? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
-        // TODO: test by name too, like luaL_checkudata does
         return Userdata(lua_touserdata(L, Int32(position)))
     }
     
     func getUserdata<T>(position: Int) -> T? {
-        if let ud = getUserdata(position) {
-            return UnsafeMutablePointer<T>().memory
-        }
+        if let ud = getUserdata(position) { return UnsafeMutablePointer<T>(ud).memory }
         return nil
+    }
+    
+    func getUserdata<T>(position: Int, metatableName: String) -> T? {
+        if luaL_testudata(L, Int32(position), (metatableName as NSString).UTF8String) == nil { return nil }
+        return getUserdata(position)
     }
     
     func getTruthy(position: Int) -> Bool {
@@ -255,8 +257,6 @@ class LuaHotkey {
     let fn: Int
     init(fn: Int) { self.fn = fn }
     
-    class func metatableName() -> String { return "Hotkey" }
-    
     func call(L: Lua) {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
         L.call(arguments: 1, returnValues: 0)
@@ -271,17 +271,17 @@ class LuaHotkey {
         L.pushTable()
         
         // setup hotkey's metatable
-        L.pushMetatable(metatableName()) {
+        L.pushMetatable("Hotkey") {
             L.pushMethod("__eq") { L in
 //                L.checkArgs(.Userdata(LuaHotkey), .None)
-                let a: LuaHotkey = L.getUserdata(1)!
-                let b: LuaHotkey = L.getUserdata(2)!
+                let a: LuaHotkey = L.getUserdata(1, metatableName: "Hotkey")!
+                let b: LuaHotkey = L.getUserdata(2, metatableName: "Hotkey")!
                 L.pushBool(a.fn == b.fn)
                 return 1
             }
             
             L.pushMethod("__gc") { L in
-                let a: LuaHotkey = L.getUserdata(1)!
+                let a: LuaHotkey = L.getUserdata(1, metatableName: "Hotkey")!
                 a.cleanup(L)
                 L.unregisterUserdata(1)
                 return 0
@@ -319,5 +319,5 @@ func testLua() {
     LuaHotkey.pushLibrary(L)
     L.setGlobal("Hotkey")
     
-//    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
+    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
 }
