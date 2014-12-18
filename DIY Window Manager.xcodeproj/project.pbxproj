@@ -460,6 +460,8 @@
 					"DEBUG=1",
 					"$(inherited)",
 					"LUA_USE_MACOSX=1",
+					"LUA_NOCVTN2S=1",
+					"LUA_NOCVTS2N=1",
 				);
 				INFOPLIST_FILE = "DIY Window Manager/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -475,7 +477,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "LUA_USE_MACOSX=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"LUA_USE_MACOSX=1",
+					"LUA_NOCVTN2S=1",
+					"LUA_NOCVTS2N=1",
+				);
 				INFOPLIST_FILE = "DIY Window Manager/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
