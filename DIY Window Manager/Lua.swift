@@ -112,6 +112,13 @@ extension Lua {
         return Userdata(lua_touserdata(L, Int32(position)))
     }
     
+    func getUserdata<T>(position: Int) -> T? {
+        if let ud = getUserdata(position) {
+            return UnsafeMutablePointer<T>().memory
+        }
+        return nil
+    }
+    
     func getTruthy(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
@@ -129,6 +136,7 @@ extension Lua {
         case let .Function(x): pushFunction(x)
         case let .String(x): pushString(x)
         case let .Table(x): pushTable(x)
+        case let .Userdata(x): pushUserdata(x)
         case .Nil: pushNil()
         }
     }
@@ -266,14 +274,14 @@ class LuaHotkey {
         L.pushMetatable(metatableName()) {
             L.pushMethod("__eq") { L in
 //                L.checkArgs(.Userdata(LuaHotkey), .None)
-                let a: LuaHotkey = L.getUserdata(1)!.memory
-                let b: LuaHotkey = L.getUserdata(2)!.memory
+                let a: LuaHotkey = L.getUserdata(1)!
+                let b: LuaHotkey = L.getUserdata(2)!
                 L.pushBool(a.fn == b.fn)
                 return 1
             }
             
             L.pushMethod("__gc") { L in
-                let a: LuaHotkey = L.getUserdata(1)!.memory
+                let a: LuaHotkey = L.getUserdata(1)!
                 a.cleanup(L)
                 L.unregisterUserdata(1)
                 return 0
