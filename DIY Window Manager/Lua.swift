@@ -11,13 +11,13 @@ class Lua {
     
     private struct KeepAliveCollection {
         
-        var bag = Array<Userdata>()
+        var bag = Array<LuaUserdata>()
         
-        mutating func add(o: Userdata) {
+        mutating func add(o: LuaUserdata) {
             bag.append(o)
         }
         
-        mutating func remove(o: Userdata) {
+        mutating func remove(o: LuaUserdata) {
             for (i, x) in enumerate(bag) {
                 if o == x {
                     bag.removeAtIndex(i)
@@ -194,6 +194,7 @@ class Lua {
     class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
     
     func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
+    func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
     
     // uhh, convenience?
     
@@ -219,15 +220,13 @@ class Lua {
     // userdata
     
     func toUserdata<T>(position: Int) -> T {
-        let ud = UnsafeMutablePointer<T>(lua_touserdata(L, Int32(position)))
-        return ud.memory
+        return UnsafeMutablePointer<T>(lua_touserdata(L, Int32(position))).memory
     }
     
-    func pushUserdata<T>(swiftObject: T) {
-        let userdata = UnsafeMutablePointer<Userdata>(lua_newuserdata(L, UInt(sizeof(Userdata))))
-        
-//        userdata.memory = swiftObject
-//        userdatas.add(swiftObject)
+    func pushUserdata<T: LuaUserdata>(swiftObject: T) {
+        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+        userdata.memory = swiftObject
+        userdatas.add(swiftObject)
         
 //        if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
 //            pushMethod(%"__gc") { L in
@@ -270,24 +269,24 @@ class Lua {
         setField("__index", table: -2)
     }
     
-    struct Userdata {
-        var id: Int
-    }
-    
     struct Library {
         var metaTableName: String
         var instanceMethods: StringTable
         var classMethods: StringTable
         var metaMethods: StringTable // omit __gc
-        var gc: () -> ()
     }
     
 }
 
-func ==(a: Lua.Userdata, b: Lua.Userdata) -> Bool { return a.id == b.id }
+protocol LuaUserdata {
+    var id: Int { get set }
+}
+
+func ==(a: LuaUserdata, b: LuaUserdata) -> Bool { return a.id == b.id }
 
 
-class LuaHotkey {
+class LuaHotkey: LuaUserdata {
+    var id: Int = 0
     let fn: Int = 0
     init(fn: Int) { self.fn = fn }
     
@@ -314,12 +313,16 @@ func testLua() {
             return 1
         }],
         metaMethods: ["__eq": %{ L in
-//            let a = L.toUserdata(1)
-//            let b = L.toUserdata(1)
-//            L.pushBool(a == b)
+            let a: LuaHotkey = L.toUserdata(1)
+            let b: LuaHotkey = L.toUserdata(2)
+            L.pushBool(a == b)
             return 1
-        }],
-        gc: {})
+            },
+            "__gc": %{ L in
+                let a: LuaHotkey = L.toUserdata(1)
+                L.unref(Lua.RegistryIndex, a.fn)
+                return 0
+        }])
     
     L.pushLibrary(hotkeyLib)
     L.setGlobal("Hotkey")
