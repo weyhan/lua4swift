@@ -293,6 +293,9 @@ func testLua() {
     let hotkeyLib = Lua.Library(
         metaTableName: "Hotkey",
         instanceMethods: [
+            (%1, %"first array item"),
+            (%2, %"second item item"),
+            (%3, nil),
             (%"foo", %17),
         ],
         classMethods: [
