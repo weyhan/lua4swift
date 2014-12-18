@@ -37,6 +37,7 @@ class Lua {
         case Table
         case Nil
         case None
+        case Userdata(LuaUserdataEmbeddable.Type)
         
         func toLuaType() -> Int32 {
             switch self {
@@ -46,6 +47,7 @@ class Lua {
             case Function: return LUA_TFUNCTION
             case Table: return LUA_TTABLE
             case Nil: return LUA_TNIL
+            case let Userdata(type): return LUA_TUSERDATA
             default: return LUA_TNONE
             }
         }
@@ -118,7 +120,12 @@ class Lua {
     
     func checkArgs(types: Kind...) {
         for (i, t) in enumerate(types) {
-            luaL_checktype(L, Int32(i+1), t.toLuaType())
+            switch t {
+            case let .Userdata(ud):
+                luaL_checkudata(L, Int32(i+1), ud.metatableName())
+            default:
+                luaL_checktype(L, Int32(i+1), t.toLuaType())
+            }
         }
     }
     
@@ -241,26 +248,21 @@ class Lua {
         }
     }
     
-    func pushMetaMethodEQ<T: Equatable>(_: T.Type) {
-        pushMethod("__eq") { L in
-            let a: T = self.toUserdata(1)
-            let b: T = self.toUserdata(2)
-            self.pushBool(a == b)
-            return 1
-        }
-    }
-    
 }
 
 protocol LuaMetaGCable {
     func cleanup(L: Lua)
 }
 
-protocol LuaUserdataEmbeddable {}
+protocol LuaUserdataEmbeddable {
+    class func metatableName() -> String
+}
 
-class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, Equatable {
+class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
     let fn: Int
     init(fn: Int) { self.fn = fn }
+    
+    class func metatableName() -> String { return "Hotkey" }
     
     func call(L: Lua) {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
@@ -276,8 +278,14 @@ class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, Equatable {
         L.pushTable()
         
         // setup hotkey's metatable
-        L.pushMetatable("Hotkey") {
-            L.pushMetaMethodEQ(self)
+        L.pushMetatable(metatableName()) {
+            L.pushMethod("__eq") { L in
+                L.checkArgs(.Userdata(LuaHotkey), .None)
+                let a: LuaHotkey = L.toUserdata(1)
+                let b: LuaHotkey = L.toUserdata(2)
+                L.pushBool(a.fn == b.fn)
+                return 1
+            }
             L.pushMetaMethodGC(self)
         }
         
@@ -303,7 +311,6 @@ class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable, Equatable {
         L.setField("__index", table: -2)
     }
 }
-func ==(a: LuaHotkey, b: LuaHotkey) -> Bool { return a.fn == b.fn }
 
 
 func testLua() {
