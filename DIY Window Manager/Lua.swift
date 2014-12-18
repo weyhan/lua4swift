@@ -161,6 +161,12 @@ class Lua {
     func pushInteger(n: Int64) { lua_pushinteger(L, n) }
     func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
     
+    func pushMetatable(s: String, _ setup: () -> Void) {
+        pushMetatable(s)
+        setup()
+        setMetatable(-2)
+    }
+    
     func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in Int32(fn(self)) }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
@@ -235,6 +241,19 @@ class Lua {
         }
     }
     
+    func pushMetaMethodEQ<T: LuaMetaEquatable>(_: T.Type) {
+        pushMethod("__eq") { L in
+            let a: T = self.toUserdata(1)
+            let b: T = self.toUserdata(2)
+            self.pushBool(a.equals(b))
+            return 1
+        }
+    }
+    
+}
+
+protocol LuaMetaEquatable {
+    func equals(other: LuaMetaEquatable) -> Bool
 }
 
 protocol LuaUserdataEmbeddable {
@@ -259,18 +278,17 @@ class LuaHotkey: LuaUserdataEmbeddable {
         // push hotkey lib table
         L.pushTable()
         
-        // create metatable
-        L.pushMetatable("Hotkey")
-        L.pushMethod("__eq") { L in
-            let a: LuaHotkey = L.toUserdata(1)
-            let b: LuaHotkey = L.toUserdata(2)
-            L.pushBool(a.fn == b.fn)
-            return 1
+        // setup hotkey's metatable
+        L.pushMetatable("Hotkey") {
+            L.pushMethod("__eq") { L in
+                let a: LuaHotkey = L.toUserdata(1)
+                let b: LuaHotkey = L.toUserdata(2)
+                L.pushBool(a.fn == b.fn)
+                return 1
+            }
+            
+            L.pushMetaMethodGC(self)
         }
-        L.pushMetaMethodGC(self)
-        
-        // set as hotkey's metatable
-        L.setMetatable(-2)
         
         // setup class methods
         L.pushMethod("new") { L in
