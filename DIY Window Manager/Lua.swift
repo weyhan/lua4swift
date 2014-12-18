@@ -11,19 +11,19 @@ class Lua {
     
     private struct KeepAliveCollection {
         
-        var bag = Array<LuaUserdataEmbeddable>()
+        var bag = Array<Userdata>()
         
-        mutating func add(o: LuaUserdataEmbeddable) {
+        mutating func add(o: Userdata) {
             bag.append(o)
         }
         
-        mutating func remove(o: LuaUserdataEmbeddable) {
-//            for (i, x) in enumerate(bag) {
-//                if o.equals(x) {
-//                    bag.removeAtIndex(i)
-//                    return
-//                }
-//            }
+        mutating func remove(o: Userdata) {
+            for (i, x) in enumerate(bag) {
+                if o == x {
+                    bag.removeAtIndex(i)
+                    return
+                }
+            }
         }
         
     }
@@ -223,10 +223,10 @@ class Lua {
         return ud.memory
     }
     
-    func pushUserdata<T: LuaUserdataEmbeddable>(swiftObject: T) {
-        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
-        userdata.memory = swiftObject
-        userdatas.add(swiftObject)
+    func pushUserdata(swiftObject: Userdata) {
+//        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+//        userdata.memory = swiftObject
+//        userdatas.add(swiftObject)
         
 //        if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
 //            pushMethod(%"__gc") { L in
@@ -264,6 +264,15 @@ class Lua {
         // add metatable, add meta methods to lib table
         luaL_newmetatable(L, (lib.metaTableName as NSString).UTF8String)
         pushOntoTable(-1, lib.metaMethods)
+        
+//        pushFunction { L in
+//            
+////            lib.gc()
+//            // TODO
+//            return 0
+//        }
+//        setField("__gc", table: -2)
+        
         lua_setmetatable(L, -2)
         
         // add instance methods to lib table
@@ -277,6 +286,10 @@ class Lua {
         setField("__index", table: -2)
     }
     
+    struct Userdata {
+        var id: Int
+    }
+    
     struct Library {
         var metaTableName: String
         var instanceMethods: StringTable
@@ -287,13 +300,12 @@ class Lua {
     
 }
 
+func ==(a: Lua.Userdata, b: Lua.Userdata) -> Bool { return a.id == b.id }
 
 
-protocol LuaUserdataEmbeddable {
-}
-
-
-class LuaHotkey: LuaUserdataEmbeddable {
+class LuaHotkey {
+    var id: Int = 0
+    
     let fn: Int
     init(fn: Int) {self.fn=fn}
     
@@ -316,10 +328,13 @@ func testLua() {
             let mods = L.getTable(2)
             L.pushFromStack(3)
             let i: Int = L.ref(Lua.RegistryIndex)
-            L.pushUserdata(LuaHotkey(fn: i))
+//            L.pushUserdata(LuaHotkey(fn: i))
             return 1
         }],
-        metaMethods: [:],
+        metaMethods: ["__eq": %{ L in
+            L.pushBool(true)
+            return 1
+        }],
         gc: {})
     
     
