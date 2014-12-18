@@ -1,12 +1,5 @@
 import Foundation
 
-prefix operator % { }
-prefix func % (x: Int64) -> Lua.Value { return .Integer(x) }
-prefix func % (x: String) -> Lua.Value { return .String(x) }
-prefix func % (x: Bool) -> Lua.Value { return .Bool(x) }
-prefix func % (x: Lua.Function) -> Lua.Value { return .Function(x) }
-prefix func % (x: Lua.Table) -> Lua.Value { return .Table(x) }
-
 class Lua {
     
     let L = luaL_newstate()
@@ -301,10 +294,10 @@ class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
         }
         
         // setup arbitrary class fields
-        L.pushOntoTable(%1, %"first array item")
-        L.pushOntoTable(%2, %"second item item")
-        L.pushOntoTable(%3, nil)
-        L.pushOntoTable(%"foo", %17)
+        L.pushOntoTable(.Integer(1), .String("first array item"))
+        L.pushOntoTable(.Integer(2), .String("second item item"))
+        L.pushOntoTable(.Integer(3), nil)
+        L.pushOntoTable(.String("foo"), .Integer(17))
         
         // Hotkey.__index = Hotkey
         L.pushFromStack(-1)
