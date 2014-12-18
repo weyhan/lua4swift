@@ -9,27 +9,7 @@ prefix func % (x: Lua.Table) -> Lua.Value { return .Table(x) }
 
 class Lua {
     
-    private struct KeepAliveCollection {
-        
-        var bag = Array<LuaUserdata>()
-        
-        mutating func add(o: LuaUserdata) {
-            bag.append(o)
-        }
-        
-        mutating func remove(o: LuaUserdata) {
-            for (i, x) in enumerate(bag) {
-                if o == x {
-                    bag.removeAtIndex(i)
-                    return
-                }
-            }
-        }
-        
-    }
-    
     let L = luaL_newstate()
-    private var userdatas = KeepAliveCollection()
     
     typealias Function = (Lua) -> Int
     typealias Table = [(Value, Value)]
@@ -225,7 +205,7 @@ class Lua {
     func pushUserdata<T: LuaUserdata>(swiftObject: T) {
         let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
         userdata.memory = swiftObject
-        userdatas.add(swiftObject)
+//        userdatas.add(swiftObject)
         
 //        if luaL_newmetatable(L, (T.userdataName() as NSString).UTF8String) != 0 {
 //            pushMethod(%"__gc") { L in
@@ -248,13 +228,21 @@ class Lua {
         }
     }
     
-    func pushLibrary(lib: Library) {
+    func pushLibrary<T: LuaUserdata>(lib: Library, _: T.Type) {
         // push lib table
         pushTable()
         
         // add metatable, add meta methods to lib table
         luaL_newmetatable(L, (lib.metaTableName as NSString).UTF8String)
         pushOntoTable(-1, lib.metaMethods)
+        
+//        pushFunction { L in
+//            let a: T = L.toUserdata(1)
+////            lib.userDataType
+//            return 0
+//        }
+//        setField("__gc", table: -2)
+        
         lua_setmetatable(L, -2)
         
         // add instance methods to lib table
@@ -277,12 +265,15 @@ class Lua {
     
 }
 
-protocol LuaUserdata {
+protocol LuaUserdata: Equatable {
     var id: Int { get set }
 }
 
-func ==(a: LuaUserdata, b: LuaUserdata) -> Bool { return a.id == b.id }
+//func ==(a: LuaUserdata, b: LuaUserdata) -> Bool { return a.id == b.id }
 
+func ==(a: LuaHotkey, b: LuaHotkey) -> Bool {
+    return a.fn == b.fn
+}
 
 class LuaHotkey: LuaUserdata {
     var id: Int = 0
@@ -301,29 +292,33 @@ func testLua() {
     
     let hotkeyLib = Lua.Library(
         metaTableName: "Hotkey",
-        instanceMethods: [(%"foo", %17)],
-        classMethods: [(%"new", %{ L in
-            L.checkArgs(.String, .Table, .Function, .None)
-            let key = L.getString(1)
-            let mods = L.getTable(2)
-            L.pushFromStack(3)
-            let i = L.ref(Lua.RegistryIndex)
-            L.pushUserdata(LuaHotkey(fn: i))
-            return 1
-            })],
-        metaMethods: [(%"__eq", %{ L in
-            let a: LuaHotkey = L.toUserdata(1)
-            let b: LuaHotkey = L.toUserdata(2)
-            L.pushBool(a == b)
-            return 1
-            }),
+        instanceMethods: [
+            (%"foo", %17),
+        ],
+        classMethods: [
+            (%"new", %{ L in
+                L.checkArgs(.String, .Table, .Function, .None)
+                let key = L.getString(1)
+                let mods = L.getTable(2)
+                L.pushFromStack(3)
+                let i = L.ref(Lua.RegistryIndex)
+                L.pushUserdata(LuaHotkey(fn: i))
+                return 1
+                })],
+        metaMethods: [
+            (%"__eq", %{ L in
+                let a: LuaHotkey = L.toUserdata(1)
+                let b: LuaHotkey = L.toUserdata(2)
+                L.pushBool(a == b)
+                return 1
+                }),
             (%"__gc", %{ L in
                 let a: LuaHotkey = L.toUserdata(1)
                 L.unref(Lua.RegistryIndex, a.fn)
                 return 0
                 })])
     
-    L.pushLibrary(hotkeyLib)
+    L.pushLibrary(hotkeyLib, LuaHotkey.self)
     L.setGlobal("Hotkey")
     
 //    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
