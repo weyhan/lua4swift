@@ -9,7 +9,7 @@ class Lua {
     typealias Table = [(Value, Value)]
     
     typealias Userdata = UnsafeMutablePointer<Void>
-    var userdatas = [Userdata : LuaUserdataEmbeddable]()
+    var userdatas = [Userdata : Any]()
     
     enum Value: NilLiteralConvertible {
         case String(Swift.String)
@@ -191,6 +191,13 @@ extension Lua {
         lua_settop(L, -Int32(n)-1)
     }
     
+    func pushUserdata<T>(swiftObject: T) {
+        let userdata: Userdata = lua_newuserdata(L, UInt(sizeof(T)))
+        let userdataT = UnsafeMutablePointer<T>(userdata)
+        userdataT.memory = swiftObject
+        userdatas[userdata] = swiftObject
+    }
+    
 }
 
 // ref
@@ -208,6 +215,11 @@ extension Lua {
     
     func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
     
+    func unregisterUserdata(position: Int) {
+        let ud = lua_touserdata(L, Int32(position))
+        userdatas[ud] = nil
+    }
+    
 }
 
 // raw
@@ -217,20 +229,6 @@ extension Lua {
         lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
     }
     
-    // userdata
-    
-    func pushUserdata<T: LuaUserdataEmbeddable>(swiftObject: T) {
-        let userdata: Userdata = lua_newuserdata(L, UInt(sizeof(T)))
-        let userdataT = UnsafeMutablePointer<T>(userdata)
-        userdataT.memory = swiftObject
-        userdatas[userdata] = swiftObject
-    }
-    
-    func unregisterUserdata(position: Int) {
-        let ud = lua_touserdata(L, Int32(position))
-        userdatas[ud] = nil
-    }
-    
 }
 
 
@@ -245,11 +243,7 @@ extension Lua {
 
 
 
-protocol LuaUserdataEmbeddable {
-    class func metatableName() -> String
-}
-
-class LuaHotkey: LuaUserdataEmbeddable {
+class LuaHotkey {
     let fn: Int
     init(fn: Int) { self.fn = fn }
     
