@@ -232,7 +232,7 @@ class Lua {
         userdatas[ud] = nil
     }
     
-    func pushMetaMethodGC<T: LuaUserdataEmbeddable>(_: T.Type) {
+    func pushMetaMethodGC<T: LuaMetaGCable>(_: T.Type) {
         pushMethod("__gc") { L in
             let a: T = self.toUserdata(1)
             a.cleanup(L)
@@ -256,12 +256,13 @@ protocol LuaMetaEquatable {
     func equals(other: LuaMetaEquatable) -> Bool
 }
 
-protocol LuaUserdataEmbeddable {
+protocol LuaMetaGCable {
     func cleanup(L: Lua)
-    class func pushLibrary(L: Lua)
 }
 
-class LuaHotkey: LuaUserdataEmbeddable {
+protocol LuaUserdataEmbeddable {}
+
+class LuaHotkey: LuaUserdataEmbeddable, LuaMetaGCable {
     let fn: Int = 0
     init(fn: Int) { self.fn = fn }
     
