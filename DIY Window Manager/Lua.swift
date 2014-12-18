@@ -223,8 +223,9 @@ class Lua {
         return ud.memory
     }
     
-    func pushUserdata(swiftObject: Userdata) {
-//        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+    func pushUserdata<T>(swiftObject: T) {
+        let userdata = UnsafeMutablePointer<Userdata>(lua_newuserdata(L, UInt(sizeof(Userdata))))
+        
 //        userdata.memory = swiftObject
 //        userdatas.add(swiftObject)
         
@@ -235,15 +236,7 @@ class Lua {
 //                a.gc()
 //                return 0
 //            }
-//            
-//            pushMethod(%"__eq") { L in
-//                let a: T = L.toUserdata(1)
-//                let b: T = L.toUserdata(1)
-//                self.pushBool(a.equals(b))
-//                return 1
-//            }
 //        }
-//        lua_setmetatable(L, -2)
     }
     
     func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
@@ -264,15 +257,6 @@ class Lua {
         // add metatable, add meta methods to lib table
         luaL_newmetatable(L, (lib.metaTableName as NSString).UTF8String)
         pushOntoTable(-1, lib.metaMethods)
-        
-//        pushFunction { L in
-//            
-////            lib.gc()
-//            // TODO
-//            return 0
-//        }
-//        setField("__gc", table: -2)
-        
         lua_setmetatable(L, -2)
         
         // add instance methods to lib table
@@ -304,10 +288,8 @@ func ==(a: Lua.Userdata, b: Lua.Userdata) -> Bool { return a.id == b.id }
 
 
 class LuaHotkey {
-    var id: Int = 0
-    
-    let fn: Int
-    init(fn: Int) {self.fn=fn}
+    let fn: Int = 0
+    init(fn: Int) { self.fn = fn }
     
     func call(L: Lua) {
         L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
@@ -327,27 +309,20 @@ func testLua() {
             let key = L.getString(1)
             let mods = L.getTable(2)
             L.pushFromStack(3)
-            let i: Int = L.ref(Lua.RegistryIndex)
-//            L.pushUserdata(LuaHotkey(fn: i))
+            let i = L.ref(Lua.RegistryIndex)
+            L.pushUserdata(LuaHotkey(fn: i))
             return 1
         }],
         metaMethods: ["__eq": %{ L in
-            L.pushBool(true)
+//            let a = L.toUserdata(1)
+//            let b = L.toUserdata(1)
+//            L.pushBool(a == b)
             return 1
         }],
         gc: {})
-    
-    
     
     L.pushLibrary(hotkeyLib)
     L.setGlobal("Hotkey")
     
 //    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
-    
-//    L.doString("return print")
-//    L.doString("return Hotkey.foo")
-//    L.call(arguments: 1, returnValues: 0)
-    
-//    println(L.toNumber(-2))
-//    println(L.toString(-1))
 }
