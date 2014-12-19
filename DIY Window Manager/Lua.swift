@@ -54,11 +54,6 @@ extension Lua {
     func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
     func setMetatable(position: Int) { lua_setmetatable(L, Int32(position)) }
     
-    func setMetatable(metatableName: String, position: Int = -1) {
-        lua_getfield(L, Int32(Lua.RegistryIndex), (metatableName as NSString).UTF8String)
-        setMetatable(position - 1)
-    }
-    
 }
 
 // internal helpers
@@ -206,10 +201,20 @@ extension Lua {
         lua_settop(L, -Int32(n)-1)
     }
     
+    func pushField(name: String, fromTable: Int) {
+        lua_getfield(L, Int32(fromTable), (name as NSString).UTF8String)
+    }
+    
     func pushUserdata<T>(swiftObject: T) {
         let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
         userdata.memory = swiftObject
         userdatas[userdata] = swiftObject
+    }
+    
+    func pushMetaUserdata<T: LuaMetatableOwner>(swiftObject: T) {
+        pushUserdata(swiftObject)
+        pushField(T.metatableName, fromTable: Lua.RegistryIndex)
+        setMetatable(-2)
     }
     
 }

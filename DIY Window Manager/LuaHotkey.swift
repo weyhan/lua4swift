@@ -49,8 +49,7 @@ class LuaHotkey: LuaMetatableOwner {
             hotkey.enable()
             
             let i = L.ref(Lua.RegistryIndex)
-            L.pushUserdata(LuaHotkey(fn: i, hotkey: hotkey))
-            L.setMetatable("Hotkey")
+            L.pushMetaUserdata(LuaHotkey(fn: i, hotkey: hotkey))
             
             return 1
         }
