@@ -207,9 +207,8 @@ extension Lua {
     }
     
     func pushUserdata<T>(swiftObject: T) {
-        let userdata: Userdata = lua_newuserdata(L, UInt(sizeof(T)))
-        let userdataT = UnsafeMutablePointer<T>(userdata)
-        userdataT.memory = swiftObject
+        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+        userdata.memory = swiftObject
         userdatas[userdata] = swiftObject
     }
     
@@ -223,8 +222,7 @@ extension Lua {
         pushFunction { L in
             L.checkArgs(.Userdata(metatableName), .None)
             fn(L, L.getUserdata(1)!)
-            let ud = lua_touserdata(L.L, 1)
-            L.userdatas[ud] = nil
+            L.userdatas[L.getUserdata(1)!] = nil
             return 0
         }
         setTable(tablePosition - 2)
