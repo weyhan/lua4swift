@@ -312,15 +312,15 @@ class LuaHotkey {
         L.pushMetatable("Hotkey") {
             L.pushMethod("__eq") { L in
                 L.checkArgs(.Userdata("Hotkey"), .Userdata("Hotkey"), .None)
-                let a: LuaHotkey = L.getUserdata(1, metatableName: "Hotkey")!
-                let b: LuaHotkey = L.getUserdata(2, metatableName: "Hotkey")!
+                let a: LuaHotkey = L.getUserdata(1)!
+                let b: LuaHotkey = L.getUserdata(2)!
                 L.pushBool(a.fn == b.fn)
                 return 1
             }
             
             L.pushMethod("__gc") { L in
                 L.checkArgs(.Userdata("Hotkey"), .None)
-                let a: LuaHotkey = L.getUserdata(1, metatableName: "Hotkey")!
+                let a: LuaHotkey = L.getUserdata(1)!
                 a.cleanup(L)
                 L.unregisterUserdata(1)
                 return 0
