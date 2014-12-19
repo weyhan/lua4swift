@@ -241,6 +241,46 @@ extension Lua {
     
 }
 
+// type checking
+extension Lua {
+    
+    enum Kind {
+        case String
+        case Number
+        case Bool
+        case Function
+        case Table
+        case Nil
+        case None
+        case Userdata(Swift.String?)
+        
+        func toLuaType() -> Int32 {
+            switch self {
+            case String: return LUA_TSTRING
+            case Number: return LUA_TNUMBER
+            case Bool: return LUA_TBOOLEAN
+            case Function: return LUA_TFUNCTION
+            case Table: return LUA_TTABLE
+            case Nil: return LUA_TNIL
+            case let Userdata(type): return LUA_TUSERDATA
+            default: return LUA_TNONE
+            }
+        }
+    }
+    
+    func checkArgs(types: Kind...) {
+        for (i, t) in enumerate(types) {
+            switch t {
+            case let .Userdata(ud) where ud != nil:
+                luaL_checkudata(L, Int32(i+1), ud!)
+            default:
+                luaL_checktype(L, Int32(i+1), t.toLuaType())
+            }
+        }
+    }
+    
+}
+
 
 
 
@@ -267,13 +307,11 @@ class LuaHotkey {
     }
     
     class func pushLibrary(L: Lua) {
-        // push hotkey lib table
         L.pushTable()
         
-        // setup hotkey's metatable
         L.pushMetatable("Hotkey") {
             L.pushMethod("__eq") { L in
-//                L.checkArgs(.Userdata(LuaHotkey), .None)
+                L.checkArgs(.Userdata("Hotkey"), .Userdata("Hotkey"), .None)
                 let a: LuaHotkey = L.getUserdata(1, metatableName: "Hotkey")!
                 let b: LuaHotkey = L.getUserdata(2, metatableName: "Hotkey")!
                 L.pushBool(a.fn == b.fn)
@@ -281,6 +319,7 @@ class LuaHotkey {
             }
             
             L.pushMethod("__gc") { L in
+                L.checkArgs(.Userdata("Hotkey"), .None)
                 let a: LuaHotkey = L.getUserdata(1, metatableName: "Hotkey")!
                 a.cleanup(L)
                 L.unregisterUserdata(1)
@@ -288,11 +327,10 @@ class LuaHotkey {
             }
         }
         
-        // setup class methods
         L.pushMethod("new") { L in
-//            L.checkArgs(.String, .Table, .Function, .None)
-            let key = L.getString(1)
-            let mods = L.getTable(2)
+            L.checkArgs(.String, .Table, .Function, .None)
+            let key = L.getString(1)!
+            let mods = L.getTable(2)!
             L.pushFromStack(3)
             
             let i = L.ref(Lua.RegistryIndex)
@@ -300,7 +338,6 @@ class LuaHotkey {
             return 1
         }
         
-        // setup arbitrary class fields
         L.pushOntoTable(.Integer(1), .String("first array item"))
         L.pushOntoTable(.Integer(2), .String("second item item"))
         L.pushOntoTable(.Integer(3), nil)
