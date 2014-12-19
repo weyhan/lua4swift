@@ -214,13 +214,17 @@ extension Lua {
     
 }
 
+protocol LuaMetatableOwner {
+    class var metatableName: String { get }
+}
+
 // meta methods
 extension Lua {
     
-    func pushMetaMethodGC<T>(metatableName: String, _ t: T.Type, _ fn: (Lua, T) -> Void, tablePosition: Int = -1) {
+    func pushMetaMethodGC<T: LuaMetatableOwner>(t: T.Type, _ fn: (Lua, T) -> Void, tablePosition: Int = -1) {
         pushString("__gc")
         pushFunction { L in
-            L.checkArgs(.Userdata(metatableName), .None)
+            L.checkArgs(.Userdata(T.metatableName), .None)
             fn(L, L.getUserdata(1)!)
             L.userdatas[L.getUserdata(1)!] = nil
             return 0

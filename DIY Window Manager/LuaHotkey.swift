@@ -1,9 +1,11 @@
 import Foundation
 
 
-class LuaHotkey {
+class LuaHotkey: LuaMetatableOwner {
     let fn: Int
     let hotkey: Hotkey
+    
+    class var metatableName: String { return "Hotkey" }
     
     init(fn: Int, hotkey: Hotkey) {
         self.fn = fn
@@ -27,7 +29,7 @@ class LuaHotkey {
                 return 1
             }
             
-            L.pushMetaMethodGC("Hotkey", LuaHotkey.self) { L, o in
+            L.pushMetaMethodGC(LuaHotkey.self) { L, o in
                 o.hotkey.disable()
                 L.unref(Lua.RegistryIndex, o.fn)
             }
