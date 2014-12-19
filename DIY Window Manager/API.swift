@@ -30,8 +30,7 @@ class API {
             )
             L.setMetatable(-2)
             
-            L.pushMethod("bind") {
-                L.checkArgs(.String, .Table, .Function, .None)
+            L.pushMethod("bind", [.String, .Table, .Function, .None]) {
                 let key = L.getString(1)!
                 let mods = L.getRawTable(2)!
                 L.pushFromStack(3)
@@ -47,8 +46,7 @@ class API {
                 return []
             }
             
-            L.pushMethod("enable") {
-                L.checkArgs(.Userdata(Hotkey.metatableName), .None)
+            L.pushMethod("enable", [.Userdata(self.metatableName), .None]) {
                 let hotkey: Hotkey = L.getUserdata(1)!
                 hotkey.hotkey.enable()
                 return []

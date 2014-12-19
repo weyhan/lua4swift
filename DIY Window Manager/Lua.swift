@@ -199,9 +199,20 @@ extension Lua {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
-    func pushMethod(name: String, _ fn: Function, tablePosition: Int = -1) {
+    func pushMethod(name: String, _ types: [Kind], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
-        pushFunction(fn)
+        pushFunction {
+            for (i, t) in enumerate(types) {
+                switch t {
+                case let .Userdata(ud) where ud != nil:
+                    luaL_checkudata(self.L, Int32(i+1), ud!)
+                default:
+                    luaL_checktype(self.L, Int32(i+1), t.toLuaType())
+                }
+            }
+            
+            return fn()
+        }
         setTable(tablePosition - 2)
     }
     
@@ -212,12 +223,6 @@ extension Lua {
     func pushOntoTable(key: Value, _ value: Value, table: Int = -1) {
         push(key)
         push(value)
-        setTable(table-2)
-    }
-    
-    func pushMethod(key: Value, _ value: Function, table: Int = -1) {
-        push(key)
-        pushFunction(value)
         setTable(table-2)
     }
     
@@ -246,17 +251,13 @@ extension Lua {
         for metaMethod in metamethods {
             switch metaMethod {
             case let .GC(fn):
-                pushString("__gc")
-                pushFunction {
-                    self.checkArgs(.Userdata(T.metatableName), .None)
+                pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
                     fn(self.getUserdata(1)!)
                     self.userdatas[self.getUserdata(1)!] = nil
                     return []
                 }
             case let .EQ(fn):
-                pushString("__gc")
-                pushFunction {
-                    self.checkArgs(.Userdata(T.metatableName), .Userdata(T.metatableName), .None)
+                pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
                     let result = fn(self.getUserdata(1)!, self.getUserdata(2)!)
                     return [.Bool(result)]
                 }
@@ -316,17 +317,6 @@ extension Lua {
             case Nil: return LUA_TNIL
             case let Userdata(type): return LUA_TUSERDATA
             default: return LUA_TNONE
-            }
-        }
-    }
-    
-    func checkArgs(types: Kind...) {
-        for (i, t) in enumerate(types) {
-            switch t {
-            case let .Userdata(ud) where ud != nil:
-                luaL_checkudata(L, Int32(i+1), ud!)
-            default:
-                luaL_checktype(L, Int32(i+1), t.toLuaType())
             }
         }
     }
