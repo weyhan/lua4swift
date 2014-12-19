@@ -29,10 +29,10 @@ class LuaHotkey: LuaMetatableOwner {
                 return 1
             }
             
-            L.pushMetaMethodGC(LuaHotkey.self) { L, o in
+            L.pushMetaMethod(LuaHotkey.self, .GC({ L, o in
                 o.hotkey.disable()
                 L.unref(Lua.RegistryIndex, o.fn)
-            }
+            }))
         }
         
         L.pushMethod("bind") { L in

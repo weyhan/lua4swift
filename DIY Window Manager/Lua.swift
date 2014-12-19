@@ -218,17 +218,27 @@ protocol LuaMetatableOwner {
     class var metatableName: String { get }
 }
 
+enum LuaMetaMethod<T> {
+    case GC((Lua, T) -> Void)
+}
+
 // meta methods
 extension Lua {
     
-    func pushMetaMethodGC<T: LuaMetatableOwner>(t: T.Type, _ fn: (Lua, T) -> Void, tablePosition: Int = -1) {
-        pushString("__gc")
-        pushFunction { L in
-            L.checkArgs(.Userdata(T.metatableName), .None)
-            fn(L, L.getUserdata(1)!)
-            L.userdatas[L.getUserdata(1)!] = nil
-            return 0
+    func pushMetaMethod<T: LuaMetatableOwner>(t: T.Type, _ metaMethod: LuaMetaMethod<T>, tablePosition: Int = -1) {
+        switch metaMethod {
+        case let .GC(fn):
+            pushString("__gc")
+            pushFunction { L in
+                L.checkArgs(.Userdata(T.metatableName), .None)
+                fn(L, L.getUserdata(1)!)
+                L.userdatas[L.getUserdata(1)!] = nil
+                return 0
+            }
+        default:
+            break
         }
+        
         setTable(tablePosition - 2)
     }
     
