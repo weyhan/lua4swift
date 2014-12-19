@@ -22,16 +22,16 @@ class API {
         class func pushLibrary(L: Lua) {
             L.pushTable()
             
-            L.pushMetatable("Hotkey") {
-                L.pushMetaMethod(.EQ({ (a: Hotkey, b: Hotkey) in
+            L.pushMetatable("Hotkey",
+                .EQ({ (a: Hotkey, b: Hotkey) in
                     return a.fn == b.fn
-                }))
-                
-                L.pushMetaMethod(.GC({ (L, o: Hotkey) in
+                }),
+                .GC({ (L, o: Hotkey) in
                     o.hotkey.disable()
                     L.unref(Lua.RegistryIndex, o.fn)
-                }))
-            }
+                })
+            )
+            L.setMetatable(-2)
             
             L.pushMethod("bind") { L in
                 L.checkArgs(.String, .Table, .Function, .None)

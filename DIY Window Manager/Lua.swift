@@ -154,18 +154,11 @@ extension Lua {
     }
     
     func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) { lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity)) }
-    func pushMetatable(s: String) -> Bool { return luaL_newmetatable(L, (s as NSString).UTF8String) != 0 }
     func pushNil()             { lua_pushnil(L) }
     func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
     func pushDouble(n: Double) { lua_pushnumber(L, n) }
     func pushInteger(n: Int64) { lua_pushinteger(L, n) }
     func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
-    
-    func pushMetatable(s: String, _ setup: () -> Void) {
-        pushMetatable(s)
-        setup()
-        setMetatable(-2)
-    }
     
     func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in Int32(fn(self)) }
@@ -231,26 +224,29 @@ enum LuaMetaMethod<T> {
 // meta methods
 extension Lua {
     
-    func pushMetaMethod<T: LuaMetatableOwner>(metaMethod: LuaMetaMethod<T>, tablePosition: Int = -1) {
-        switch metaMethod {
-        case let .GC(fn):
-            pushString("__gc")
-            pushFunction { L in
-                L.checkArgs(.Userdata(T.metatableName), .None)
-                fn(L, L.getUserdata(1)!)
-                L.userdatas[L.getUserdata(1)!] = nil
-                return 0
+    func pushMetatable<T: LuaMetatableOwner>(s: String, _ metamethods: LuaMetaMethod<T>...) {
+        luaL_newmetatable(L, (s as NSString).UTF8String) != 0
+        for metaMethod in metamethods {
+            switch metaMethod {
+            case let .GC(fn):
+                pushString("__gc")
+                pushFunction { L in
+                    L.checkArgs(.Userdata(T.metatableName), .None)
+                    fn(L, L.getUserdata(1)!)
+                    L.userdatas[L.getUserdata(1)!] = nil
+                    return 0
+                }
+            case let .EQ(fn):
+                pushString("__gc")
+                pushFunction { L in
+                    L.checkArgs(.Userdata(T.metatableName), .Userdata(T.metatableName), .None)
+                    L.pushBool(fn(L.getUserdata(1)!, L.getUserdata(2)!))
+                    return 1
+                }
             }
-        case let .EQ(fn):
-            pushString("__gc")
-            pushFunction { L in
-                L.checkArgs(.Userdata(T.metatableName), .Userdata(T.metatableName), .None)
-                L.pushBool(fn(L.getUserdata(1)!, L.getUserdata(2)!))
-                return 1
-            }
+            
+            setTable(-2)
         }
-        
-        setTable(tablePosition - 2)
     }
     
 }
