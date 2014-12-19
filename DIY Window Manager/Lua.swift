@@ -220,6 +220,7 @@ protocol LuaMetatableOwner {
 
 enum LuaMetaMethod<T> {
     case GC((Lua, T) -> Void)
+    case EQ((T, T) -> Bool)
 }
 
 // meta methods
@@ -235,8 +236,13 @@ extension Lua {
                 L.userdatas[L.getUserdata(1)!] = nil
                 return 0
             }
-        default:
-            break
+        case let .EQ(fn):
+            pushString("__gc")
+            pushFunction { L in
+                L.checkArgs(.Userdata(T.metatableName), .Userdata(T.metatableName), .None)
+                L.pushBool(fn(L.getUserdata(1)!, L.getUserdata(2)!))
+                return 1
+            }
         }
         
         setTable(tablePosition - 2)

@@ -21,15 +21,11 @@ class LuaHotkey: LuaMetatableOwner {
         L.pushTable()
         
         L.pushMetatable("Hotkey") {
-            L.pushMethod("__eq") { L in
-                L.checkArgs(.Userdata("Hotkey"), .Userdata("Hotkey"), .None)
-                let a: LuaHotkey = L.getUserdata(1)!
-                let b: LuaHotkey = L.getUserdata(2)!
-                L.pushBool(a.fn == b.fn)
-                return 1
-            }
+            L.pushMetaMethod(.EQ({ (a: LuaHotkey, b: LuaHotkey) in
+                return a.fn == b.fn
+            }))
             
-            L.pushMetaMethod(LuaMetaMethod.GC({ (L, o: LuaHotkey) in
+            L.pushMetaMethod(.GC({ (L, o: LuaHotkey) in
                 o.hotkey.disable()
                 L.unref(Lua.RegistryIndex, o.fn)
             }))
