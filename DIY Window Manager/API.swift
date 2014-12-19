@@ -30,7 +30,7 @@ class API {
             )
             L.setMetatable(-2)
             
-            L.pushMethod("bind") { L in
+            L.pushMethod("bind") {
                 L.checkArgs(.String, .Table, .Function, .None)
                 let key = L.getString(1)!
                 let mods = L.getRawTable(2)!
