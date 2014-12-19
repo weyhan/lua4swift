@@ -222,8 +222,7 @@ extension Lua {
         pushString("__gc")
         pushFunction { L in
             L.checkArgs(.Userdata(metatableName), .None)
-            let o: T = L.getUserdata(1)!
-            fn(L, o)
+            fn(L, L.getUserdata(1)!)
             L.unregisterUserdata(1)
             return 0
         }
