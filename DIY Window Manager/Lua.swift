@@ -215,6 +215,23 @@ extension Lua {
     
 }
 
+// meta methods
+extension Lua {
+    
+    func pushMetaMethodGC<T>(metatableName: String, _ t: T.Type, _ fn: (Lua, T) -> Void, tablePosition: Int = -1) {
+        pushString("__gc")
+        pushFunction { L in
+            L.checkArgs(.Userdata(metatableName), .None)
+            let o: T = L.getUserdata(1)!
+            fn(L, o)
+            L.unregisterUserdata(1)
+            return 0
+        }
+        setTable(tablePosition - 2)
+    }
+    
+}
+
 // ref
 extension Lua {
     

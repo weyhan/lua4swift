@@ -27,12 +27,8 @@ class LuaHotkey {
                 return 1
             }
             
-            L.pushMethod("__gc") { L in
-                L.checkArgs(.Userdata("Hotkey"), .None)
-                let o: LuaHotkey = L.getUserdata(1)!
+            L.pushMetaMethodGC("Hotkey", LuaHotkey.self) { L, o in
                 L.unref(Lua.RegistryIndex, o.fn)
-                L.unregisterUserdata(1)
-                return 0
             }
         }
         
