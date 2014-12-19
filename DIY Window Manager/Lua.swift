@@ -225,7 +225,7 @@ enum LuaMetaMethod<T> {
 // meta methods
 extension Lua {
     
-    func pushMetaMethod<T: LuaMetatableOwner>(t: T.Type, _ metaMethod: LuaMetaMethod<T>, tablePosition: Int = -1) {
+    func pushMetaMethod<T: LuaMetatableOwner>(metaMethod: LuaMetaMethod<T>, tablePosition: Int = -1) {
         switch metaMethod {
         case let .GC(fn):
             pushString("__gc")
