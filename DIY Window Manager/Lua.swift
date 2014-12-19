@@ -223,7 +223,8 @@ extension Lua {
         pushFunction { L in
             L.checkArgs(.Userdata(metatableName), .None)
             fn(L, L.getUserdata(1)!)
-            L.unregisterUserdata(1)
+            let ud = lua_touserdata(L.L, 1)
+            L.userdatas[ud] = nil
             return 0
         }
         setTable(tablePosition - 2)
@@ -245,11 +246,6 @@ extension Lua {
 extension Lua {
     
     func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
-    
-    func unregisterUserdata(position: Int) {
-        let ud = lua_touserdata(L, Int32(position))
-        userdatas[ud] = nil
-    }
     
 }
 
