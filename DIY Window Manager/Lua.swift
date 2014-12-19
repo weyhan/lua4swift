@@ -224,8 +224,8 @@ enum LuaMetaMethod<T> {
 // meta methods
 extension Lua {
     
-    func pushMetatable<T: LuaMetatableOwner>(s: String, _ metamethods: LuaMetaMethod<T>...) {
-        luaL_newmetatable(L, (s as NSString).UTF8String) != 0
+    func pushMetatable<T: LuaMetatableOwner>(metamethods: LuaMetaMethod<T>...) {
+        luaL_newmetatable(L, (T.metatableName as NSString).UTF8String) != 0
         for metaMethod in metamethods {
             switch metaMethod {
             case let .GC(fn):

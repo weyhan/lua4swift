@@ -22,7 +22,7 @@ class API {
         class func pushLibrary(L: Lua) {
             L.pushTable()
             
-            L.pushMetatable("Hotkey",
+            L.pushMetatable(
                 .EQ({ (a: Hotkey, b: Hotkey) in
                     return a.fn == b.fn
                 }),
