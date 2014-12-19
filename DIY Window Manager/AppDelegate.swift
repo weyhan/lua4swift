@@ -5,7 +5,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        testLua()
+        let L = Lua(openLibs: true)
+        
+        LuaHotkey.pushLibrary(L)
+        L.setGlobal("Hotkey")
+        
+        L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
+        
         NSApplication.sharedApplication().terminate(nil)
         
 //        let hotkey = Hotkey(key: "s", mods: [Hotkey.Mod.Command, Hotkey.Mod.Shift]) { println("woo!") }

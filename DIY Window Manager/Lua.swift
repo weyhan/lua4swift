@@ -54,6 +54,11 @@ extension Lua {
     func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
     func setMetatable(position: Int) { lua_setmetatable(L, Int32(position)) }
     
+    func setMetatable(metatableName: String, position: Int = -1) {
+        lua_getfield(L, Int32(Lua.RegistryIndex), (metatableName as NSString).UTF8String)
+        setMetatable(position - 1)
+    }
+    
 }
 
 // internal helpers
@@ -279,82 +284,4 @@ extension Lua {
         }
     }
     
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-class LuaHotkey {
-    let fn: Int
-    init(fn: Int) { self.fn = fn }
-    
-    func call(L: Lua) {
-        L.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
-        L.call(arguments: 1, returnValues: 0)
-    }
-    
-    func cleanup(L: Lua) {
-        L.unref(Lua.RegistryIndex, fn)
-    }
-    
-    class func pushLibrary(L: Lua) {
-        L.pushTable()
-        
-        L.pushMetatable("Hotkey") {
-            L.pushMethod("__eq") { L in
-                L.checkArgs(.Userdata("Hotkey"), .Userdata("Hotkey"), .None)
-                let a: LuaHotkey = L.getUserdata(1)!
-                let b: LuaHotkey = L.getUserdata(2)!
-                L.pushBool(a.fn == b.fn)
-                return 1
-            }
-            
-            L.pushMethod("__gc") { L in
-                L.checkArgs(.Userdata("Hotkey"), .None)
-                let a: LuaHotkey = L.getUserdata(1)!
-                a.cleanup(L)
-                L.unregisterUserdata(1)
-                return 0
-            }
-        }
-        
-        L.pushMethod("new") { L in
-            L.checkArgs(.String, .Table, .Function, .None)
-            let key = L.getString(1)!
-            let mods = L.getTable(2)!
-            L.pushFromStack(3)
-            
-            let i = L.ref(Lua.RegistryIndex)
-            L.pushUserdata(LuaHotkey(fn: i))
-            return 1
-        }
-        
-        L.pushOntoTable(.Integer(1), .String("first array item"))
-        L.pushOntoTable(.Integer(2), .String("second item item"))
-        L.pushOntoTable(.Integer(3), nil)
-        L.pushOntoTable(.String("foo"), .Integer(17))
-        
-        // Hotkey.__index = Hotkey
-        L.pushFromStack(-1)
-        L.setField("__index", table: -2)
-    }
-}
-
-
-func testLua() {
-    let L = Lua(openLibs: true)
-    
-    LuaHotkey.pushLibrary(L)
-    L.setGlobal("Hotkey")
-    
-    L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
 }
