@@ -28,6 +28,7 @@ class LuaHotkey {
             }
             
             L.pushMetaMethodGC("Hotkey", LuaHotkey.self) { L, o in
+                o.hotkey.disable()
                 L.unref(Lua.RegistryIndex, o.fn)
             }
         }
