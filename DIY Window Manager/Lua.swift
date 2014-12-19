@@ -5,7 +5,7 @@ protocol LuaMetatableOwner {
 }
 
 enum LuaMetaMethod<T> {
-    case GC((Lua, T) -> Void)
+    case GC((T) -> Void)
     case EQ((T, T) -> Bool)
 }
 
@@ -14,7 +14,7 @@ class Lua {
     
     let L = luaL_newstate()
     
-    typealias Function = () -> Int
+    typealias Function = () -> [Value]
     typealias Table = [(Value, Value)]
     
     typealias Userdata = UnsafeMutablePointer<Void>
@@ -188,7 +188,11 @@ extension Lua {
     func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
     
     func pushFunction(fn: Function, upvalues: Int = 0) {
-        let f: @objc_block (COpaquePointer) -> Int32 = { _ in Int32(fn()) }
+        let f: @objc_block (COpaquePointer) -> Int32 = { _ in
+            let results = fn()
+            for result in results { self.push(result) }
+            return Int32(results.count)
+        }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
@@ -247,14 +251,14 @@ extension Lua {
                     self.checkArgs(.Userdata(T.metatableName), .None)
                     fn(self.getUserdata(1)!)
                     self.userdatas[self.getUserdata(1)!] = nil
-                    return 0
+                    return []
                 }
             case let .EQ(fn):
                 pushString("__gc")
                 pushFunction {
                     self.checkArgs(.Userdata(T.metatableName), .Userdata(T.metatableName), .None)
-                    self.pushBool(fn(self.getUserdata(1)!, self.getUserdata(2)!))
-                    return 1
+                    let result = fn(self.getUserdata(1)!, self.getUserdata(2)!)
+                    return [.Bool(result)]
                 }
             }
             setTable(-2)

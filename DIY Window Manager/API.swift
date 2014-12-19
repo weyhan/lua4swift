@@ -22,7 +22,7 @@ class API {
             L.pushTable()
             
             L.pushMetatable(
-                .GC({ (L, o: Hotkey) in
+                .GC({ (o: Hotkey) in
                     o.hotkey.disable()
                     L.unref(Lua.RegistryIndex, o.fn)
                 }),
@@ -44,7 +44,14 @@ class API {
                 let i = L.ref(Lua.RegistryIndex)
                 L.pushMetaUserdata(Hotkey(fn: i, hotkey: hotkey))
                 
-                return 1
+                return []
+            }
+            
+            L.pushMethod("enable") {
+                L.checkArgs(.Userdata(Hotkey.metatableName), .None)
+                let hotkey: Hotkey = L.getUserdata(1)!
+                hotkey.hotkey.enable()
+                return []
             }
             
             // Hotkey.__index = Hotkey
