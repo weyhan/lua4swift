@@ -47,7 +47,7 @@
 		946DA9561A3E39B6009C841F /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 946DA9331A3E39B6009C841F /* lvm.c */; };
 		946DA9571A3E39B6009C841F /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 946DA9351A3E39B6009C841F /* lzio.c */; };
 		946DA95A1A3E3A0C009C841F /* Lua.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946DA9591A3E3A0C009C841F /* Lua.swift */; };
-		9475807C1A43D94A00947E6B /* LuaHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475807B1A43D94A00947E6B /* LuaHotkey.swift */; };
+		9475807C1A43D94A00947E6B /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475807B1A43D94A00947E6B /* API.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -121,7 +121,7 @@
 		946DA9351A3E39B6009C841F /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		946DA9361A3E39B6009C841F /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		946DA9591A3E3A0C009C841F /* Lua.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lua.swift; sourceTree = "<group>"; };
-		9475807B1A43D94A00947E6B /* LuaHotkey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LuaHotkey.swift; sourceTree = "<group>"; };
+		9475807B1A43D94A00947E6B /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,7 +159,7 @@
 				9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */,
 				9407F73E1A3CBD7C00BE8C7A /* Hotkeys.swift */,
 				946DA9591A3E3A0C009C841F /* Lua.swift */,
-				9475807B1A43D94A00947E6B /* LuaHotkey.swift */,
+				9475807B1A43D94A00947E6B /* API.swift */,
 				946DA9581A3E39F8009C841F /* ObjC */,
 				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
 			);
@@ -324,7 +324,7 @@
 				946DA9421A3E39B6009C841F /* lfunc.c in Sources */,
 				946DA9551A3E39B6009C841F /* lutf8lib.c in Sources */,
 				946DA94B1A3E39B6009C841F /* lopcodes.c in Sources */,
-				9475807C1A43D94A00947E6B /* LuaHotkey.swift in Sources */,
+				9475807C1A43D94A00947E6B /* API.swift in Sources */,
 				946DA93D1A3E39B6009C841F /* lctype.c in Sources */,
 				946DA93F1A3E39B6009C841F /* ldebug.c in Sources */,
 				946DA9451A3E39B6009C841F /* liolib.c in Sources */,
