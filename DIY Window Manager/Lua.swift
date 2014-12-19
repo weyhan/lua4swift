@@ -133,7 +133,7 @@ extension Lua {
     func push(value: Value) {
         switch value {
         case let .Integer(x): pushInteger(x)
-        case let .Double(x): pushNumber(x)
+        case let .Double(x): pushDouble(x)
         case let .Bool(x): pushBool(x)
         case let .Function(x): pushFunction(x)
         case let .String(x): pushString(x)
@@ -157,7 +157,7 @@ extension Lua {
     func pushMetatable(s: String) -> Bool { return luaL_newmetatable(L, (s as NSString).UTF8String) != 0 }
     func pushNil()             { lua_pushnil(L) }
     func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
-    func pushNumber(n: Double) { lua_pushnumber(L, n) }
+    func pushDouble(n: Double) { lua_pushnumber(L, n) }
     func pushInteger(n: Int64) { lua_pushinteger(L, n) }
     func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
     
