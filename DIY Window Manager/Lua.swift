@@ -247,7 +247,7 @@ extension Lua {
     }
     
     func pushMetatable<T: LuaMetatableOwner>(metamethods: LuaMetaMethod<T>...) {
-        luaL_newmetatable(L, (T.metatableName as NSString).UTF8String) != 0
+        luaL_newmetatable(L, (T.metatableName as NSString).UTF8String)
         for metaMethod in metamethods {
             switch metaMethod {
             case let .GC(fn):
@@ -262,7 +262,6 @@ extension Lua {
                     return [.Bool(result)]
                 }
             }
-            setTable(-2)
         }
     }
     
