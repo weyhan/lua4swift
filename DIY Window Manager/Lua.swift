@@ -56,10 +56,10 @@ extension Lua {
     
 }
 
-// internal helpers
+// get
 extension Lua {
     
-    func get(position: Int) -> Value? {
+    func getValue(position: Int) -> Value? {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL: return Value.Nil
         case LUA_TBOOLEAN: return .Bool(getBool(position)!)
@@ -72,10 +72,18 @@ extension Lua {
         }
     }
     
-}
-
-// get
-extension Lua {
+    func getRaw(position: Int) -> Any {
+        switch lua_type(L, Int32(position)) {
+        case LUA_TNIL: return Value.Nil
+        case LUA_TBOOLEAN: return getBool(position)!
+        case LUA_TNUMBER: return getDouble(position)!
+        case LUA_TSTRING: return getString(position)!
+        case LUA_TTABLE: return getTable(position)!
+        case LUA_TUSERDATA: return getUserdata(position)!
+        case LUA_TLIGHTUSERDATA: return getUserdata(position)!
+        default: return Value.Nil
+        }
+    }
     
     func getString(position: Int) -> String? {
         if lua_type(L, Int32(position)) != LUA_TSTRING { return nil }
@@ -99,8 +107,18 @@ extension Lua {
         var t = Table()
         lua_pushnil(L);
         while lua_next(L, Int32(position)) != 0 {
-            let pair = (get(-2)!, get(-1)!)
-            t.append(pair)
+            t.append((getValue(-2)!, getValue(-1)!))
+            pop(1)
+        }
+        return t
+    }
+    
+    func getRawTable(position: Int) -> [(Any, Any)]? {
+        if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
+        var t = [Any, Any]()
+        lua_pushnil(L);
+        while lua_next(L, Int32(position)) != 0 {
+            t.append((getRaw(-2), getRaw(-1)))
             pop(1)
         }
         return t
@@ -244,7 +262,6 @@ extension Lua {
                     return 1
                 }
             }
-            
             setTable(-2)
         }
     }

@@ -1,6 +1,5 @@
 import Foundation
 
-
 class API {
     
     class Hotkey: LuaMetatableOwner {
@@ -23,29 +22,21 @@ class API {
             L.pushTable()
             
             L.pushMetatable(
-                .EQ({ (a: Hotkey, b: Hotkey) in
-                    return a.fn == b.fn
-                }),
                 .GC({ (L, o: Hotkey) in
                     o.hotkey.disable()
                     L.unref(Lua.RegistryIndex, o.fn)
-                })
+                }),
+                .EQ({ $0.fn == $1.fn })
             )
             L.setMetatable(-2)
             
             L.pushMethod("bind") { L in
                 L.checkArgs(.String, .Table, .Function, .None)
                 let key = L.getString(1)!
-                let mods = L.getTable(2)!
+                let mods = L.getRawTable(2)!
                 L.pushFromStack(3)
                 
-                var modStrings = [String]()
-                for (_, mod) in mods {
-                    switch mod {
-                    case let .String(s): modStrings.append(s);
-                    default: break
-                    }
-                }
+                let modStrings = mods.map{$1 as? String}.filter{$0 != nil}.map{$0!}
                 
                 let hotkey = DIY_Window_Manager.Hotkey(key: key, mods: modStrings, downFn: {}, upFn: nil)
                 hotkey.enable()
