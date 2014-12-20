@@ -11,15 +11,15 @@ enum LuaMetaMethod<T> {
     case EQ((T, T) -> Bool)
 }
 
-protocol LuaType { class func toLuaType() -> Int32 }
-extension String: LuaType { static func toLuaType() -> Int32 { return LUA_TSTRING } }
-extension Int64: LuaType { static func toLuaType() -> Int32 { return LUA_TNUMBER } }
-extension Double: LuaType { static func toLuaType() -> Int32 { return LUA_TNUMBER } }
-extension Bool: LuaType { static func toLuaType() -> Int32 { return LUA_TBOOLEAN } }
-extension Lua.FunctionWrapper: LuaType { static func toLuaType() -> Int32 { return LUA_TFUNCTION } }
-extension Lua.TableWrapper: LuaType { static func toLuaType() -> Int32 { return LUA_TTABLE } }
-extension Lua.UserdataWrapper: LuaType { static func toLuaType() -> Int32 { return LUA_TUSERDATA } }
-class LuaNilType: LuaType { class func toLuaType() -> Int32 { return LUA_TNIL } }
+protocol LuaType {}
+extension String: LuaType {}
+extension Int64: LuaType {}
+extension Double: LuaType {}
+extension Bool: LuaType {}
+extension Lua.FunctionWrapper: LuaType {}
+extension Lua.TableWrapper: LuaType {}
+extension Lua.UserdataWrapper: LuaType {}
+class LuaNilType: LuaType {}
 let LuaNil = LuaNilType()
 
 // basics
@@ -180,13 +180,13 @@ extension Lua {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
-    func pushMethod(name: String, _ types: [LuaType.Type], _ fn: Function, tablePosition: Int = -1) {
+    func pushMethod(name: String, _ types: [Kind], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
             for (i, t) in enumerate(types) {
                 switch t {
-                case let u as Lua.UserdataWrapper.Type:
-                    luaL_checkudata(self.L, Int32(i+1), u.metatableName)
+                case let .Userdata(u) where u != nil:
+                    luaL_checkudata(self.L, Int32(i+1), u!)
                 default:
                     luaL_checktype(self.L, Int32(i+1), t.toLuaType())
                 }
@@ -226,13 +226,13 @@ extension Lua {
         for metaMethod in metamethods {
             switch metaMethod {
             case let .GC(fn):
-                pushMethod("__gc", [T.self, LuaNilType.self]) {
+                pushMethod("__gc", [.Userdata(T.metatableName), .Nil]) {
                     fn(self.getUserdata(1)!)
                     self.userdatas[self.getUserdata(1)!] = nil
                     return []
                 }
             case let .EQ(fn):
-                pushMethod("__gc", [T.self, T.self, LuaNilType.self]) {
+                pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .Nil]) {
                     let result = fn(self.getUserdata(1)!, self.getUserdata(2)!)
                     return [result]
                 }
@@ -266,4 +266,33 @@ extension Lua {
         lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
     }
     
+}
+
+// type checking
+extension Lua {
+
+    enum Kind {
+        case String
+        case Number
+        case Bool
+        case Function
+        case Table
+        case Nil
+        case None
+        case Userdata(Swift.String?)
+
+        func toLuaType() -> Int32 {
+            switch self {
+            case String: return LUA_TSTRING
+            case Number: return LUA_TNUMBER
+            case Bool: return LUA_TBOOLEAN
+            case Function: return LUA_TFUNCTION
+            case Table: return LUA_TTABLE
+            case Nil: return LUA_TNIL
+            case let Userdata(type): return LUA_TUSERDATA
+            default: return LUA_TNONE
+            }
+        }
+    }
+
 }
