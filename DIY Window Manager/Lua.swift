@@ -2,6 +2,11 @@ import Foundation
 
 import Cocoa
 
+protocol LuaValue {
+    func pushValue(L: Lua)
+    class func fromLua(L: Lua, at: Int) -> Self?
+}
+
 protocol LuaLibrary: LuaValue {
     class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])]
     class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaValue])]
@@ -14,64 +19,58 @@ enum LuaMetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
-protocol LuaValue {
-    func pushValue(L: Lua)
-    init?(fromLua L: Lua, at: Int)
-}
-
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
-    init?(fromLua L: Lua, at: Int) {
-        self = ""
+    static func fromLua(L: Lua, at: Int) -> String? {
+        return nil
     }
 }
 
 extension Int64: LuaValue {
     func pushValue(L: Lua) { L.pushInteger(self) }
-    init?(fromLua L: Lua, at: Int) {
-        self = 0
+    static func fromLua(L: Lua, at: Int) -> Int64? {
+        return nil
     }
 }
 
 extension Double: LuaValue {
     func pushValue(L: Lua) { L.pushDouble(self) }
-    init?(fromLua L: Lua, at: Int) {
-        self = 0
+    static func fromLua(L: Lua, at: Int) -> Double? {
+        return nil
     }
 }
 
 extension Bool: LuaValue {
     func pushValue(L: Lua) { L.pushBool(self) }
-    init?(fromLua L: Lua, at: Int) {
-        self = true
+    static func fromLua(L: Lua, at: Int) -> Bool? {
+        return nil
     }
 }
 
 extension Lua.FunctionWrapper: LuaValue {
     func pushValue(L: Lua) { L.pushFunction(self.fn) }
-    init?(fromLua L: Lua, at: Int) {
+    static func fromLua(L: Lua, at: Int) -> Lua.FunctionWrapper? {
         return nil
     }
 }
 
 extension Lua.TableWrapper: LuaValue {
     func pushValue(L: Lua) { L.pushTable(self.t) }
-    init?(fromLua L: Lua, at: Int) {
+    static func fromLua(L: Lua, at: Int) -> Lua.TableWrapper? {
         return nil
     }
 }
 
 extension Lua.UserdataWrapper: LuaValue {
     func pushValue(L: Lua) { L.pushUserdata(self.ud) }
-    init?(fromLua L: Lua, at: Int) {
+    static func fromLua(L: Lua, at: Int) -> Lua.UserdataWrapper? {
         return nil
     }
 }
 
 final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
-    init(){}
-    init?(fromLua L: Lua, at: Int) {
+    class func fromLua(L: Lua, at: Int) -> LuaNilType? {
         return nil
     }
 }
@@ -90,21 +89,19 @@ class Lua {
     typealias Function = () -> [LuaValue]
     typealias Table = [(LuaValue, LuaValue)]
     
-    class UserdataLibrary: LuaValue {
-        
-        // var state: T
-        
-        init(){}
-        func pushValue(L: Lua) {
-            L.pushUserdata(self)
-        }
-        required init?(fromLua L: Lua, at: Int) {
-            if let ud = L.getUserdata(at) {
-                self = UnsafeMutablePointer<UserdataLibrary>(ud).memory
-            }
-            return nil
-        }
-    }
+//    class UserdataLibrary: LuaValue {
+//        
+//        func pushValue(L: Lua) {
+//            L.pushUserdata(self)
+//        }
+//        
+//        class func fromLua(L: Lua, at: Int) -> Self? {
+////            if let ud = L.getUserdata(at) {
+////                return UnsafeMutablePointer<UserdataLibrary>(ud).memory
+////            }
+//            return nil
+//        }
+//    }
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
@@ -268,7 +265,7 @@ extension Lua {
     func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
         types.insert(.Userdata(T.metatableName), atIndex: 0)
         let f: Function = {
-            let o = T(fromLua: self, at: 1)!
+            let o = T.fromLua(self, at: 1)!
             return fn(o)(self)
         }
         pushMethod(name, types, f, tablePosition: tablePosition)
@@ -306,14 +303,14 @@ extension Lua {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
-                fn(T(fromLua: self, at: 1)!)(self)
+                fn(T.fromLua(self, at: 1)!)(self)
                 self.userdatas[self.getUserdata(1)!] = nil
                 return []
             }
         case let .EQ(fn):
             pushMethod("__eq", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
-                let a = T(fromLua: self, at: 1)!
-                let b = T(fromLua: self, at: 2)!
+                let a = T.fromLua(self, at: 1)!
+                let b = T.fromLua(self, at: 2)!
                 return [fn(a)(b)]
             }
         }

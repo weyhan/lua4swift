@@ -2,20 +2,27 @@ import Foundation
 
 class API {
     
-    final class Hotkey: Lua.UserdataLibrary, LuaLibrary {
+    final class Hotkey: LuaLibrary, LuaValue {
         let fn: Int
         let hotkey: DIY_Window_Manager.Hotkey
         
         class var metatableName: String { return "Hotkey" }
         
+        func pushValue(L: Lua) {
+            L.pushUserdata(self)
+        }
+        
+        class func fromLua(L: Lua, at: Int) -> Self? {
+            //            if let ud = L.getUserdata(at) {
+            //                return UnsafeMutablePointer<UserdataLibrary>(ud).memory
+            //            }
+            return nil
+        }
+        
         init(fn: Int, hotkey: DIY_Window_Manager.Hotkey) {
             self.fn = fn
             self.hotkey = hotkey
-            super.init()
-        }
-        
-        required init?(fromLua L: Lua, at: Int) {
-            fatalError("init(fromLua:at:) has not been implemented")
+//            super.init()
         }
         
         func call(L: Lua) {
@@ -34,9 +41,7 @@ class API {
         }
         
         class func bind(L: Lua) -> [LuaValue] {
-            let key2 = String(fromLua: L, at: 1)!
-            
-            let key = L.getString(1)!
+            let key = String.fromLua(L, at: 1)!
             let mods = L.getTable(2)!
             L.pushFromStack(3)
             
@@ -46,7 +51,7 @@ class API {
             hotkey.enable()
             
             let i = L.ref(Lua.RegistryIndex)
-            L.pushMetaUserdata(Hotkey(fn: i, hotkey: hotkey))
+//            L.pushMetaUserdata(Hotkey(fn: i, hotkey: hotkey))
             
             return []
         }
