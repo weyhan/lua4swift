@@ -23,6 +23,11 @@ class API {
             return []
         }
         
+        func disable(L: Lua) -> [LuaType] {
+            hotkey.disable()
+            return []
+        }
+        
         class func bind(L: Lua) -> [LuaType] {
             let key = L.getString(1)!
             let mods = L.getTable(2)!
@@ -50,13 +55,14 @@ class API {
         
         class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaType])] {
             return [
-                ("bind", [.String, .Table, .Function, .None], Hotkey.bind)
+                ("bind", [.String, .Table, .Function, .None], Hotkey.bind),
             ]
         }
         
         class func instanceMethods() -> [(String, [Lua.Kind], Hotkey -> Lua -> [LuaType])] {
             return [
-                ("enable", [.None], Hotkey.enable)
+                ("enable", [.None], Hotkey.enable),
+                ("disable", [.None], Hotkey.enable),
             ]
         }
         
