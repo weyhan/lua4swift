@@ -315,7 +315,7 @@ extension Lua {
             }
         }
     }
-
+    
     func pushLibrary<T: LuaLibrary>(t: T.Type) {
         pushTable()
         
@@ -374,7 +374,7 @@ extension Lua {
 
 // type checking
 extension Lua {
-
+    
     enum Kind {
         case Nil
         case String
@@ -385,7 +385,7 @@ extension Lua {
         case Table
         case Userdata(Swift.String?)
         case None
-
+        
         func toLuaType() -> Int32 {
             switch self {
             case String: return LUA_TSTRING
@@ -400,5 +400,5 @@ extension Lua {
             }
         }
     }
-
+    
 }
