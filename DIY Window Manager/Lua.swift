@@ -1,6 +1,8 @@
 import Foundation
 
-protocol LuaMetatableOwner {
+import Cocoa
+
+protocol LuaMetatableOwner: LuaType {
     class var metatableName: String { get }
 }
 
@@ -9,29 +11,31 @@ enum LuaMetaMethod<T> {
     case EQ((T, T) -> Bool)
 }
 
+protocol LuaType { class func toLuaType() -> Int32 }
+extension String: LuaType { static func toLuaType() -> Int32 { return LUA_TSTRING } }
+extension Int64: LuaType { static func toLuaType() -> Int32 { return LUA_TNUMBER } }
+extension Double: LuaType { static func toLuaType() -> Int32 { return LUA_TNUMBER } }
+extension Bool: LuaType { static func toLuaType() -> Int32 { return LUA_TBOOLEAN } }
+extension Lua.FunctionWrapper: LuaType { static func toLuaType() -> Int32 { return LUA_TFUNCTION } }
+extension Lua.TableWrapper: LuaType { static func toLuaType() -> Int32 { return LUA_TTABLE } }
+extension Lua.UserdataWrapper: LuaType { static func toLuaType() -> Int32 { return LUA_TUSERDATA } }
+class LuaNilType: LuaType { class func toLuaType() -> Int32 { return LUA_TNIL } }
+let LuaNil = LuaNilType()
+
 // basics
 class Lua {
     
     let L = luaL_newstate()
     
-    typealias Function = () -> [Value]
-    typealias Table = [(Value, Value)]
+    struct FunctionWrapper { let fn: Function }
+    struct TableWrapper { let t: Table }
+    struct UserdataWrapper { let ud: Userdata }
+    
+    typealias Function = () -> [LuaType]
+    typealias Table = [(LuaType, LuaType)]
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
-    
-    enum Value: NilLiteralConvertible {
-        case String(Swift.String)
-        case Integer(Swift.Int64)
-        case Double(Swift.Double)
-        case Bool(Swift.Bool)
-        case Function(Lua.Function)
-        case Table(Lua.Table)
-        case Userdata(Lua.Userdata)
-        case Nil
-        
-        init(nilLiteral: ()) { self = Nil }
-    }
     
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
@@ -68,29 +72,16 @@ extension Lua {
 // get
 extension Lua {
     
-    func getValue(position: Int) -> Value? {
+    func getValue(position: Int) -> LuaType? {
         switch lua_type(L, Int32(position)) {
-        case LUA_TNIL: return Value.Nil
-        case LUA_TBOOLEAN: return .Bool(getBool(position)!)
-        case LUA_TNUMBER: return .Double(getDouble(position)!)
-        case LUA_TSTRING: return .String(getString(position)!)
-        case LUA_TTABLE: return .Table(getTable(position)!)
-        case LUA_TUSERDATA: return .Userdata(getUserdata(position)!)
-        case LUA_TLIGHTUSERDATA: return .Userdata(getUserdata(position)!)
-        default: return nil
-        }
-    }
-    
-    func getRaw(position: Int) -> Any {
-        switch lua_type(L, Int32(position)) {
-        case LUA_TNIL: return Value.Nil
+        case LUA_TNIL: return LuaNil
         case LUA_TBOOLEAN: return getBool(position)!
         case LUA_TNUMBER: return getDouble(position)!
         case LUA_TSTRING: return getString(position)!
-        case LUA_TTABLE: return getTable(position)!
+        case LUA_TTABLE: return Lua.TableWrapper(t: getTable(position)!)
         case LUA_TUSERDATA: return getUserdata(position)!
         case LUA_TLIGHTUSERDATA: return getUserdata(position)!
-        default: return Value.Nil
+        default: return nil
         }
     }
     
@@ -122,17 +113,6 @@ extension Lua {
         return t
     }
     
-    func getRawTable(position: Int) -> [(Any, Any)]? {
-        if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
-        var t = [Any, Any]()
-        lua_pushnil(L);
-        while lua_next(L, Int32(position)) != 0 {
-            t.append((getRaw(-2), getRaw(-1)))
-            pop(1)
-        }
-        return t
-    }
-    
     func getUserdata(position: Int) -> Userdata? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return Userdata(lua_touserdata(L, Int32(position)))
@@ -157,16 +137,17 @@ extension Lua {
 // push
 extension Lua {
     
-    func push(value: Value) {
+    func push(value: LuaType) {
         switch value {
-        case let .Integer(x): pushInteger(x)
-        case let .Double(x): pushDouble(x)
-        case let .Bool(x): pushBool(x)
-        case let .Function(x): pushFunction(x)
-        case let .String(x): pushString(x)
-        case let .Table(x): pushTable(x)
-        case let .Userdata(x): pushUserdata(x)
-        case .Nil: pushNil()
+        case let x as Int64: pushInteger(x)
+        case let x as Double: pushDouble(x)
+        case let x as Bool: pushBool(x)
+        case let x as Lua.FunctionWrapper: pushFunction(x.fn)
+        case let x as String: pushString(x)
+        case let x as Lua.TableWrapper: pushTable(x.t)
+        case let x as Lua.UserdataWrapper: pushUserdata(x.ud)
+        case is LuaNilType: pushNil()
+        default: break
         }
     }
     
@@ -199,13 +180,13 @@ extension Lua {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
-    func pushMethod(name: String, _ types: [Kind], _ fn: Function, tablePosition: Int = -1) {
+    func pushMethod(name: String, _ types: [LuaType.Type], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
             for (i, t) in enumerate(types) {
                 switch t {
-                case let .Userdata(ud) where ud != nil:
-                    luaL_checkudata(self.L, Int32(i+1), ud!)
+                case let u as Lua.UserdataWrapper.Type:
+                    luaL_checkudata(self.L, Int32(i+1), u.metatableName)
                 default:
                     luaL_checktype(self.L, Int32(i+1), t.toLuaType())
                 }
@@ -245,15 +226,15 @@ extension Lua {
         for metaMethod in metamethods {
             switch metaMethod {
             case let .GC(fn):
-                pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
+                pushMethod("__gc", [T.self, LuaNilType.self]) {
                     fn(self.getUserdata(1)!)
                     self.userdatas[self.getUserdata(1)!] = nil
                     return []
                 }
             case let .EQ(fn):
-                pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
+                pushMethod("__gc", [T.self, T.self, LuaNilType.self]) {
                     let result = fn(self.getUserdata(1)!, self.getUserdata(2)!)
-                    return [.Bool(result)]
+                    return [result]
                 }
             }
         }
@@ -283,35 +264,6 @@ extension Lua {
     
     func rawGet(#tablePosition: Int, index: Int) {
         lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
-    }
-    
-}
-
-// type checking
-extension Lua {
-    
-    enum Kind {
-        case String
-        case Number
-        case Bool
-        case Function
-        case Table
-        case Nil
-        case None
-        case Userdata(Swift.String?)
-        
-        func toLuaType() -> Int32 {
-            switch self {
-            case String: return LUA_TSTRING
-            case Number: return LUA_TNUMBER
-            case Bool: return LUA_TBOOLEAN
-            case Function: return LUA_TFUNCTION
-            case Table: return LUA_TTABLE
-            case Nil: return LUA_TNIL
-            case let Userdata(type): return LUA_TUSERDATA
-            default: return LUA_TNONE
-            }
-        }
     }
     
 }
