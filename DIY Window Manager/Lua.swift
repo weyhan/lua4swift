@@ -123,11 +123,6 @@ extension Lua {
         return nil
     }
     
-    func getUserdata<T>(position: Int, metatableName: String) -> T? {
-        if luaL_testudata(L, Int32(position), (metatableName as NSString).UTF8String) == nil { return nil }
-        return getUserdata(position)
-    }
-    
     func getTruthy(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
