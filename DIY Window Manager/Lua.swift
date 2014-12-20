@@ -2,7 +2,7 @@ import Foundation
 
 import Cocoa
 
-protocol LuaLibrary {
+protocol LuaLibrary: LuaValue {
     class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])]
     class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaValue])]
     class func metaMethods() -> [LuaMetaMethod<Self>]
@@ -91,11 +91,18 @@ class Lua {
     typealias Table = [(LuaValue, LuaValue)]
     
     class UserdataLibrary: LuaValue {
+        
+        // var state: T
+        
         init(){}
         func pushValue(L: Lua) {
             L.pushUserdata(self)
         }
         required init?(fromLua L: Lua, at: Int) {
+            if let ud = L.getUserdata(at) {
+                self = UnsafeMutablePointer<UserdataLibrary>(ud).memory
+            }
+            return nil
         }
     }
     
@@ -157,7 +164,7 @@ extension Lua {
         case .Double: return getDouble(position)!
         case .String: return getString(position)!
         case .Table: return Lua.TableWrapper(t: getTable(position)!)
-        case .Userdata(nil): return getUserdata(position)!
+//        case .Userdata(nil): return getUserdata(position)!
         default: return nil
         }
     }
@@ -198,11 +205,6 @@ extension Lua {
     func getUserdata(position: Int) -> Userdata? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return Userdata(lua_touserdata(L, Int32(position)))
-    }
-    
-    func getUserdata<T>(position: Int) -> T? {
-        if let ud = getUserdata(position) { return UnsafeMutablePointer<T>(ud).memory }
-        return nil
     }
     
     func getTruthy(position: Int) -> Bool {
@@ -266,7 +268,7 @@ extension Lua {
     func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
         types.insert(.Userdata(T.metatableName), atIndex: 0)
         let f: Function = {
-            let o: T = self.getUserdata(1)!
+            let o = T(fromLua: self, at: 1)!
             return fn(o)(self)
         }
         pushMethod(name, types, f, tablePosition: tablePosition)
@@ -304,14 +306,15 @@ extension Lua {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
-                fn(self.getUserdata(1)!)(self)
+                fn(T(fromLua: self, at: 1)!)(self)
                 self.userdatas[self.getUserdata(1)!] = nil
                 return []
             }
         case let .EQ(fn):
             pushMethod("__eq", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
-                let result = fn(self.getUserdata(1)!)(self.getUserdata(2)!)
-                return [result]
+                let a = T(fromLua: self, at: 1)!
+                let b = T(fromLua: self, at: 2)!
+                return [fn(a)(b)]
             }
         }
     }
