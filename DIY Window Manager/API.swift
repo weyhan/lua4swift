@@ -47,9 +47,8 @@ class API {
             hotkey.enable()
             
             let i = L.ref(Lua.RegistryIndex)
-//            L.pushMetaUserdata(Hotkey(fn: i, hotkey: hotkey))
             
-            return []
+            return [Hotkey(fn: i, hotkey: hotkey)]
         }
         
         func cleanup(L: Lua) {
