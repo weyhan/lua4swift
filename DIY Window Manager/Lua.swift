@@ -3,12 +3,12 @@ import Foundation
 import Cocoa
 
 protocol LuaLibrary: LuaMetatableOwner {
-    class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaType])]
-    class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaType])]
+    class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])]
+    class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaValue])]
     class func metaMethods() -> [LuaMetaMethod<Self>]
 }
 
-protocol LuaMetatableOwner: LuaType {
+protocol LuaMetatableOwner: LuaValue {
     class var metatableName: String { get }
 }
 
@@ -17,15 +17,15 @@ enum LuaMetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
-protocol LuaType {}
-extension String: LuaType {}
-extension Int64: LuaType {}
-extension Double: LuaType {}
-extension Bool: LuaType {}
-extension Lua.FunctionWrapper: LuaType {}
-extension Lua.TableWrapper: LuaType {}
-extension Lua.UserdataWrapper: LuaType {}
-class LuaNilType: LuaType {}
+protocol LuaValue {}
+extension String: LuaValue {}
+extension Int64: LuaValue {}
+extension Double: LuaValue {}
+extension Bool: LuaValue {}
+extension Lua.FunctionWrapper: LuaValue {}
+extension Lua.TableWrapper: LuaValue {}
+extension Lua.UserdataWrapper: LuaValue {}
+class LuaNilType: LuaValue {}
 let LuaNil = LuaNilType()
 
 // basics
@@ -37,8 +37,8 @@ class Lua {
     struct TableWrapper { let t: Table }
     struct UserdataWrapper { let ud: Userdata }
     
-    typealias Function = () -> [LuaType]
-    typealias Table = [(LuaType, LuaType)]
+    typealias Function = () -> [LuaValue]
+    typealias Table = [(LuaValue, LuaValue)]
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
@@ -78,7 +78,7 @@ extension Lua {
 // get
 extension Lua {
     
-    func get(position: Int) -> LuaType? {
+    func get(position: Int) -> LuaValue? {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL: return LuaNil
         case LUA_TBOOLEAN: return getBool(position)!
@@ -149,7 +149,7 @@ extension Lua {
 // push
 extension Lua {
     
-    func push(value: LuaType) {
+    func push(value: LuaValue) {
         switch value {
         case let x as Int64: pushInteger(x)
         case let x as Double: pushDouble(x)
@@ -212,7 +212,7 @@ extension Lua {
         setTable(tablePosition - 2)
     }
     
-    func pushInstanceMethod<T: LuaMetatableOwner>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaType], tablePosition: Int = -1) {
+    func pushInstanceMethod<T: LuaMetatableOwner>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
         types.insert(.Userdata(T.metatableName), atIndex: 0)
         let f: Function = {
             let o: T = self.getUserdata(1)!
@@ -221,7 +221,7 @@ extension Lua {
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
     
-    func pushClassMethod(name: String, var _ types: [Kind], _ fn: Lua -> [LuaType], tablePosition: Int = -1) {
+    func pushClassMethod(name: String, var _ types: [Kind], _ fn: Lua -> [LuaValue], tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
