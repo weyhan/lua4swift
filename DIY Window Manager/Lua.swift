@@ -19,6 +19,21 @@ enum LuaMetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
+extension NSPoint: LuaValue {
+    func pushValue(L: Lua) {
+        L.pushTable(keyCapacity: 2)
+        L.pushDouble(Double(self.x)); L.setField("x", table: -2)
+        L.pushDouble(Double(self.y)); L.setField("y", table: -2)
+    }
+    static func fromLua(L: Lua, at position: Int) -> NSPoint? {
+        switch L.kind(position) {
+        case .Table:
+            let t = Lua.TableBox.fromLua(L, at: position)!.t
+            return NSPoint()
+        default: return nil}
+    }
+}
+
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
     static func fromLua(L: Lua, at position: Int) -> String? {
