@@ -2,7 +2,7 @@ import Foundation
 
 class API {
     
-    class Hotkey: LuaMetatableOwner {
+    final class Hotkey: LuaLibrary {
         let fn: Int
         let hotkey: DIY_Window_Manager.Hotkey
         
@@ -18,42 +18,53 @@ class API {
             L.call(arguments: 1, returnValues: 0)
         }
         
-        class func pushLibrary(L: Lua) {
-            L.pushTable()
+        func enable(L: Lua) -> [LuaType] {
+            hotkey.enable()
+            return []
+        }
+        
+        class func bind(L: Lua) -> [LuaType] {
+            let key = L.getString(1)!
+            let mods = L.getTable(2)!
+            L.pushFromStack(3)
             
-            L.pushMetatable(
-                .GC({ (o: Hotkey) in
-                    o.hotkey.disable()
-                    L.unref(Lua.RegistryIndex, o.fn)
-                }),
-                .EQ({ $0.fn == $1.fn })
-            )
-            L.setMetatable(-2)
+            let modStrings = mods.map{$1 as? String}.filter{$0 != nil}.map{$0!}
             
-            L.pushMethod("bind", [.String, .Table, .Function, .None]) {
-                let key = L.getString(1)!
-                let mods = L.getTable(2)!
-                L.pushFromStack(3)
-                
-                let modStrings = mods.map{$1 as? String}.filter{$0 != nil}.map{$0!}
-                
-                let hotkey = DIY_Window_Manager.Hotkey(key: key, mods: modStrings, downFn: {}, upFn: nil)
-                hotkey.enable()
-                
-                let i = L.ref(Lua.RegistryIndex)
-                L.pushMetaUserdata(Hotkey(fn: i, hotkey: hotkey))
-                
-                return []
-            }
+            let hotkey = DIY_Window_Manager.Hotkey(key: key, mods: modStrings, downFn: {}, upFn: nil)
+            hotkey.enable()
             
-            L.pushInstanceMethod("enable", [.None]) { (hotkey: Hotkey) in
-                hotkey.hotkey.enable()
-                return []
-            }
+            let i = L.ref(Lua.RegistryIndex)
+            L.pushMetaUserdata(Hotkey(fn: i, hotkey: hotkey))
             
-            // Hotkey.__index = Hotkey
-            L.pushFromStack(-1)
-            L.setField("__index", table: -2)
+            return []
+        }
+        
+        func cleanup(L: Lua) {
+            hotkey.disable()
+            L.unref(Lua.RegistryIndex, fn)
+        }
+        
+        func equals(other: Hotkey) -> Bool {
+            return fn == other.fn
+        }
+        
+        class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaType])] {
+            return [
+                ("bind", [.String, .Table, .Function, .None], Hotkey.bind)
+            ]
+        }
+        
+        class func instanceMethods() -> [(String, [Lua.Kind], Hotkey -> Lua -> [LuaType])] {
+            return [
+                ("enable", [.None], Hotkey.enable)
+            ]
+        }
+        
+        class func metaMethods() -> [LuaMetaMethod<Hotkey>] {
+            return [
+                .GC(Hotkey.cleanup),
+                .EQ(Hotkey.equals),
+            ]
         }
     }
     

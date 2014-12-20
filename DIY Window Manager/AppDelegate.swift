@@ -7,7 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let L = Lua(openLibs: true)
         
-//        API.Hotkey.pushLibrary(L)
+        L.pushLibrary(API.Hotkey.self)
         L.setGlobal("Hotkey")
         
         L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")

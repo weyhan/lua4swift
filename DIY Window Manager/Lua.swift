@@ -2,13 +2,19 @@ import Foundation
 
 import Cocoa
 
+protocol LuaLibrary: LuaMetatableOwner {
+    class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaType])]
+    class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaType])]
+    class func metaMethods() -> [LuaMetaMethod<Self>]
+}
+
 protocol LuaMetatableOwner: LuaType {
     class var metatableName: String { get }
 }
 
 enum LuaMetaMethod<T> {
-    case GC((T) -> Void)
-    case EQ((T, T) -> Bool)
+    case GC(T -> Lua -> Void)
+    case EQ(T -> T -> Bool)
 }
 
 protocol LuaType {}
@@ -206,13 +212,17 @@ extension Lua {
         setTable(tablePosition - 2)
     }
     
-    func pushInstanceMethod<T: LuaMetatableOwner>(name: String, var _ types: [Kind], _ fn: T -> [LuaType], tablePosition: Int = -1) {
+    func pushInstanceMethod<T: LuaMetatableOwner>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaType], tablePosition: Int = -1) {
         types.insert(.Userdata(T.metatableName), atIndex: 0)
         let f: Function = {
             let o: T = self.getUserdata(1)!
-            return fn(o)
+            return fn(o)(self)
         }
         pushMethod(name, types, f, tablePosition: tablePosition)
+    }
+    
+    func pushClassMethod(name: String, var _ types: [Kind], _ fn: Lua -> [LuaType], tablePosition: Int = -1) {
+        pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
     func pushFromStack(position: Int) {
@@ -239,22 +249,47 @@ extension Lua {
         setMetatable(-2)
     }
     
-    func pushMetatable<T: LuaMetatableOwner>(metamethods: LuaMetaMethod<T>...) {
-        luaL_newmetatable(L, (T.metatableName as NSString).UTF8String)
-        for metaMethod in metamethods {
-            switch metaMethod {
-            case let .GC(fn):
-                pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
-                    fn(self.getUserdata(1)!)
-                    self.userdatas[self.getUserdata(1)!] = nil
-                    return []
-                }
-            case let .EQ(fn):
-                pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
-                    let result = fn(self.getUserdata(1)!, self.getUserdata(2)!)
-                    return [result]
-                }
+    func pushMetaMethod<T: LuaMetatableOwner>(metaMethod: LuaMetaMethod<T>) {
+        switch metaMethod {
+        case let .GC(fn):
+            pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
+                fn(self.getUserdata(1)!)(self)
+                self.userdatas[self.getUserdata(1)!] = nil
+                return []
             }
+        case let .EQ(fn):
+            pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
+                let result = fn(self.getUserdata(1)!)(self.getUserdata(2)!)
+                return [result]
+            }
+        }
+    }
+
+    func pushLibrary<T: LuaLibrary>(t: T.Type) {
+        pushTable()
+        
+        // Registry.T = lib
+        pushFromStack(-1)
+        setField(T.metatableName, table: Lua.RegistryIndex)
+        
+        // setmetatable(lib, lib)
+        pushFromStack(-1)
+        setMetatable(-2)
+        
+        // lib.__index == lib
+        pushFromStack(-1)
+        setField("__index", table: -2)
+        
+        for mm in t.metaMethods() {
+            pushMetaMethod(mm)
+        }
+        
+        for (name, kinds, fn) in t.classMethods() {
+            pushClassMethod(name, kinds, fn)
+        }
+        
+        for (name, kinds, fn) in t.instanceMethods() {
+            pushInstanceMethod(name, kinds, fn)
         }
     }
     
