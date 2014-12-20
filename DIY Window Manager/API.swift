@@ -11,6 +11,11 @@ class API {
         init(fn: Int, hotkey: DIY_Window_Manager.Hotkey) {
             self.fn = fn
             self.hotkey = hotkey
+            super.init()
+        }
+        
+        required init?(fromLua L: Lua, at: Int) {
+            fatalError("init(fromLua:at:) has not been implemented")
         }
         
         func call(L: Lua) {

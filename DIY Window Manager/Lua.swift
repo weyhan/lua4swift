@@ -16,6 +16,7 @@ enum LuaMetaMethod<T> {
 
 protocol LuaValue {
     func pushValue(L: Lua)
+    init?(fromLua L: Lua, at: Int)
 }
 
 extension String: LuaValue {
@@ -27,36 +28,52 @@ extension String: LuaValue {
 
 extension Int64: LuaValue {
     func pushValue(L: Lua) { L.pushInteger(self) }
+    init?(fromLua L: Lua, at: Int) {
+        self = 0
+    }
 }
 
 extension Double: LuaValue {
     func pushValue(L: Lua) { L.pushDouble(self) }
+    init?(fromLua L: Lua, at: Int) {
+        self = 0
+    }
 }
 
 extension Bool: LuaValue {
     func pushValue(L: Lua) { L.pushBool(self) }
+    init?(fromLua L: Lua, at: Int) {
+        self = true
+    }
 }
 
 extension Lua.FunctionWrapper: LuaValue {
     func pushValue(L: Lua) { L.pushFunction(self.fn) }
+    init?(fromLua L: Lua, at: Int) {
+        return nil
+    }
 }
 
 extension Lua.TableWrapper: LuaValue {
     func pushValue(L: Lua) { L.pushTable(self.t) }
+    init?(fromLua L: Lua, at: Int) {
+        return nil
+    }
 }
 
 extension Lua.UserdataWrapper: LuaValue {
     func pushValue(L: Lua) { L.pushUserdata(self.ud) }
-}
-
-extension Lua.UserdataLibrary: LuaValue {
-    func pushValue(L: Lua) {
-//        L.pushUserdata(self)
+    init?(fromLua L: Lua, at: Int) {
+        return nil
     }
 }
 
-class LuaNilType: LuaValue {
+final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
+    init(){}
+    init?(fromLua L: Lua, at: Int) {
+        return nil
+    }
 }
 
 let LuaNil = LuaNilType()
@@ -73,7 +90,14 @@ class Lua {
     typealias Function = () -> [LuaValue]
     typealias Table = [(LuaValue, LuaValue)]
     
-    class UserdataLibrary {}
+    class UserdataLibrary: LuaValue {
+        init(){}
+        func pushValue(L: Lua) {
+            L.pushUserdata(self)
+        }
+        required init?(fromLua L: Lua, at: Int) {
+        }
+    }
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
