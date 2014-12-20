@@ -258,7 +258,7 @@ extension Lua {
                 return []
             }
         case let .EQ(fn):
-            pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
+            pushMethod("__eq", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
                 let result = fn(self.getUserdata(1)!)(self.getUserdata(2)!)
                 return [result]
             }
