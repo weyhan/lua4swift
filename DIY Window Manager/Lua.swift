@@ -150,20 +150,14 @@ extension Lua {
     }
     
     func get(position: Int) -> LuaValue? {
-        switch lua_type(L, Int32(position)) {
-        case LUA_TNIL: return LuaNil
-        case LUA_TBOOLEAN: return getBool(position)!
-        case LUA_TNUMBER:
-            if lua_isinteger(L, Int32(position)) == 0 {
-                return getDouble(position)!
-            }
-            else {
-                return getInteger(position)!
-            }
-        case LUA_TSTRING: return getString(position)!
-        case LUA_TTABLE: return Lua.TableWrapper(t: getTable(position)!)
-        case LUA_TUSERDATA: return getUserdata(position)!
-        case LUA_TLIGHTUSERDATA: return getUserdata(position)!
+        switch kind(position) {
+        case .Nil: return LuaNil
+        case .Bool: return getBool(position)!
+        case .Integer: return getInteger(position)!
+        case .Double: return getDouble(position)!
+        case .String: return getString(position)!
+        case .Table: return Lua.TableWrapper(t: getTable(position)!)
+        case .Userdata(nil): return getUserdata(position)!
         default: return nil
         }
     }
