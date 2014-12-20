@@ -2,12 +2,12 @@ import Foundation
 
 class API {
     
-    final class Hotkey: LuaLibrary {
+    final class Hotkey: Lua.UserdataLibrary, LuaLibrary {
         let fn: Int
         let hotkey: DIY_Window_Manager.Hotkey
         
         class var metatableName: String { return "Hotkey" }
-
+        
         init(fn: Int, hotkey: DIY_Window_Manager.Hotkey) {
             self.fn = fn
             self.hotkey = hotkey

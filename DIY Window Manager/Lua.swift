@@ -17,15 +17,48 @@ enum LuaMetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
-protocol LuaValue {}
-extension String: LuaValue {}
-extension Int64: LuaValue {}
-extension Double: LuaValue {}
-extension Bool: LuaValue {}
-extension Lua.FunctionWrapper: LuaValue {}
-extension Lua.TableWrapper: LuaValue {}
-extension Lua.UserdataWrapper: LuaValue {}
-class LuaNilType: LuaValue {}
+protocol LuaValue {
+    func pushValue(L: Lua)
+}
+
+extension String: LuaValue {
+    func pushValue(L: Lua) { L.pushString(self) }
+}
+
+extension Int64: LuaValue {
+    func pushValue(L: Lua) { L.pushInteger(self) }
+}
+
+extension Double: LuaValue {
+    func pushValue(L: Lua) { L.pushDouble(self) }
+}
+
+extension Bool: LuaValue {
+    func pushValue(L: Lua) { L.pushBool(self) }
+}
+
+extension Lua.FunctionWrapper: LuaValue {
+    func pushValue(L: Lua) { L.pushFunction(self.fn) }
+}
+
+extension Lua.TableWrapper: LuaValue {
+    func pushValue(L: Lua) { L.pushTable(self.t) }
+}
+
+extension Lua.UserdataWrapper: LuaValue {
+    func pushValue(L: Lua) { L.pushUserdata(self.ud) }
+}
+
+extension Lua.UserdataLibrary: LuaValue {
+    func pushValue(L: Lua) {
+//        L.pushUserdata(self)
+    }
+}
+
+class LuaNilType: LuaValue {
+    func pushValue(L: Lua) { L.pushNil() }
+}
+
 let LuaNil = LuaNilType()
 
 // basics
@@ -39,6 +72,8 @@ class Lua {
     
     typealias Function = () -> [LuaValue]
     typealias Table = [(LuaValue, LuaValue)]
+    
+    class UserdataLibrary {}
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
@@ -149,26 +184,12 @@ extension Lua {
 // push
 extension Lua {
     
-    func push(value: LuaValue) {
-        switch value {
-        case let x as Int64: pushInteger(x)
-        case let x as Double: pushDouble(x)
-        case let x as Bool: pushBool(x)
-        case let x as Lua.FunctionWrapper: pushFunction(x.fn)
-        case let x as String: pushString(x)
-        case let x as Lua.TableWrapper: pushTable(x.t)
-        case let x as Lua.UserdataWrapper: pushUserdata(x.ud)
-        case is LuaNilType: pushNil()
-        default: break
-        }
-    }
-    
     func pushTable(table: Table) {
         pushTable(keyCapacity: table.count)
         let i = Int(lua_absindex(L, -1)) // overkill? dunno.
         for (key, value) in table {
-            push(key)
-            push(value)
+            key.pushValue(self)
+            value.pushValue(self)
             setTable(i)
         }
     }
@@ -186,7 +207,7 @@ extension Lua {
     func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in
             let results = fn()
-            for result in results { self.push(result) }
+            for result in results { result.pushValue(self) }
             return Int32(results.count)
         }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
