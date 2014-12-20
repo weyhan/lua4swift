@@ -23,6 +23,9 @@ protocol LuaValue {
 
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
+    init?(fromLua L: Lua, at: Int) {
+        self = ""
+    }
 }
 
 extension Int64: LuaValue {
@@ -112,6 +115,18 @@ extension Lua {
 
 // get
 extension Lua {
+    
+    func kind(position: Int) -> Kind {
+        switch lua_type(L, Int32(position)) {
+        case LUA_TNIL: return .Nil
+        case LUA_TBOOLEAN: return .Bool
+        case LUA_TNUMBER: return lua_isinteger(L, Int32(position)) == 0 ? .Double : .Integer
+        case LUA_TSTRING: return .String
+        case LUA_TTABLE: return .Table
+        case LUA_TUSERDATA, LUA_TLIGHTUSERDATA: return .Userdata(nil)
+        default: return .None
+        }
+    }
     
     func get(position: Int) -> LuaValue? {
         switch lua_type(L, Int32(position)) {
@@ -346,19 +361,21 @@ extension Lua {
 extension Lua {
 
     enum Kind {
+        case Nil
         case String
-        case Number
+        case Double
+        case Integer
         case Bool
         case Function
         case Table
-        case Nil
-        case None
         case Userdata(Swift.String?)
+        case None
 
         func toLuaType() -> Int32 {
             switch self {
             case String: return LUA_TSTRING
-            case Number: return LUA_TNUMBER
+            case Double: return LUA_TNUMBER
+            case Integer: return LUA_TNUMBER
             case Bool: return LUA_TBOOLEAN
             case Function: return LUA_TFUNCTION
             case Table: return LUA_TTABLE

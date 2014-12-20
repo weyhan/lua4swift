@@ -29,6 +29,8 @@ class API {
         }
         
         class func bind(L: Lua) -> [LuaValue] {
+            let key2 = String(fromLua: L, at: 1)!
+            
             let key = L.getString(1)!
             let mods = L.getTable(2)!
             L.pushFromStack(3)
