@@ -2,13 +2,10 @@ import Foundation
 
 import Cocoa
 
-protocol LuaLibrary: LuaMetatableOwner {
+protocol LuaLibrary {
     class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])]
     class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaValue])]
     class func metaMethods() -> [LuaMetaMethod<Self>]
-}
-
-protocol LuaMetatableOwner: LuaValue {
     class var metatableName: String { get }
 }
 
@@ -248,7 +245,7 @@ extension Lua {
         setTable(tablePosition - 2)
     }
     
-    func pushInstanceMethod<T: LuaMetatableOwner>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
+    func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
         types.insert(.Userdata(T.metatableName), atIndex: 0)
         let f: Function = {
             let o: T = self.getUserdata(1)!
@@ -279,13 +276,13 @@ extension Lua {
         userdatas[userdata] = swiftObject
     }
     
-    func pushMetaUserdata<T: LuaMetatableOwner>(swiftObject: T) {
+    func pushMetaUserdata<T: LuaLibrary>(swiftObject: T) {
         pushUserdata(swiftObject)
         pushField(T.metatableName, fromTable: Lua.RegistryIndex)
         setMetatable(-2)
     }
     
-    func pushMetaMethod<T: LuaMetatableOwner>(metaMethod: LuaMetaMethod<T>) {
+    func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
