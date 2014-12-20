@@ -76,7 +76,13 @@ extension Lua {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL: return LuaNil
         case LUA_TBOOLEAN: return getBool(position)!
-        case LUA_TNUMBER: return getDouble(position)!
+        case LUA_TNUMBER:
+            if lua_isinteger(L, Int32(position)) == 0 {
+                return getDouble(position)!
+            }
+            else {
+                return getInteger(position)!
+            }
         case LUA_TSTRING: return getString(position)!
         case LUA_TTABLE: return Lua.TableWrapper(t: getTable(position)!)
         case LUA_TUSERDATA: return getUserdata(position)!
@@ -100,6 +106,11 @@ extension Lua {
     func getDouble(position: Int) -> Double? {
         if lua_type(L, Int32(position)) != LUA_TNUMBER { return nil }
         return lua_tonumberx(L, Int32(position), nil)
+    }
+    
+    func getInteger(position: Int) -> Int64? {
+        if lua_type(L, Int32(position)) != LUA_TNUMBER { return nil }
+        return lua_tointegerx(L, Int32(position), nil)
     }
     
     func getTable(position: Int) -> Table? {
