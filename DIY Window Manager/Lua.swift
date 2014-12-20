@@ -220,12 +220,6 @@ extension Lua {
         lua_pushvalue(L, Int32(position))
     }
     
-    func pushOntoTable(key: Value, _ value: Value, table: Int = -1) {
-        push(key)
-        push(value)
-        setTable(table-2)
-    }
-    
     func pop(n: Int) {
         lua_settop(L, -Int32(n)-1)
     }
