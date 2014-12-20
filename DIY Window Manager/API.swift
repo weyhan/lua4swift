@@ -12,8 +12,8 @@ class API {
             L.pushUserdata(self)
         }
         
-        class func fromLua(L: Lua, at: Int) -> Hotkey? {
-            return L.getUserdata(at) as? Hotkey
+        class func fromLua(L: Lua, at position: Int) -> Hotkey? {
+            return L.getUserdata(position) as? Hotkey
         }
         
         init(fn: Int, hotkey: DIY_Window_Manager.Hotkey) {
@@ -38,7 +38,7 @@ class API {
         
         class func bind(L: Lua) -> [LuaValue] {
             let key = String.fromLua(L, at: 1)!
-            let mods = L.getTable(2)!
+            let mods = Lua.TableBox.fromLua(L, at: 2)!.t
             L.pushFromStack(3)
             
             let modStrings = mods.map{$1 as? String}.filter{$0 != nil}.map{$0!}

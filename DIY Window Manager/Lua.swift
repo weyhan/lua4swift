@@ -4,7 +4,7 @@ import Cocoa
 
 protocol LuaValue {
     func pushValue(L: Lua)
-    class func fromLua(L: Lua, at: Int) -> Self?
+    class func fromLua(L: Lua, at position: Int) -> Self?
 }
 
 protocol LuaLibrary: LuaValue {
@@ -21,50 +21,69 @@ enum LuaMetaMethod<T> {
 
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
-    static func fromLua(L: Lua, at: Int) -> String? {
-        return nil
+    static func fromLua(L: Lua, at position: Int) -> String? {
+        switch L.kind(position) {
+        case .String:
+            var len: UInt = 0
+            let str = lua_tolstring(L.L, Int32(position), &len)
+            return NSString(CString: str, encoding: NSUTF8StringEncoding)
+        default: return nil}
     }
 }
 
 extension Int64: LuaValue {
     func pushValue(L: Lua) { L.pushInteger(self) }
-    static func fromLua(L: Lua, at: Int) -> Int64? {
-        return nil
+    static func fromLua(L: Lua, at position: Int) -> Int64? {
+        switch L.kind(position) {
+        case .Integer: return lua_tointegerx(L.L, Int32(position), nil)
+        default: return nil}
     }
 }
 
 extension Double: LuaValue {
     func pushValue(L: Lua) { L.pushDouble(self) }
-    static func fromLua(L: Lua, at: Int) -> Double? {
-        return nil
+    static func fromLua(L: Lua, at position: Int) -> Double? {
+        switch L.kind(position) {
+        case .Double: return lua_tonumberx(L.L, Int32(position), nil)
+        default: return nil}
     }
 }
 
 extension Bool: LuaValue {
     func pushValue(L: Lua) { L.pushBool(self) }
-    static func fromLua(L: Lua, at: Int) -> Bool? {
-        return nil
+    static func fromLua(L: Lua, at position: Int) -> Bool? {
+        switch L.kind(position) {
+        case .Bool: return lua_toboolean(L.L, Int32(position)) != 0
+        default: return nil}
     }
 }
 
 extension Lua.FunctionBox: LuaValue {
     func pushValue(L: Lua) { L.pushFunction(self.fn) }
-    static func fromLua(L: Lua, at: Int) -> Lua.FunctionBox? {
+    static func fromLua(L: Lua, at position: Int) -> Lua.FunctionBox? {
+        // can't ever convert functions to any usable object
         return nil
     }
 }
 
 extension Lua.TableBox: LuaValue {
     func pushValue(L: Lua) { L.pushTable(self.t) }
-    static func fromLua(L: Lua, at: Int) -> Lua.TableBox? {
-        return nil
+    static func fromLua(L: Lua, at position: Int) -> Lua.TableBox? {
+        if lua_type(L.L, Int32(position)) != LUA_TTABLE { return nil }
+        var t = Lua.TableBox()
+        L.pushNil()
+        while lua_next(L.L, Int32(position)) != 0 {
+            t.t.append((L.get(-2)!, L.get(-1)!))
+            L.pop(1)
+        }
+        return t
     }
 }
 
 final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
-    class func fromLua(L: Lua, at: Int) -> LuaNilType? {
-        return nil
+    class func fromLua(L: Lua, at position: Int) -> LuaNilType? {
+        return LuaNil
     }
 }
 
@@ -75,8 +94,15 @@ class Lua {
     
     let L = luaL_newstate()
     
-    struct FunctionBox { let fn: Function }
-    struct TableBox { let t: Table }
+    // meant for putting functions into Lua only; can't take them out
+    struct FunctionBox {
+        let fn: Function
+        init(_ fn: Function) { self.fn = fn }
+    }
+    
+    struct TableBox {
+        var t = Table()
+    }
     
     typealias Function = () -> [LuaValue]
     typealias Table = [(LuaValue, LuaValue)]
@@ -134,47 +160,14 @@ extension Lua {
     func get(position: Int) -> LuaValue? {
         switch kind(position) {
         case .Nil: return LuaNil
-        case .Bool: return getBool(position)!
-        case .Integer: return getInteger(position)!
-        case .Double: return getDouble(position)!
-        case .String: return getString(position)!
-        case .Table: return Lua.TableBox(t: getTable(position)!)
+        case .Bool: return Bool.fromLua(self, at: position)!
+        case .Integer: return Int64.fromLua(self, at: position)!
+        case .Double: return Double.fromLua(self, at: position)!
+        case .String: return String.fromLua(self, at: position)!
+        case .Table: return TableBox.fromLua(self, at: position)!
         case .Userdata(nil): return getUserdata(position)!
         default: return nil
         }
-    }
-    
-    func getString(position: Int) -> String? {
-        if lua_type(L, Int32(position)) != LUA_TSTRING { return nil }
-        var len: UInt = 0
-        let str = lua_tolstring(L, Int32(position), &len)
-        return NSString(CString: str, encoding: NSUTF8StringEncoding)
-    }
-    
-    func getBool(position: Int) -> Bool? {
-        if lua_type(L, Int32(position)) != LUA_TBOOLEAN { return nil }
-        return lua_toboolean(L, Int32(position)) != 0
-    }
-    
-    func getDouble(position: Int) -> Double? {
-        if lua_type(L, Int32(position)) != LUA_TNUMBER { return nil }
-        return lua_tonumberx(L, Int32(position), nil)
-    }
-    
-    func getInteger(position: Int) -> Int64? {
-        if lua_type(L, Int32(position)) != LUA_TNUMBER { return nil }
-        return lua_tointegerx(L, Int32(position), nil)
-    }
-    
-    func getTable(position: Int) -> Table? {
-        if lua_type(L, Int32(position)) != LUA_TTABLE { return nil }
-        var t = Table()
-        lua_pushnil(L);
-        while lua_next(L, Int32(position)) != 0 {
-            t.append((get(-2)!, get(-1)!))
-            pop(1)
-        }
-        return t
     }
     
     func getUserdataPointer(position: Int) -> Userdata? {
