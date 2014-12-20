@@ -72,7 +72,7 @@ extension Lua {
 // get
 extension Lua {
     
-    func getValue(position: Int) -> LuaType? {
+    func get(position: Int) -> LuaType? {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL: return LuaNil
         case LUA_TBOOLEAN: return getBool(position)!
@@ -107,7 +107,7 @@ extension Lua {
         var t = Table()
         lua_pushnil(L);
         while lua_next(L, Int32(position)) != 0 {
-            t.append((getValue(-2)!, getValue(-1)!))
+            t.append((get(-2)!, get(-1)!))
             pop(1)
         }
         return t
