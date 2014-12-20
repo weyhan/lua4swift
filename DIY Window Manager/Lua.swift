@@ -28,8 +28,10 @@ extension NSPoint: LuaValue {
     static func fromLua(L: Lua, at position: Int) -> NSPoint? {
         switch L.kind(position) {
         case .Table:
-            let t = Lua.TableBox.fromLua(L, at: position)!.t
-            return NSPoint()
+            let t = Lua.TableBox.fromLua(L, at: position)!
+            let x = t.getField("x") as Double?
+            let y = t.getField("y") as Double?
+            return NSPoint(x: x ?? 0, y: y ?? 0)
         default: return nil}
     }
 }
@@ -117,6 +119,13 @@ class Lua {
     
     struct TableBox {
         var t = Table()
+        
+        func getField(key: String) -> LuaValue? {
+            for (k, v) in t {
+                if let stringKey = k as? String { if stringKey == key { return v } }
+            }
+            return nil
+        }
     }
     
     typealias Function = () -> [LuaValue]
