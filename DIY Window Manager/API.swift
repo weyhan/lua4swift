@@ -2,7 +2,7 @@ import Foundation
 
 class API {
     
-    final class Hotkey: LuaLibrary, LuaValue {
+    final class Hotkey: LuaLibrary {
         let fn: Int
         let hotkey: DIY_Window_Manager.Hotkey
         
