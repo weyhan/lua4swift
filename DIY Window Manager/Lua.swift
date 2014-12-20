@@ -180,7 +180,7 @@ extension Lua {
         return UnsafeMutablePointer<LuaValue>(getUserdataPointer(position)!).memory
     }
     
-    func getTruthy(position: Int) -> Bool {
+    func isTruthy(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
     
