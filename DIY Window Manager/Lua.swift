@@ -156,7 +156,10 @@ extension Lua {
         }
     }
     
-    func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) { lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity)) }
+    func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
+        lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
+    }
+    
     func pushNil()             { lua_pushnil(L) }
     func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
     func pushDouble(n: Double) { lua_pushnumber(L, n) }
