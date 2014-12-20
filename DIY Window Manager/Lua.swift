@@ -47,23 +47,16 @@ extension Bool: LuaValue {
     }
 }
 
-extension Lua.FunctionWrapper: LuaValue {
+extension Lua.FunctionBox: LuaValue {
     func pushValue(L: Lua) { L.pushFunction(self.fn) }
-    static func fromLua(L: Lua, at: Int) -> Lua.FunctionWrapper? {
+    static func fromLua(L: Lua, at: Int) -> Lua.FunctionBox? {
         return nil
     }
 }
 
-extension Lua.TableWrapper: LuaValue {
+extension Lua.TableBox: LuaValue {
     func pushValue(L: Lua) { L.pushTable(self.t) }
-    static func fromLua(L: Lua, at: Int) -> Lua.TableWrapper? {
-        return nil
-    }
-}
-
-extension Lua.UserdataWrapper: LuaValue {
-    func pushValue(L: Lua) { L.pushUserdata(self.ud) }
-    static func fromLua(L: Lua, at: Int) -> Lua.UserdataWrapper? {
+    static func fromLua(L: Lua, at: Int) -> Lua.TableBox? {
         return nil
     }
 }
@@ -82,26 +75,11 @@ class Lua {
     
     let L = luaL_newstate()
     
-    struct FunctionWrapper { let fn: Function }
-    struct TableWrapper { let t: Table }
-    struct UserdataWrapper { let ud: Userdata }
+    struct FunctionBox { let fn: Function }
+    struct TableBox { let t: Table }
     
     typealias Function = () -> [LuaValue]
     typealias Table = [(LuaValue, LuaValue)]
-    
-//    class UserdataLibrary: LuaValue {
-//        
-//        func pushValue(L: Lua) {
-//            L.pushUserdata(self)
-//        }
-//        
-//        class func fromLua(L: Lua, at: Int) -> Self? {
-////            if let ud = L.getUserdata(at) {
-////                return UnsafeMutablePointer<UserdataLibrary>(ud).memory
-////            }
-//            return nil
-//        }
-//    }
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
@@ -160,8 +138,8 @@ extension Lua {
         case .Integer: return getInteger(position)!
         case .Double: return getDouble(position)!
         case .String: return getString(position)!
-        case .Table: return Lua.TableWrapper(t: getTable(position)!)
-//        case .Userdata(nil): return getUserdata(position)!
+        case .Table: return Lua.TableBox(t: getTable(position)!)
+        case .Userdata(nil): return getUserdata(position)!
         default: return nil
         }
     }
@@ -199,9 +177,14 @@ extension Lua {
         return t
     }
     
-    func getUserdata(position: Int) -> Userdata? {
+    func getUserdataPointer(position: Int) -> Userdata? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
-        return Userdata(lua_touserdata(L, Int32(position)))
+        return lua_touserdata(L, Int32(position))
+    }
+    
+    func getUserdata(position: Int) -> LuaValue? {
+        if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
+        return UnsafeMutablePointer<LuaValue>(getUserdataPointer(position)!).memory
     }
     
     func getTruthy(position: Int) -> Bool {
@@ -293,18 +276,12 @@ extension Lua {
         userdatas[userdata] = swiftObject
     }
     
-    func pushMetaUserdata<T: LuaLibrary>(swiftObject: T) {
-        pushUserdata(swiftObject)
-        pushField(T.metatableName, fromTable: Lua.RegistryIndex)
-        setMetatable(-2)
-    }
-    
     func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
                 fn(T.fromLua(self, at: 1)!)(self)
-                self.userdatas[self.getUserdata(1)!] = nil
+                self.userdatas[self.getUserdataPointer(1)!] = nil
                 return []
             }
         case let .EQ(fn):
@@ -376,7 +353,6 @@ extension Lua {
 extension Lua {
     
     enum Kind {
-        case Nil
         case String
         case Double
         case Integer
@@ -384,6 +360,7 @@ extension Lua {
         case Function
         case Table
         case Userdata(Swift.String?)
+        case Nil
         case None
         
         func toLuaType() -> Int32 {
@@ -394,8 +371,8 @@ extension Lua {
             case Bool: return LUA_TBOOLEAN
             case Function: return LUA_TFUNCTION
             case Table: return LUA_TTABLE
+            case Userdata: return LUA_TUSERDATA
             case Nil: return LUA_TNIL
-            case let Userdata(type): return LUA_TUSERDATA
             default: return LUA_TNONE
             }
         }

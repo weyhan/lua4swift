@@ -12,17 +12,13 @@ class API {
             L.pushUserdata(self)
         }
         
-        class func fromLua(L: Lua, at: Int) -> Self? {
-            //            if let ud = L.getUserdata(at) {
-            //                return UnsafeMutablePointer<UserdataLibrary>(ud).memory
-            //            }
-            return nil
+        class func fromLua(L: Lua, at: Int) -> Hotkey? {
+            return L.getUserdata(at) as? Hotkey
         }
         
         init(fn: Int, hotkey: DIY_Window_Manager.Hotkey) {
             self.fn = fn
             self.hotkey = hotkey
-//            super.init()
         }
         
         func call(L: Lua) {
