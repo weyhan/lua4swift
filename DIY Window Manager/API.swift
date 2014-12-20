@@ -6,7 +6,6 @@ class API {
 //        let fn: Int
 //        let hotkey: DIY_Window_Manager.Hotkey
         
-        class func toLuaType() -> Int32 { return LUA_TUSERDATA }
         class var metatableName: String { return "Hotkey" }
 //
 //        init(fn: Int, hotkey: DIY_Window_Manager.Hotkey) {
