@@ -206,6 +206,15 @@ extension Lua {
         setTable(tablePosition - 2)
     }
     
+    func pushInstanceMethod<T: LuaMetatableOwner>(name: String, var _ types: [Kind], _ fn: T -> [LuaType], tablePosition: Int = -1) {
+        types.insert(.Userdata(T.metatableName), atIndex: 0)
+        let f: Function = {
+            let o: T = self.getUserdata(1)!
+            return fn(o)
+        }
+        pushMethod(name, types, f, tablePosition: tablePosition)
+    }
+    
     func pushFromStack(position: Int) {
         lua_pushvalue(L, Int32(position))
     }

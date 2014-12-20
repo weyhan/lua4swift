@@ -46,8 +46,7 @@ class API {
                 return []
             }
             
-            L.pushMethod("enable", [.Userdata(self.metatableName), .None]) {
-                let hotkey: Hotkey = L.getUserdata(1)!
+            L.pushInstanceMethod("enable", [.None]) { (hotkey: Hotkey) in
                 hotkey.hotkey.enable()
                 return []
             }
