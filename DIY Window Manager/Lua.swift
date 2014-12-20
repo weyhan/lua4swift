@@ -221,13 +221,13 @@ extension Lua {
         for metaMethod in metamethods {
             switch metaMethod {
             case let .GC(fn):
-                pushMethod("__gc", [.Userdata(T.metatableName), .Nil]) {
+                pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
                     fn(self.getUserdata(1)!)
                     self.userdatas[self.getUserdata(1)!] = nil
                     return []
                 }
             case let .EQ(fn):
-                pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .Nil]) {
+                pushMethod("__gc", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
                     let result = fn(self.getUserdata(1)!, self.getUserdata(2)!)
                     return [result]
                 }
