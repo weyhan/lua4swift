@@ -10,7 +10,7 @@ class API {
         class var metatableName: String { return "Hotkey" }
         class func kind() -> Lua.Kind { return .Userdata }
         class func isValid(Lua, Int) -> Bool { return false }
-        class func arg() -> (Lua.Kind, () -> String, (Lua, Int) -> Bool) { return (Hotkey.kind(), Hotkey.typeName, Hotkey.isValid) }
+        class func arg() -> LuaTypeChecker { return (Hotkey.kind(), Hotkey.typeName, Hotkey.isValid) }
         
         func pushValue(L: Lua) {
             L.pushUserdata(self)
