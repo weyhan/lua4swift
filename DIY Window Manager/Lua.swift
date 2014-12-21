@@ -19,20 +19,22 @@ enum LuaMetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
-//extension NSPoint: LuaValue {
-//    func pushValue(L: Lua) {
-//        L.pushTable(keyCapacity: 2)
-//        L.pushDouble(Double(self.x)); L.setField("x", table: -2)
-//        L.pushDouble(Double(self.y)); L.setField("y", table: -2)
-//    }
-//    static func fromLua(L: Lua, at position: Int) -> NSPoint? {
-//        if L.kind(position) != .Table { return nil }
-//        let t = Lua.TableBox.fromLua(L, at: position)!
-//        let x = t.getField("x") as Double?
-//        let y = t.getField("y") as Double?
-//        return NSPoint(x: x ?? 0, y: y ?? 0)
-//    }
-//}
+extension NSPoint: LuaValue {
+    func pushValue(L: Lua) {
+        L.pushTable(keyCapacity: 2)
+        L.pushDouble(Double(self.x)); L.setField("x", table: -2)
+        L.pushDouble(Double(self.y)); L.setField("y", table: -2)
+    }
+    static func fromLua(L: Lua, at position: Int) -> NSPoint? {
+        let dict = LuaDictionary<String, Double>.fromLua(L, at: position)
+        if dict == nil { return nil }
+        let table = dict!
+        
+        let x = table["x"] ?? 0
+        let y = table["y"] ?? 0
+        return NSPoint(x: x, y: y)
+    }
+}
 
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
@@ -119,6 +121,12 @@ final class LuaArray<T: LuaValue>: LuaValue {
         return array
     }
     
+    subscript(index: Int) -> T { return elements[index] }
+    
+    init(values: T...) {
+        elements.extend(values)
+    }
+    
 }
 
 final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue { // is there a less dumb way to write the generic signature here?
@@ -151,6 +159,14 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
         }
         
         return dict
+    }
+    
+    subscript(key: K) -> T? { return elements[key] }
+    
+    init() {}
+    
+    init(values: [K:T]) {
+        elements = values
     }
     
 }
