@@ -122,6 +122,7 @@ final class LuaHomogeneousArray<T: LuaValue>: LuaValue {
         
         if bag.count == 0 { return array }
         
+        // ensure table has no holes and keys start at 1
         let sortedKeys = sorted(bag.keys, <)
         if [Int64](1...sortedKeys.last!) != sortedKeys { return nil }
         
