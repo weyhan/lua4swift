@@ -9,9 +9,9 @@
 #ifndef __LuaSwift__LuaNonMacros__
 #define __LuaSwift__LuaNonMacros__
 
-#import "lua.h"
-#import "lauxlib.h"
-#import "lualib.h"
+#import "LuaSource/lua.h"
+#import "LuaSource/lauxlib.h"
+#import "LuaSource/lualib.h"
 extern int SDegutisLuaRegistryIndex;
 
 #endif /* defined(__LuaSwift__LuaNonMacros__) */

@@ -226,8 +226,8 @@
 			children = (
 				94042D091A47477E00A8B8CC /* Lua.swift */,
 				9418D9071A47478D00626B14 /* LuaSwift-Bridging-Header.h */,
-				948292E31A474B2E009C3498 /* LuaNonMacros.c */,
 				948292E41A474B2E009C3498 /* LuaNonMacros.h */,
+				948292E31A474B2E009C3498 /* LuaNonMacros.c */,
 				948292E71A474BE4009C3498 /* LuaSource */,
 			);
 			path = LuaSwift;
