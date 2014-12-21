@@ -121,6 +121,40 @@ final class LuaArray<T: LuaValue>: LuaValue {
     
 }
 
+final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue { // is there a less dumb way to write the generic signature here?
+    
+    var elements = [K:T]()
+    
+    func pushValue(L: Lua) {
+        L.pushTable(keyCapacity: elements.count)
+        let tablePosition = Int(lua_absindex(L.L, -1)) // overkill? dunno.
+        for (key, value) in elements {
+            key.pushValue(L)
+            value.pushValue(L)
+            L.setTable(tablePosition)
+        }
+    }
+    
+    class func fromLua(L: Lua, at position: Int) -> LuaDictionary<K, T>? {
+        var dict = LuaDictionary<K, T>()
+        
+        L.pushNil()
+        while lua_next(L.L, Int32(position)) != 0 {
+            let key = K.fromLua(L, at: -2)
+            let val = T.fromLua(L, at: -1)
+            L.pop(1)
+            
+            // non-int key or non-T value
+            if key == nil || val == nil { return nil }
+            
+            dict.elements[key!] = val!
+        }
+        
+        return dict
+    }
+    
+}
+
 final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
     class func fromLua(L: Lua, at position: Int) -> LuaNilType? {
