@@ -23,7 +23,7 @@ private func pushCode(code: Int, key: String) {
 
 private let lazilySetupKeycodes: () = Keycode.setup()
 
-struct Keycode {
+public struct Keycode {
     
     static func setup() {
         NSNotificationCenter.defaultCenter().addObserverForName(NSTextInputContextKeyboardSelectionDidChangeNotification, object: nil, queue: nil) { note in self.cacheMaps() }
@@ -169,12 +169,12 @@ struct Keycode {
         pushCode(kVK_UpArrow, "up")
     }
     
-    static func keyForCode(code: Int) -> String? {
+    public static func keyForCode(code: Int) -> String? {
         lazilySetupKeycodes
         return codeToKey[code]
     }
     
-    static func codeForKey(key: String) -> Int? {
+    public static func codeForKey(key: String) -> Int? {
         lazilySetupKeycodes
         return keyToCode[key]
     }

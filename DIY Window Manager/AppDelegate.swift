@@ -6,10 +6,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let L = VM(openLibs: true)
+        let L = Lua.VM()
         
-//        L.pushLibrary(API.Hotkey.self)
-//        L.setGlobal("Hotkey")
+        L.pushLibrary(Hotkey.self)
+        L.setGlobal("Hotkey")
         
         L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
         
