@@ -5,7 +5,7 @@ extension String: Value {
     public static func fromLua(L: VirtualMachine, at position: Int) -> String? {
         if L.kind(position) != .String { return nil }
         var len: UInt = 0
-        let str = lua_tolstring(L.L, Int32(position), &len)
+        let str = lua_tolstring(L.luaState, Int32(position), &len)
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
     public static func typeName() -> String { return "<String>" }
@@ -20,7 +20,7 @@ extension Int64: Value {
     public func pushValue(L: VirtualMachine) { L.pushInteger(self) }
     public static func fromLua(L: VirtualMachine, at position: Int) -> Int64? {
         if L.kind(position) != .Integer { return nil }
-        return lua_tointegerx(L.L, Int32(position), nil)
+        return lua_tointegerx(L.luaState, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Integer>" }
     public static func kind() -> Kind { return .Integer }
@@ -34,7 +34,7 @@ extension Double: Value {
     public func pushValue(L: VirtualMachine) { L.pushDouble(self) }
     public static func fromLua(L: VirtualMachine, at position: Int) -> Double? {
         if L.kind(position) != .Double { return nil }
-        return lua_tonumberx(L.L, Int32(position), nil)
+        return lua_tonumberx(L.luaState, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Double>" }
     public static func kind() -> Kind { return .Double }
@@ -48,7 +48,7 @@ extension Bool: Value {
     public func pushValue(L: VirtualMachine) { L.pushBool(self) }
     public static func fromLua(L: VirtualMachine, at position: Int) -> Bool? {
         if L.kind(position) != .Bool { return nil }
-        return lua_toboolean(L.L, Int32(position)) != 0
+        return lua_toboolean(L.luaState, Int32(position)) != 0
     }
     public static func typeName() -> String { return "<Boolean>" }
     public static func kind() -> Kind { return .Bool }

@@ -31,10 +31,10 @@ public enum Kind {
 extension VirtualMachine {
     
     public func kind(position: Int) -> Kind {
-        switch lua_type(L, Int32(position)) {
+        switch lua_type(luaState, Int32(position)) {
         case LUA_TNIL: return .Nil
         case LUA_TBOOLEAN: return .Bool
-        case LUA_TNUMBER: return lua_isinteger(L, Int32(position)) == 0 ? .Double : .Integer
+        case LUA_TNUMBER: return lua_isinteger(luaState, Int32(position)) == 0 ? .Double : .Integer
         case LUA_TSTRING: return .String
         case LUA_TFUNCTION: return .Function
         case LUA_TTABLE: return .Table

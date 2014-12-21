@@ -6,7 +6,7 @@ public final class SequentialTable<T: Value>: Value {
     
     public func pushValue(L: VirtualMachine) {
         L.pushTable(keyCapacity: elements.count)
-        let tablePosition = Int(lua_absindex(L.L, -1)) // overkill? dunno.
+        let tablePosition = Int(lua_absindex(L.luaState, -1)) // overkill? dunno.
         for (i, value) in enumerate(elements) {
             Int64(i+1).pushValue(L)
             value.pushValue(L)
@@ -21,7 +21,7 @@ public final class SequentialTable<T: Value>: Value {
         var bag = [Int64:T]()
         
         L.pushNil()
-        while lua_next(L.L, Int32(position)) != 0 {
+        while lua_next(L.luaState, Int32(position)) != 0 {
             let i = Int64.fromLua(L, at: -2)
             let val = T.fromLua(L, at: -1)
             L.pop(1)

@@ -6,17 +6,17 @@ public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 // basics
 public class VirtualMachine {
     
-    let L = luaL_newstate()
+    let luaState = luaL_newstate()
     
     var storedSwiftValues = [UserdataPointer : Any]()
     
     public init(openLibs: Bool = true) {
-        if openLibs { luaL_openlibs(L) }
+        if openLibs { luaL_openlibs(luaState) }
     }
     
     // execute
     
-    public func loadString(str: String) { luaL_loadstring(L, (str as NSString).UTF8String) }
+    public func loadString(str: String) { luaL_loadstring(luaState, (str as NSString).UTF8String) }
     
     public func doString(str: String) {
         loadString(str)
@@ -24,43 +24,43 @@ public class VirtualMachine {
     }
     
     public func call(arguments: Int = 0, returnValues: Int = 0) {
-        lua_pcallk(L, Int32(arguments), Int32(returnValues), 0, 0, nil)
+        lua_pcallk(luaState, Int32(arguments), Int32(returnValues), 0, 0, nil)
     }
     
     // set
     
-    public func setGlobal(name: String) { lua_setglobal(L, (name as NSString).UTF8String) }
-    public func setField(name: String, table: Int) { lua_setfield(L, Int32(table), (name as NSString).UTF8String) }
-    public func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
-    public func setMetatable(position: Int) { lua_setmetatable(L, Int32(position)) }
+    public func setGlobal(name: String) { lua_setglobal(luaState, (name as NSString).UTF8String) }
+    public func setField(name: String, table: Int) { lua_setfield(luaState, Int32(table), (name as NSString).UTF8String) }
+    public func setTable(tablePosition: Int) { lua_settable(luaState, Int32(tablePosition)) }
+    public func setMetatable(position: Int) { lua_setmetatable(luaState, Int32(position)) }
     
     // get
     
     public func getUserdataPointer(position: Int) -> UserdataPointer? {
-        if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
-        return lua_touserdata(L, Int32(position))
+        if lua_type(luaState, Int32(position)) != LUA_TUSERDATA { return nil }
+        return lua_touserdata(luaState, Int32(position))
     }
     
     public func getUserdata(position: Int) -> Value? {
-        if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
+        if lua_type(luaState, Int32(position)) != LUA_TUSERDATA { return nil }
         return UnsafeMutablePointer<Value>(getUserdataPointer(position)!).memory
     }
     
     public func isTruthy(position: Int) -> Bool {
-        return lua_toboolean(L, Int32(position)) != 0
+        return lua_toboolean(luaState, Int32(position)) != 0
     }
     
     // push
     
     public func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
-        lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
+        lua_createtable(luaState, Int32(sequenceCapacity), Int32(keyCapacity))
     }
     
-    public func pushNil()             { lua_pushnil(L) }
-    public func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
-    public func pushDouble(n: Double) { lua_pushnumber(L, n) }
-    public func pushInteger(n: Int64) { lua_pushinteger(L, n) }
-    public func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
+    public func pushNil()             { lua_pushnil(luaState) }
+    public func pushBool(value: Bool) { lua_pushboolean(luaState, value ? 1 : 0) }
+    public func pushDouble(n: Double) { lua_pushnumber(luaState, n) }
+    public func pushInteger(n: Int64) { lua_pushinteger(luaState, n) }
+    public func pushString(s: String) { lua_pushstring(luaState, (s as NSString).UTF8String) }
     
     public func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in
@@ -71,7 +71,7 @@ public class VirtualMachine {
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
-        lua_pushcclosure(L, fp, Int32(upvalues))
+        lua_pushcclosure(luaState, fp, Int32(upvalues))
     }
     
     public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
@@ -79,7 +79,7 @@ public class VirtualMachine {
         pushFunction {
             for (i, (nameFn, testFn)) in enumerate(types) {
                 if !testFn(self, i+1) {
-                    luaL_argerror(self.L, Int32(i+1), ("\(nameFn()) expected, got <TODO>" as NSString).UTF8String)
+                    luaL_argerror(self.luaState, Int32(i+1), ("\(nameFn()) expected, got <TODO>" as NSString).UTF8String)
                 }
             }
             
@@ -102,19 +102,19 @@ public class VirtualMachine {
     }
     
     public func pushFromStack(position: Int) {
-        lua_pushvalue(L, Int32(position))
+        lua_pushvalue(luaState, Int32(position))
     }
     
     public func pop(n: Int) {
-        lua_settop(L, -Int32(n)-1)
+        lua_settop(luaState, -Int32(n)-1)
     }
     
     public func pushField(name: String, fromTable: Int) {
-        lua_getfield(L, Int32(fromTable), (name as NSString).UTF8String)
+        lua_getfield(luaState, Int32(fromTable), (name as NSString).UTF8String)
     }
     
     public func pushUserdata<T>(swiftObject: T) {
-        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
+        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(luaState, UInt(sizeof(T))))
         userdata.memory = swiftObject
         storedSwiftValues[userdata] = swiftObject
     }
@@ -162,17 +162,17 @@ public class VirtualMachine {
     
     // ref
     
-    public func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
-    public func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
+    public func ref(position: Int) -> Int { return Int(luaL_ref(luaState, Int32(position))) }
+    public func unref(table: Int, _ position: Int) { luaL_unref(luaState, Int32(table), Int32(position)) }
     
     // uhh, misc?
     
-    public func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
+    public func absolutePosition(position: Int) -> Int { return Int(lua_absindex(luaState, Int32(position))) }
     
     // raw
     
     public func rawGet(#tablePosition: Int, index: Int) {
-        lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
+        lua_rawgeti(luaState, Int32(tablePosition), lua_Integer(index))
     }
     
 }
