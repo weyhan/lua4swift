@@ -69,6 +69,10 @@
 		944A33991A475A9C00BF8675 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A335E1A475A9C00BF8675 /* lzio.c */; };
 		944A339A1A475A9C00BF8675 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 944A335F1A475A9C00BF8675 /* lzio.h */; };
 		944A339D1A475AA800BF8675 /* Lua.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A339C1A475AA800BF8675 /* Lua.swift */; };
+		94C68C971A475D5400C54B88 /* Kind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C961A475D5400C54B88 /* Kind.swift */; };
+		94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C981A475D7400C54B88 /* KeyedTable.swift */; };
+		94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9A1A475D8500C54B88 /* SequentialTable.swift */; };
+		94C68C9D1A475DAE00C54B88 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9C1A475DAE00C54B88 /* Protocols.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -136,6 +140,10 @@
 		944A335F1A475A9C00BF8675 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		944A339B1A475AA700BF8675 /* Lua-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Lua-Bridging-Header.h"; sourceTree = "<group>"; };
 		944A339C1A475AA800BF8675 /* Lua.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lua.swift; sourceTree = "<group>"; };
+		94C68C961A475D5400C54B88 /* Kind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Kind.swift; sourceTree = "<group>"; };
+		94C68C981A475D7400C54B88 /* KeyedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedTable.swift; sourceTree = "<group>"; };
+		94C68C9A1A475D8500C54B88 /* SequentialTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequentialTable.swift; sourceTree = "<group>"; };
+		94C68C9C1A475DAE00C54B88 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +177,10 @@
 			isa = PBXGroup;
 			children = (
 				944A339C1A475AA800BF8675 /* Lua.swift */,
+				94C68C961A475D5400C54B88 /* Kind.swift */,
+				94C68C981A475D7400C54B88 /* KeyedTable.swift */,
+				94C68C9C1A475DAE00C54B88 /* Protocols.swift */,
+				94C68C9A1A475D8500C54B88 /* SequentialTable.swift */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
 				944A33241A475A9C00BF8675 /* LuaSource */,
@@ -345,11 +357,14 @@
 				944A33821A475A9C00BF8675 /* loslib.c in Sources */,
 				944A33961A475A9C00BF8675 /* lutf8lib.c in Sources */,
 				944A33861A475A9C00BF8675 /* lstate.c in Sources */,
+				94C68C9D1A475DAE00C54B88 /* Protocols.swift in Sources */,
 				944A337A1A475A9C00BF8675 /* lmathlib.c in Sources */,
 				944A338D1A475A9C00BF8675 /* ltablib.c in Sources */,
+				94C68C971A475D5400C54B88 /* Kind.swift in Sources */,
 				944A336B1A475A9C00BF8675 /* ldblib.c in Sources */,
 				944A33881A475A9C00BF8675 /* lstring.c in Sources */,
 				944A338E1A475A9C00BF8675 /* ltm.c in Sources */,
+				94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */,
 				944A33751A475A9C00BF8675 /* linit.c in Sources */,
 				944A338B1A475A9C00BF8675 /* ltable.c in Sources */,
 				944A33761A475A9C00BF8675 /* liolib.c in Sources */,
@@ -369,6 +384,7 @@
 				944A33651A475A9C00BF8675 /* lbitlib.c in Sources */,
 				944A337D1A475A9C00BF8675 /* loadlib.c in Sources */,
 				944A33991A475A9C00BF8675 /* lzio.c in Sources */,
+				94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */,
 				944A33621A475A9C00BF8675 /* lauxlib.c in Sources */,
 				944A337B1A475A9C00BF8675 /* lmem.c in Sources */,
 			);
