@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		94042CA91A47474600A8B8CC /* libLuaSwift.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 94042CA61A47473F00A8B8CC /* libLuaSwift.dylib */; };
 		9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */; };
 		9407F7241A3CBA8500BE8C7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7231A3CBA8500BE8C7A /* Images.xcassets */; };
 		9407F7271A3CBA8500BE8C7A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7251A3CBA8500BE8C7A /* MainMenu.xib */; };
@@ -50,7 +51,32 @@
 		9475807C1A43D94A00947E6B /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475807B1A43D94A00947E6B /* API.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		94042CA51A47473F00A8B8CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 94042C861A47473E00A8B8CC;
+			remoteInfo = LuaSwift;
+		};
+		94042CA71A47473F00A8B8CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 94042C911A47473E00A8B8CC;
+			remoteInfo = LuaSwiftTests;
+		};
+		94042CAA1A47474A00A8B8CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 94042C851A47473E00A8B8CC;
+			remoteInfo = LuaSwift;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = LuaSwift.xcodeproj; path = LuaSwift/LuaSwift.xcodeproj; sourceTree = "<group>"; };
 		9407F71C1A3CBA8500BE8C7A /* DIY Window Manager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DIY Window Manager.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9407F7201A3CBA8500BE8C7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -129,15 +155,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94042CA91A47474600A8B8CC /* libLuaSwift.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		94042CA11A47473E00A8B8CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				94042CA61A47473F00A8B8CC /* libLuaSwift.dylib */,
+				94042CA81A47473F00A8B8CC /* LuaSwiftTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		9407F7131A3CBA8500BE8C7A = {
 			isa = PBXGroup;
 			children = (
+				94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */,
 				9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */,
 				9407F71D1A3CBA8500BE8C7A /* Products */,
 			);
@@ -266,6 +303,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				94042CAB1A47474A00A8B8CC /* PBXTargetDependency */,
 			);
 			name = "DIY Window Manager";
 			productName = "DIY Window Manager";
@@ -297,12 +335,35 @@
 			mainGroup = 9407F7131A3CBA8500BE8C7A;
 			productRefGroup = 9407F71D1A3CBA8500BE8C7A /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 94042CA11A47473E00A8B8CC /* Products */;
+					ProjectRef = 94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				9407F71B1A3CBA8500BE8C7A /* DIY Window Manager */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		94042CA61A47473F00A8B8CC /* libLuaSwift.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libLuaSwift.dylib;
+			remoteRef = 94042CA51A47473F00A8B8CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		94042CA81A47473F00A8B8CC /* LuaSwiftTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = LuaSwiftTests.xctest;
+			remoteRef = 94042CA71A47473F00A8B8CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		9407F71A1A3CBA8500BE8C7A /* Resources */ = {
@@ -364,6 +425,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		94042CAB1A47474A00A8B8CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LuaSwift;
+			targetProxy = 94042CAA1A47474A00A8B8CC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		9407F7251A3CBA8500BE8C7A /* MainMenu.xib */ = {

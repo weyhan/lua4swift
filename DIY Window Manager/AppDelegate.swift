@@ -1,14 +1,15 @@
 import Cocoa
+import LuaSwift
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let L = Lua(openLibs: true)
+        let L = LuaSwift.Lua(openLibs: true)
         
-        L.pushLibrary(API.Hotkey.self)
-        L.setGlobal("Hotkey")
+//        L.pushLibrary(API.Hotkey.self)
+//        L.setGlobal("Hotkey")
         
         L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
         
