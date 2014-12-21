@@ -1,8 +1,8 @@
 import Foundation
 
-typealias TypeChecker = (() -> String, (VM, Int) -> Bool)
+public typealias TypeChecker = (() -> String, (VM, Int) -> Bool)
 
-protocol Value {
+public protocol Value {
     func pushValue(L: VM)
     class func fromLua(L: VM, at position: Int) -> Self?
     class func typeName() -> String

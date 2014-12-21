@@ -8,12 +8,6 @@ public class VM {
     
     let L = luaL_newstate()
     
-    // meant for putting functions into Lua only; can't take them out
-    struct FunctionBox {
-        let fn: Function
-        init(_ fn: Function) { self.fn = fn }
-    }
-    
     typealias Function = () -> [Value]
     
     typealias UserdataPointer = UnsafeMutablePointer<Void>

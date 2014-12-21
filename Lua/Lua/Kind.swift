@@ -1,6 +1,6 @@
 import Foundation
 
-enum Kind {
+public enum Kind {
     case String
     case Double
     case Integer
@@ -12,7 +12,7 @@ enum Kind {
     case Nil
     case None
     
-    func toLuaType() -> Int32 {
+    public func toLuaType() -> Int32 {
         switch self {
         case String: return LUA_TSTRING
         case Double: return LUA_TNUMBER
