@@ -40,7 +40,9 @@ extension NSPoint: LuaValue {
     static func arg() -> LuaTypeChecker { return (NSPoint.typeName, NSPoint.isValid) }
     static func isValid(L: Lua, at position: Int) -> Bool {
         if L.kind(position) != kind() { return false }
-        return false
+        let dict = LuaDictionary<String,Double>.fromLua(L, at: position)
+        if dict == nil { return false }
+        return dict!["x"] != nil && dict!["y"] != nil
     }
 }
 
@@ -171,8 +173,7 @@ final class LuaArray<T: LuaValue>: LuaValue {
     class func kind() -> Lua.Kind { return .Table }
     class func arg() -> LuaTypeChecker { return (LuaArray<T>.typeName, LuaArray<T>.isValid) }
     class func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind() && LuaArray<T>.fromLua(L, at: position) != nil
     }
     
 }
@@ -223,8 +224,7 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
     class func kind() -> Lua.Kind { return .Table }
     class func arg() -> LuaTypeChecker { return (LuaDictionary<K,T>.typeName, LuaDictionary<K,T>.isValid) }
     class func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind() && LuaDictionary<K,T>.fromLua(L, at: position) != nil
     }
     
 }
