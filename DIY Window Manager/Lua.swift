@@ -2,7 +2,7 @@ import Foundation
 
 import Cocoa
 
-typealias LuaTypeChecker = () -> (Lua.Kind, () -> String, (Lua, Int) -> Bool)
+typealias LuaTypeChecker = (Lua.Kind, () -> String, (Lua, Int) -> Bool)
 
 protocol LuaValue {
     func pushValue(L: Lua)
@@ -334,8 +334,7 @@ extension Lua {
     func pushMethod(name: String, _ types: [LuaTypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
-            let types2: [(Lua.Kind, () -> String, (Lua, Int) -> Bool)] = types.map{ (c: LuaTypeChecker) in return c() }
-            for (i, (kind, nameFn, testFn)) in enumerate(types2) {
+            for (i, (kind, nameFn, testFn)) in enumerate(types) {
                 luaL_checktype(self.L, Int32(i+1), kind.toLuaType())
                 
                 if !testFn(self, i+1) {
@@ -355,7 +354,7 @@ extension Lua {
     }
     
     func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [LuaTypeChecker], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
-        types.insert(T.arg, atIndex: 0)
+        types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
             return fn(o)(self)
@@ -388,13 +387,13 @@ extension Lua {
     func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
-            pushMethod("__gc", [T.arg]) {
+            pushMethod("__gc", [T.arg()]) {
                 fn(T.fromLua(self, at: 1)!)(self)
                 self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                 return []
             }
         case let .EQ(fn):
-            pushMethod("__eq", [T.arg, T.arg]) {
+            pushMethod("__eq", [T.arg(), T.arg()]) {
                 let a = T.fromLua(self, at: 1)!
                 let b = T.fromLua(self, at: 2)!
                 return [fn(a)(b)]

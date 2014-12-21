@@ -66,7 +66,7 @@ class API {
         
         class func classMethods() -> [(String, [LuaTypeChecker], Lua -> [LuaValue])] {
             return [
-                ("bind", [String.arg, LuaArray<String>.arg, Lua.FunctionBox.arg], Hotkey.bind),
+                ("bind", [String.arg(), LuaArray<String>.arg(), Lua.FunctionBox.arg()], Hotkey.bind),
             ]
         }
         
