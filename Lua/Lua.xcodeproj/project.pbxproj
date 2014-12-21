@@ -68,11 +68,12 @@
 		944A33981A475A9C00BF8675 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 944A335D1A475A9C00BF8675 /* lvm.h */; };
 		944A33991A475A9C00BF8675 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A335E1A475A9C00BF8675 /* lzio.c */; };
 		944A339A1A475A9C00BF8675 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 944A335F1A475A9C00BF8675 /* lzio.h */; };
-		944A339D1A475AA800BF8675 /* Lua.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A339C1A475AA800BF8675 /* Lua.swift */; };
+		944A339D1A475AA800BF8675 /* VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A339C1A475AA800BF8675 /* VM.swift */; };
 		94C68C971A475D5400C54B88 /* Kind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C961A475D5400C54B88 /* Kind.swift */; };
 		94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C981A475D7400C54B88 /* KeyedTable.swift */; };
 		94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9A1A475D8500C54B88 /* SequentialTable.swift */; };
 		94C68C9D1A475DAE00C54B88 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9C1A475DAE00C54B88 /* Protocols.swift */; };
+		94C68CA01A475E2E00C54B88 /* BasicTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -138,12 +139,13 @@
 		944A335D1A475A9C00BF8675 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
 		944A335E1A475A9C00BF8675 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		944A335F1A475A9C00BF8675 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
-		944A339C1A475AA800BF8675 /* Lua.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lua.swift; sourceTree = "<group>"; };
+		944A339C1A475AA800BF8675 /* VM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VM.swift; sourceTree = "<group>"; };
 		94C68C961A475D5400C54B88 /* Kind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Kind.swift; sourceTree = "<group>"; };
 		94C68C981A475D7400C54B88 /* KeyedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedTable.swift; sourceTree = "<group>"; };
 		94C68C9A1A475D8500C54B88 /* SequentialTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequentialTable.swift; sourceTree = "<group>"; };
 		94C68C9C1A475DAE00C54B88 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		94C68C9E1A475DEB00C54B88 /* Lua-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Lua-Bridging-Header.h"; sourceTree = "<group>"; };
+		94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicTypes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,10 +178,11 @@
 		944A33031A475A6400BF8675 /* Lua */ = {
 			isa = PBXGroup;
 			children = (
-				944A339C1A475AA800BF8675 /* Lua.swift */,
+				94C68C9C1A475DAE00C54B88 /* Protocols.swift */,
+				944A339C1A475AA800BF8675 /* VM.swift */,
+				94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */,
 				94C68C961A475D5400C54B88 /* Kind.swift */,
 				94C68C981A475D7400C54B88 /* KeyedTable.swift */,
-				94C68C9C1A475DAE00C54B88 /* Protocols.swift */,
 				94C68C9A1A475D8500C54B88 /* SequentialTable.swift */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
@@ -350,7 +353,7 @@
 			files = (
 				944A33971A475A9C00BF8675 /* lvm.c in Sources */,
 				944A33711A475A9C00BF8675 /* lfunc.c in Sources */,
-				944A339D1A475AA800BF8675 /* Lua.swift in Sources */,
+				944A339D1A475AA800BF8675 /* VM.swift in Sources */,
 				944A337E1A475A9C00BF8675 /* lobject.c in Sources */,
 				944A336E1A475A9C00BF8675 /* ldo.c in Sources */,
 				944A33941A475A9C00BF8675 /* lundump.c in Sources */,
@@ -382,6 +385,7 @@
 				944A33661A475A9C00BF8675 /* lcode.c in Sources */,
 				944A33831A475A9C00BF8675 /* lparser.c in Sources */,
 				944A33651A475A9C00BF8675 /* lbitlib.c in Sources */,
+				94C68CA01A475E2E00C54B88 /* BasicTypes.swift in Sources */,
 				944A337D1A475A9C00BF8675 /* loadlib.c in Sources */,
 				944A33991A475A9C00BF8675 /* lzio.c in Sources */,
 				94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */,
