@@ -2,14 +2,14 @@ import Foundation
 
 import Cocoa
 
-typealias LuaTypeChecker = (Lua.Kind, () -> String, (Lua, Int) -> Bool)
+typealias LuaTypeChecker = (() -> String, (Lua, Int) -> Bool)
 
 protocol LuaValue {
     func pushValue(L: Lua)
     class func fromLua(L: Lua, at position: Int) -> Self?
     class func typeName() -> String
     class func kind() -> Lua.Kind
-    class func isValid(Lua, Int) -> Bool
+    class func isValid(L: Lua, at position: Int) -> Bool
     class func arg() -> LuaTypeChecker
 }
 
@@ -17,7 +17,6 @@ protocol LuaLibrary: LuaValue {
     class func classMethods() -> [(String, [LuaTypeChecker], Lua -> [LuaValue])]
     class func instanceMethods() -> [(String, [LuaTypeChecker], Self -> Lua -> [LuaValue])]
     class func metaMethods() -> [LuaMetaMethod<Self>]
-    class var metatableName: String { get }
 }
 
 enum LuaMetaMethod<T> {
@@ -38,8 +37,11 @@ extension NSPoint: LuaValue {
     }
     static func typeName() -> String { return "<Point>" }
     static func kind() -> Lua.Kind { return .Table }
-    static func isValid(Lua, Int) -> Bool { return false }
-    static func arg() -> LuaTypeChecker { return (NSPoint.kind(), NSPoint.typeName, NSPoint.isValid) }
+    static func arg() -> LuaTypeChecker { return (NSPoint.typeName, NSPoint.isValid) }
+    static func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 extension String: LuaValue {
@@ -52,8 +54,11 @@ extension String: LuaValue {
     }
     static func typeName() -> String { return "<String>" }
     static func kind() -> Lua.Kind { return .String }
-    static func isValid(Lua, Int) -> Bool { return false }
-    static func arg() -> LuaTypeChecker { return (String.kind(), String.typeName, String.isValid) }
+    static func arg() -> LuaTypeChecker { return (String.typeName, String.isValid) }
+    static func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 extension Int64: LuaValue {
@@ -64,8 +69,11 @@ extension Int64: LuaValue {
     }
     static func typeName() -> String { return "<Integer>" }
     static func kind() -> Lua.Kind { return .Integer }
-    static func isValid(Lua, Int) -> Bool { return false }
-    static func arg() -> LuaTypeChecker { return (Int64.kind(), Int64.typeName, Int64.isValid) }
+    static func arg() -> LuaTypeChecker { return (Int64.typeName, Int64.isValid) }
+    static func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 extension Double: LuaValue {
@@ -76,8 +84,11 @@ extension Double: LuaValue {
     }
     static func typeName() -> String { return "<Double>" }
     static func kind() -> Lua.Kind { return .Double }
-    static func isValid(Lua, Int) -> Bool { return false }
-    static func arg() -> LuaTypeChecker { return (Double.kind(), Double.typeName, Double.isValid) }
+    static func arg() -> LuaTypeChecker { return (Double.typeName, Double.isValid) }
+    static func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 extension Bool: LuaValue {
@@ -88,8 +99,11 @@ extension Bool: LuaValue {
     }
     static func typeName() -> String { return "<Boolean>" }
     static func kind() -> Lua.Kind { return .Bool }
-    static func isValid(Lua, Int) -> Bool { return false }
-    static func arg() -> LuaTypeChecker { return (Bool.kind(), Bool.typeName, Bool.isValid) }
+    static func arg() -> LuaTypeChecker { return (Bool.typeName, Bool.isValid) }
+    static func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 extension Lua.FunctionBox: LuaValue {
@@ -100,8 +114,11 @@ extension Lua.FunctionBox: LuaValue {
     }
     static func typeName() -> String { return "<Function>" }
     static func kind() -> Lua.Kind { return .Function }
-    static func isValid(Lua, Int) -> Bool { return false }
-    static func arg() -> LuaTypeChecker { return (Lua.FunctionBox.kind(), Lua.FunctionBox.typeName, Lua.FunctionBox.isValid) }
+    static func arg() -> LuaTypeChecker { return (Lua.FunctionBox.typeName, Lua.FunctionBox.isValid) }
+    static func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 final class LuaArray<T: LuaValue>: LuaValue {
@@ -157,8 +174,11 @@ final class LuaArray<T: LuaValue>: LuaValue {
     
     class func typeName() -> String { return "<Array of \(T.typeName())>" }
     class func kind() -> Lua.Kind { return .Table }
-    class func isValid(Lua, Int) -> Bool { return false }
-    class func arg() -> LuaTypeChecker { return (LuaArray<T>.kind(), LuaArray<T>.typeName, LuaArray<T>.isValid) }
+    class func arg() -> LuaTypeChecker { return (LuaArray<T>.typeName, LuaArray<T>.isValid) }
+    class func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
     
 }
 
@@ -206,8 +226,11 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
     
     class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
     class func kind() -> Lua.Kind { return .Table }
-    class func isValid(Lua, Int) -> Bool { return false }
-    class func arg() -> LuaTypeChecker { return (LuaDictionary<K,T>.kind(), LuaDictionary<K,T>.typeName, LuaDictionary<K,T>.isValid) }
+    class func arg() -> LuaTypeChecker { return (LuaDictionary<K,T>.typeName, LuaDictionary<K,T>.isValid) }
+    class func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
     
 }
 
@@ -219,8 +242,11 @@ final class LuaNilType: LuaValue {
     }
     class func typeName() -> String { return "<nil>" }
     class func kind() -> Lua.Kind { return .Nil }
-    class func isValid(Lua, Int) -> Bool { return false }
-    class func arg() -> LuaTypeChecker { return (LuaNilType.kind(), LuaNilType.typeName, LuaNilType.isValid) }
+    class func arg() -> LuaTypeChecker { return (LuaNilType.typeName, LuaNilType.isValid) }
+    class func isValid(L: Lua, at position: Int) -> Bool {
+        if L.kind(position) != kind() { return false }
+        return false
+    }
 }
 
 let LuaNil = LuaNilType()
@@ -334,18 +360,10 @@ extension Lua {
     func pushMethod(name: String, _ types: [LuaTypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
-            for (i, (kind, nameFn, testFn)) in enumerate(types) {
-                luaL_checktype(self.L, Int32(i+1), kind.toLuaType())
-                
+            for (i, (nameFn, testFn)) in enumerate(types) {
                 if !testFn(self, i+1) {
                     luaL_argerror(self.L, Int32(i+1), ("\(nameFn()) expected, got <TODO>" as NSString).UTF8String)
                 }
-                
-//                switch t {
-////                case let .Userdata(u) where u != nil:
-////                    luaL_checkudata(self.L, Int32(i+1), u!)
-//                default:
-//                }
             }
             
             return fn()
@@ -403,10 +421,6 @@ extension Lua {
     
     func pushLibrary<T: LuaLibrary>(t: T.Type) {
         pushTable()
-        
-        // Registry.T = lib
-        pushFromStack(-1)
-        setField(T.metatableName, table: Lua.RegistryIndex)
         
         // setmetatable(lib, lib)
         pushFromStack(-1)

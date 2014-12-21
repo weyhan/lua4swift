@@ -7,10 +7,11 @@ class API {
         let hotkey: Carbon.Hotkey
         
         class func typeName() -> String { return "<Hotkey>" }
-        class var metatableName: String { return "Hotkey" }
         class func kind() -> Lua.Kind { return .Userdata }
-        class func isValid(Lua, Int) -> Bool { return false }
-        class func arg() -> LuaTypeChecker { return (Hotkey.kind(), Hotkey.typeName, Hotkey.isValid) }
+        class func arg() -> LuaTypeChecker { return (Hotkey.typeName, Hotkey.isValid) }
+        class func isValid(L: Lua, at position: Int) -> Bool {
+            return L.kind(position) == kind() && L.getUserdata(position) is Hotkey
+        }
         
         func pushValue(L: Lua) {
             L.pushUserdata(self)
