@@ -43,10 +43,10 @@ final class Hotkey: Lua.Library {
         let modStrings = mods!.elements
         
         L.pushFromStack(3)
-        let i = L.ref(Lua.VM.RegistryIndex)
+        let i = L.ref(Lua.RegistryIndex)
         
         let downFn: Graphite.Hotkey.Callback = {
-            L.rawGet(tablePosition: Lua.VM.RegistryIndex, index: i)
+            L.rawGet(tablePosition: Lua.RegistryIndex, index: i)
             L.call(arguments: 1, returnValues: 0)
         }
         
@@ -58,7 +58,7 @@ final class Hotkey: Lua.Library {
     
     func cleanup(L: Lua.VM) {
         hotkey.disable()
-        L.unref(Lua.VM.RegistryIndex, fn)
+        L.unref(Lua.RegistryIndex, fn)
     }
     
     func equals(other: Hotkey) -> Bool {

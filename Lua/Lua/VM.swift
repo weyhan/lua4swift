@@ -1,6 +1,8 @@
 import Foundation
 import Cocoa
 
+public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
+
 // basics
 public class VM {
     
@@ -173,8 +175,6 @@ public class VM {
     }
     
     // ref
-    
-    public class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
     
     public func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
     public func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
