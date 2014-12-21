@@ -8,9 +8,6 @@ public class VM {
     
     let L = luaL_newstate()
     
-    typealias Function = () -> [Value]
-    
-    typealias UserdataPointer = UnsafeMutablePointer<Void>
     var storedSwiftValues = [UserdataPointer : Any]()
     
     public init(openLibs: Bool = true) {

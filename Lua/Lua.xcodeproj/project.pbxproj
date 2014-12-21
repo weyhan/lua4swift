@@ -72,7 +72,7 @@
 		94C68C971A475D5400C54B88 /* Kind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C961A475D5400C54B88 /* Kind.swift */; };
 		94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C981A475D7400C54B88 /* KeyedTable.swift */; };
 		94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9A1A475D8500C54B88 /* SequentialTable.swift */; };
-		94C68C9D1A475DAE00C54B88 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9C1A475DAE00C54B88 /* Protocols.swift */; };
+		94C68C9D1A475DAE00C54B88 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9C1A475DAE00C54B88 /* Types.swift */; };
 		94C68CA01A475E2E00C54B88 /* BasicTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */; };
 /* End PBXBuildFile section */
 
@@ -143,7 +143,7 @@
 		94C68C961A475D5400C54B88 /* Kind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Kind.swift; sourceTree = "<group>"; };
 		94C68C981A475D7400C54B88 /* KeyedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedTable.swift; sourceTree = "<group>"; };
 		94C68C9A1A475D8500C54B88 /* SequentialTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequentialTable.swift; sourceTree = "<group>"; };
-		94C68C9C1A475DAE00C54B88 /* Protocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+		94C68C9C1A475DAE00C54B88 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		94C68C9E1A475DEB00C54B88 /* Lua-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Lua-Bridging-Header.h"; sourceTree = "<group>"; };
 		94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicTypes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,7 +178,7 @@
 		944A33031A475A6400BF8675 /* Lua */ = {
 			isa = PBXGroup;
 			children = (
-				94C68C9C1A475DAE00C54B88 /* Protocols.swift */,
+				94C68C9C1A475DAE00C54B88 /* Types.swift */,
 				944A339C1A475AA800BF8675 /* VM.swift */,
 				94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */,
 				94C68C961A475D5400C54B88 /* Kind.swift */,
@@ -360,7 +360,7 @@
 				944A33821A475A9C00BF8675 /* loslib.c in Sources */,
 				944A33961A475A9C00BF8675 /* lutf8lib.c in Sources */,
 				944A33861A475A9C00BF8675 /* lstate.c in Sources */,
-				94C68C9D1A475DAE00C54B88 /* Protocols.swift in Sources */,
+				94C68C9D1A475DAE00C54B88 /* Types.swift in Sources */,
 				944A337A1A475A9C00BF8675 /* lmathlib.c in Sources */,
 				944A338D1A475A9C00BF8675 /* ltablib.c in Sources */,
 				94C68C971A475D5400C54B88 /* Kind.swift in Sources */,

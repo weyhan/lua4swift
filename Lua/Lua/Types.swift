@@ -1,5 +1,8 @@
 import Foundation
 
+public typealias Function = () -> [Value]
+public typealias UserdataPointer = UnsafeMutablePointer<Void>
+
 public typealias TypeChecker = (() -> String, (VM, Int) -> Bool)
 
 public protocol Value {
@@ -17,7 +20,7 @@ protocol Library: Value {
     class func metaMethods() -> [MetaMethod<Self>]
 }
 
-enum MetaMethod<T> {
+public enum MetaMethod<T> {
     case GC(T -> VM -> Void)
     case EQ(T -> T -> Bool)
 }

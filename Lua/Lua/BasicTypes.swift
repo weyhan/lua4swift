@@ -60,8 +60,8 @@ extension Bool: Value {
 
 // meant for putting functions into Lua only; can't take them out
 public struct FunctionBox: Value {
-    let fn: VM.Function
-    init(_ fn: VM.Function) { self.fn = fn }
+    let fn: Function
+    init(_ fn: Function) { self.fn = fn }
     
     public func pushValue(L: VM) { L.pushFunction(self.fn) }
     public static func fromLua(L: VM, at position: Int) -> FunctionBox? {
