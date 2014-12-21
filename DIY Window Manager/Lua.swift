@@ -193,7 +193,6 @@ class Lua {
     }
     
     typealias Function = () -> [LuaValue]
-//    typealias Table = [(LuaValue, LuaValue)]
     
     typealias UserdataPointer = UnsafeMutablePointer<Void>
     var storedSwiftValues = [UserdataPointer : Any]()
