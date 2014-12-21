@@ -92,7 +92,9 @@ final class LuaArray<T: LuaValue>: LuaValue {
         }
     }
     
-    class func fromLua(L: Lua, at position: Int) -> LuaArray<T>? {
+    class func fromLua(L: Lua, var at position: Int) -> LuaArray<T>? {
+        position = L.absolutePosition(position) // pretty sure this is necessary
+        
         let array = LuaArray<T>()
         var bag = [Int64:T]()
         
@@ -143,7 +145,9 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
         }
     }
     
-    class func fromLua(L: Lua, at position: Int) -> LuaDictionary<K, T>? {
+    class func fromLua(L: Lua, var at position: Int) -> LuaDictionary<K, T>? {
+        position = L.absolutePosition(position) // pretty sure this is necessary
+        
         var dict = LuaDictionary<K, T>()
         
         L.pushNil()
