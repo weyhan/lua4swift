@@ -8,4 +8,4 @@
 
 #import "Lua.h"
 
-int SDegutisLuaRegistryIndex;
+int SDegutisLuaRegistryIndex = LUA_REGISTRYINDEX;
