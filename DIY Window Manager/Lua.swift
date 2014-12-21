@@ -114,8 +114,8 @@ class Lua {
     typealias Function = () -> [LuaValue]
 //    typealias Table = [(LuaValue, LuaValue)]
     
-    typealias Userdata = UnsafeMutablePointer<Void>
-    var userdatas = [Userdata : Any]()
+    typealias UserdataPointer = UnsafeMutablePointer<Void>
+    var storedSwiftValues = [UserdataPointer : Any]()
     
     init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(L) }
@@ -177,7 +177,7 @@ extension Lua {
 //        }
 //    }
     
-    func getUserdataPointer(position: Int) -> Userdata? {
+    func getUserdataPointer(position: Int) -> UserdataPointer? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return lua_touserdata(L, Int32(position))
     }
@@ -273,7 +273,7 @@ extension Lua {
     func pushUserdata<T>(swiftObject: T) {
         let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
         userdata.memory = swiftObject
-        userdatas[userdata] = swiftObject
+        storedSwiftValues[userdata] = swiftObject
     }
     
     func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
@@ -281,7 +281,7 @@ extension Lua {
         case let .GC(fn):
             pushMethod("__gc", [.Userdata, .None]) {
                 fn(T.fromLua(self, at: 1)!)(self)
-                self.userdatas[self.getUserdataPointer(1)!] = nil
+                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                 return []
             }
         case let .EQ(fn):
