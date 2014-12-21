@@ -13,7 +13,7 @@
 		9407F7271A3CBA8500BE8C7A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7251A3CBA8500BE8C7A /* MainMenu.xib */; };
 		9475807C1A43D94A00947E6B /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475807B1A43D94A00947E6B /* API.swift */; };
 		948293AE1A474DCB009C3498 /* libGraphite.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 948293A91A474DAF009C3498 /* libGraphite.dylib */; };
-		94C884D41A475042007954F1 /* libComputer.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C884D11A475032007954F1 /* libComputer.dylib */; };
+		94C884D41A475042007954F1 /* libDesktop.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C884D11A475032007954F1 /* libDesktop.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,17 +47,17 @@
 		};
 		94C884D01A475032007954F1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 94C884CB1A475031007954F1 /* Computer.xcodeproj */;
+			containerPortal = 94C884CB1A475031007954F1 /* Desktop.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 94C884B11A475031007954F1;
-			remoteInfo = Computer;
+			remoteInfo = Desktop;
 		};
 		94C884D51A475048007954F1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 94C884CB1A475031007954F1 /* Computer.xcodeproj */;
+			containerPortal = 94C884CB1A475031007954F1 /* Desktop.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 94C884B01A475031007954F1;
-			remoteInfo = Computer;
+			remoteInfo = Desktop;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -70,7 +70,7 @@
 		9407F7261A3CBA8500BE8C7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9475807B1A43D94A00947E6B /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		948293A31A474DAF009C3498 /* Graphite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Graphite.xcodeproj; path = Graphite/Graphite.xcodeproj; sourceTree = "<group>"; };
-		94C884CB1A475031007954F1 /* Computer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Computer.xcodeproj; path = Computer/Computer.xcodeproj; sourceTree = "<group>"; };
+		94C884CB1A475031007954F1 /* Desktop.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Desktop.xcodeproj; path = Desktop/Desktop.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,7 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				94C884D41A475042007954F1 /* libComputer.dylib in Frameworks */,
+				94C884D41A475042007954F1 /* libDesktop.dylib in Frameworks */,
 				948293AE1A474DCB009C3498 /* libGraphite.dylib in Frameworks */,
 				94042CA91A47474600A8B8CC /* libLuaSwift.dylib in Frameworks */,
 			);
@@ -98,7 +98,7 @@
 		9407F7131A3CBA8500BE8C7A = {
 			isa = PBXGroup;
 			children = (
-				94C884CB1A475031007954F1 /* Computer.xcodeproj */,
+				94C884CB1A475031007954F1 /* Desktop.xcodeproj */,
 				948293A31A474DAF009C3498 /* Graphite.xcodeproj */,
 				94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */,
 				9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */,
@@ -145,7 +145,7 @@
 		94C884CC1A475031007954F1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				94C884D11A475032007954F1 /* libComputer.dylib */,
+				94C884D11A475032007954F1 /* libDesktop.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -201,7 +201,7 @@
 			projectReferences = (
 				{
 					ProductGroup = 94C884CC1A475031007954F1 /* Products */;
-					ProjectRef = 94C884CB1A475031007954F1 /* Computer.xcodeproj */;
+					ProjectRef = 94C884CB1A475031007954F1 /* Desktop.xcodeproj */;
 				},
 				{
 					ProductGroup = 948293A41A474DAF009C3498 /* Products */;
@@ -234,10 +234,10 @@
 			remoteRef = 948293A81A474DAF009C3498 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		94C884D11A475032007954F1 /* libComputer.dylib */ = {
+		94C884D11A475032007954F1 /* libDesktop.dylib */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.dylib";
-			path = libComputer.dylib;
+			path = libDesktop.dylib;
 			remoteRef = 94C884D01A475032007954F1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -280,7 +280,7 @@
 		};
 		94C884D61A475048007954F1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = Computer;
+			name = Desktop;
 			targetProxy = 94C884D51A475048007954F1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
