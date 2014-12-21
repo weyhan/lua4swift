@@ -10,7 +10,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         L.pushLibrary(API.Hotkey.self)
         L.setGlobal("Hotkey")
         
-        L.doString("Hotkey.new('s', {'cmd', 'shift'}, function() end)")
+        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() end)")
         
         NSApplication.sharedApplication().terminate(nil)
         
