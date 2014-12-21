@@ -26,59 +26,52 @@ extension NSPoint: LuaValue {
         L.pushDouble(Double(self.y)); L.setField("y", table: -2)
     }
     static func fromLua(L: Lua, at position: Int) -> NSPoint? {
-        switch L.kind(position) {
-        case .Table:
-            let t = Lua.TableBox.fromLua(L, at: position)!
-            let x = t.getField("x") as Double?
-            let y = t.getField("y") as Double?
-            return NSPoint(x: x ?? 0, y: y ?? 0)
-        default: return nil}
+        if L.kind(position) != .Table { return nil }
+        let t = Lua.TableBox.fromLua(L, at: position)!
+        let x = t.getField("x") as Double?
+        let y = t.getField("y") as Double?
+        return NSPoint(x: x ?? 0, y: y ?? 0)
     }
 }
 
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
     static func fromLua(L: Lua, at position: Int) -> String? {
-        switch L.kind(position) {
-        case .String:
-            var len: UInt = 0
-            let str = lua_tolstring(L.L, Int32(position), &len)
-            return NSString(CString: str, encoding: NSUTF8StringEncoding)
-        default: return nil}
+        if L.kind(position) != .String { return nil }
+        var len: UInt = 0
+        let str = lua_tolstring(L.L, Int32(position), &len)
+        return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
 }
 
 extension Int64: LuaValue {
     func pushValue(L: Lua) { L.pushInteger(self) }
     static func fromLua(L: Lua, at position: Int) -> Int64? {
-        switch L.kind(position) {
-        case .Integer: return lua_tointegerx(L.L, Int32(position), nil)
-        default: return nil}
+        if L.kind(position) != .Integer { return nil }
+        return lua_tointegerx(L.L, Int32(position), nil)
     }
 }
 
 extension Double: LuaValue {
     func pushValue(L: Lua) { L.pushDouble(self) }
     static func fromLua(L: Lua, at position: Int) -> Double? {
-        switch L.kind(position) {
-        case .Double: return lua_tonumberx(L.L, Int32(position), nil)
-        default: return nil}
+        if L.kind(position) != .Double { return nil }
+        return lua_tonumberx(L.L, Int32(position), nil)
     }
 }
 
 extension Bool: LuaValue {
     func pushValue(L: Lua) { L.pushBool(self) }
     static func fromLua(L: Lua, at position: Int) -> Bool? {
-        switch L.kind(position) {
-        case .Bool: return lua_toboolean(L.L, Int32(position)) != 0
-        default: return nil}
+        if L.kind(position) != .Bool { return nil }
+        return lua_toboolean(L.L, Int32(position)) != 0
     }
 }
 
 extension Lua.FunctionBox: LuaValue {
     func pushValue(L: Lua) { L.pushFunction(self.fn) }
     static func fromLua(L: Lua, at position: Int) -> Lua.FunctionBox? {
-        // can't ever convert functions to any usable object
+        // can't ever convert functions to a usable object
         return nil
     }
 }
@@ -86,7 +79,7 @@ extension Lua.FunctionBox: LuaValue {
 extension Lua.TableBox: LuaValue {
     func pushValue(L: Lua) { L.pushTable(self.t) }
     static func fromLua(L: Lua, at position: Int) -> Lua.TableBox? {
-        if lua_type(L.L, Int32(position)) != LUA_TTABLE { return nil }
+        if L.kind(position) != .Table { return nil }
         var t = Lua.TableBox()
         L.pushNil()
         while lua_next(L.L, Int32(position)) != 0 {
@@ -100,6 +93,7 @@ extension Lua.TableBox: LuaValue {
 final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
     class func fromLua(L: Lua, at position: Int) -> LuaNilType? {
+        if L.kind(position) != .Nil { return nil }
         return LuaNil
     }
 }
@@ -176,7 +170,7 @@ extension Lua {
         case LUA_TNUMBER: return lua_isinteger(L, Int32(position)) == 0 ? .Double : .Integer
         case LUA_TSTRING: return .String
         case LUA_TTABLE: return .Table
-        case LUA_TUSERDATA, LUA_TLIGHTUSERDATA: return .Userdata(nil)
+        case LUA_TUSERDATA, LUA_TLIGHTUSERDATA: return .Userdata
         default: return .None
         }
     }
@@ -189,7 +183,7 @@ extension Lua {
         case .Double: return Double.fromLua(self, at: position)!
         case .String: return String.fromLua(self, at: position)!
         case .Table: return TableBox.fromLua(self, at: position)!
-        case .Userdata(nil): return getUserdata(position)!
+        case .Userdata: return getUserdata(position)!
         default: return nil
         }
     }
@@ -250,8 +244,8 @@ extension Lua {
         pushFunction {
             for (i, t) in enumerate(types) {
                 switch t {
-                case let .Userdata(u) where u != nil:
-                    luaL_checkudata(self.L, Int32(i+1), u!)
+//                case let .Userdata(u) where u != nil:
+//                    luaL_checkudata(self.L, Int32(i+1), u!)
                 default:
                     luaL_checktype(self.L, Int32(i+1), t.toLuaType())
                 }
@@ -263,7 +257,7 @@ extension Lua {
     }
     
     func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
-        types.insert(.Userdata(T.metatableName), atIndex: 0)
+        types.insert(.Userdata, atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
             return fn(o)(self)
@@ -296,13 +290,13 @@ extension Lua {
     func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
-            pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
+            pushMethod("__gc", [.Userdata, .None]) {
                 fn(T.fromLua(self, at: 1)!)(self)
                 self.userdatas[self.getUserdataPointer(1)!] = nil
                 return []
             }
         case let .EQ(fn):
-            pushMethod("__eq", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
+            pushMethod("__eq", [.Userdata, .Userdata, .None]) {
                 let a = T.fromLua(self, at: 1)!
                 let b = T.fromLua(self, at: 2)!
                 return [fn(a)(b)]
@@ -376,7 +370,7 @@ extension Lua {
         case Bool
         case Function
         case Table
-        case Userdata(Swift.String?)
+        case Userdata
         case Nil
         case None
         
