@@ -8,6 +8,7 @@ class API {
         
         class func typeName() -> String { return "<Hotkey>" }
         class var metatableName: String { return "Hotkey" }
+        class func kind() -> Lua.Kind { return .Userdata }
         
         func pushValue(L: Lua) {
             L.pushUserdata(self)

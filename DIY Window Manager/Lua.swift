@@ -6,6 +6,7 @@ protocol LuaValue {
     func pushValue(L: Lua)
     class func fromLua(L: Lua, at position: Int) -> Self?
     class func typeName() -> String
+    class func kind() -> Lua.Kind
 }
 
 protocol LuaLibrary: LuaValue {
@@ -32,6 +33,7 @@ extension NSPoint: LuaValue {
         return NSPoint(x: x, y: y)
     }
     static func typeName() -> String { return "<Point>" }
+    static func kind() -> Lua.Kind { return .Table }
 }
 
 extension String: LuaValue {
@@ -43,6 +45,7 @@ extension String: LuaValue {
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
     static func typeName() -> String { return "<String>" }
+    static func kind() -> Lua.Kind { return .String }
 }
 
 extension Int64: LuaValue {
@@ -52,6 +55,7 @@ extension Int64: LuaValue {
         return lua_tointegerx(L.L, Int32(position), nil)
     }
     static func typeName() -> String { return "<Integer>" }
+    static func kind() -> Lua.Kind { return .Integer }
 }
 
 extension Double: LuaValue {
@@ -61,6 +65,7 @@ extension Double: LuaValue {
         return lua_tonumberx(L.L, Int32(position), nil)
     }
     static func typeName() -> String { return "<Double>" }
+    static func kind() -> Lua.Kind { return .Double }
 }
 
 extension Bool: LuaValue {
@@ -70,6 +75,7 @@ extension Bool: LuaValue {
         return lua_toboolean(L.L, Int32(position)) != 0
     }
     static func typeName() -> String { return "<Boolean>" }
+    static func kind() -> Lua.Kind { return .Bool }
 }
 
 extension Lua.FunctionBox: LuaValue {
@@ -79,6 +85,7 @@ extension Lua.FunctionBox: LuaValue {
         return nil
     }
     static func typeName() -> String { return "<Function>" }
+    static func kind() -> Lua.Kind { return .Function }
 }
 
 final class LuaArray<T: LuaValue>: LuaValue {
@@ -133,6 +140,7 @@ final class LuaArray<T: LuaValue>: LuaValue {
     }
     
     class func typeName() -> String { return "<Array of \(T.typeName())>" }
+    class func kind() -> Lua.Kind { return .Table }
     
 }
 
@@ -179,6 +187,7 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
     }
     
     class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
+    class func kind() -> Lua.Kind { return .Table }
     
 }
 
@@ -189,6 +198,7 @@ final class LuaNilType: LuaValue {
         return LuaNil
     }
     class func typeName() -> String { return "<nil>" }
+    class func kind() -> Lua.Kind { return .Nil }
 }
 
 let LuaNil = LuaNilType()
