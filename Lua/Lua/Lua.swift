@@ -2,51 +2,51 @@ import Foundation
 
 import Cocoa
 
-typealias LuaTypeChecker = (() -> String, (VM, Int) -> Bool)
+typealias TypeChecker = (() -> String, (VM, Int) -> Bool)
 
-protocol LuaValue {
+protocol Value {
     func pushValue(L: VM)
     class func fromLua(L: VM, at position: Int) -> Self?
     class func typeName() -> String
-    class func kind() -> VM.Kind
+    class func kind() -> Kind
     class func isValid(L: VM, at position: Int) -> Bool
-    class func arg() -> LuaTypeChecker
+    class func arg() -> TypeChecker
 }
 
-protocol LuaLibrary: LuaValue {
-    class func classMethods() -> [(String, [LuaTypeChecker], VM -> [LuaValue])]
-    class func instanceMethods() -> [(String, [LuaTypeChecker], Self -> VM -> [LuaValue])]
-    class func metaMethods() -> [LuaMetaMethod<Self>]
+protocol Library: Value {
+    class func classMethods() -> [(String, [TypeChecker], VM -> [Value])]
+    class func instanceMethods() -> [(String, [TypeChecker], Self -> VM -> [Value])]
+    class func metaMethods() -> [MetaMethod<Self>]
 }
 
-enum LuaMetaMethod<T> {
+enum MetaMethod<T> {
     case GC(T -> VM -> Void)
     case EQ(T -> T -> Bool)
 }
 
-extension NSPoint: LuaValue {
+extension NSPoint: Value {
     func pushValue(L: VM) {
-        LuaDictionary<String,Double>(["x":Double(self.x), "y":Double(self.y)]).pushValue(L)
+        KeyedTable<String,Double>(["x":Double(self.x), "y":Double(self.y)]).pushValue(L)
     }
     static func fromLua(L: VM, at position: Int) -> NSPoint? {
-        let table = LuaDictionary<String, Double>.fromLua(L, at: position)
+        let table = KeyedTable<String, Double>.fromLua(L, at: position)
         if table == nil { return nil }
         let x = table!["x"] ?? 0
         let y = table!["y"] ?? 0
         return NSPoint(x: x, y: y)
     }
     static func typeName() -> String { return "<Point>" }
-    static func kind() -> VM.Kind { return .Table }
-    static func arg() -> LuaTypeChecker { return (NSPoint.typeName, NSPoint.isValid) }
+    static func kind() -> Kind { return .Table }
+    static func arg() -> TypeChecker { return (NSPoint.typeName, NSPoint.isValid) }
     static func isValid(L: VM, at position: Int) -> Bool {
         if L.kind(position) != kind() { return false }
-        let dict = LuaDictionary<String,Double>.fromLua(L, at: position)
+        let dict = KeyedTable<String,Double>.fromLua(L, at: position)
         if dict == nil { return false }
         return dict!["x"] != nil && dict!["y"] != nil
     }
 }
 
-extension String: LuaValue {
+extension String: Value {
     func pushValue(L: VM) { L.pushString(self) }
     static func fromLua(L: VM, at position: Int) -> String? {
         if L.kind(position) != .String { return nil }
@@ -55,70 +55,70 @@ extension String: LuaValue {
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
     static func typeName() -> String { return "<String>" }
-    static func kind() -> VM.Kind { return .String }
-    static func arg() -> LuaTypeChecker { return (String.typeName, String.isValid) }
+    static func kind() -> Kind { return .String }
+    static func arg() -> TypeChecker { return (String.typeName, String.isValid) }
     static func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
 }
 
-extension Int64: LuaValue {
+extension Int64: Value {
     func pushValue(L: VM) { L.pushInteger(self) }
     static func fromLua(L: VM, at position: Int) -> Int64? {
         if L.kind(position) != .Integer { return nil }
         return lua_tointegerx(L.L, Int32(position), nil)
     }
     static func typeName() -> String { return "<Integer>" }
-    static func kind() -> VM.Kind { return .Integer }
-    static func arg() -> LuaTypeChecker { return (Int64.typeName, Int64.isValid) }
+    static func kind() -> Kind { return .Integer }
+    static func arg() -> TypeChecker { return (Int64.typeName, Int64.isValid) }
     static func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
 }
 
-extension Double: LuaValue {
+extension Double: Value {
     func pushValue(L: VM) { L.pushDouble(self) }
     static func fromLua(L: VM, at position: Int) -> Double? {
         if L.kind(position) != .Double { return nil }
         return lua_tonumberx(L.L, Int32(position), nil)
     }
     static func typeName() -> String { return "<Double>" }
-    static func kind() -> VM.Kind { return .Double }
-    static func arg() -> LuaTypeChecker { return (Double.typeName, Double.isValid) }
+    static func kind() -> Kind { return .Double }
+    static func arg() -> TypeChecker { return (Double.typeName, Double.isValid) }
     static func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
 }
 
-extension Bool: LuaValue {
+extension Bool: Value {
     func pushValue(L: VM) { L.pushBool(self) }
     static func fromLua(L: VM, at position: Int) -> Bool? {
         if L.kind(position) != .Bool { return nil }
         return lua_toboolean(L.L, Int32(position)) != 0
     }
     static func typeName() -> String { return "<Boolean>" }
-    static func kind() -> VM.Kind { return .Bool }
-    static func arg() -> LuaTypeChecker { return (Bool.typeName, Bool.isValid) }
+    static func kind() -> Kind { return .Bool }
+    static func arg() -> TypeChecker { return (Bool.typeName, Bool.isValid) }
     static func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
 }
 
-extension VM.FunctionBox: LuaValue {
+extension VM.FunctionBox: Value {
     func pushValue(L: VM) { L.pushFunction(self.fn) }
     static func fromLua(L: VM, at position: Int) -> VM.FunctionBox? {
         // can't ever convert functions to a usable object
         return nil
     }
     static func typeName() -> String { return "<Function>" }
-    static func kind() -> VM.Kind { return .Function }
-    static func arg() -> LuaTypeChecker { return (VM.FunctionBox.typeName, VM.FunctionBox.isValid) }
+    static func kind() -> Kind { return .Function }
+    static func arg() -> TypeChecker { return (VM.FunctionBox.typeName, VM.FunctionBox.isValid) }
     static func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
 }
 
-final class LuaArray<T: LuaValue>: LuaValue {
+final class SequentialTable<T: Value>: Value {
     
     var elements = [T]()
     
@@ -132,10 +132,10 @@ final class LuaArray<T: LuaValue>: LuaValue {
         }
     }
     
-    class func fromLua(L: VM, var at position: Int) -> LuaArray<T>? {
+    class func fromLua(L: VM, var at position: Int) -> SequentialTable<T>? {
         position = L.absolutePosition(position) // pretty sure this is necessary
         
-        let array = LuaArray<T>()
+        let array = SequentialTable<T>()
         var bag = [Int64:T]()
         
         L.pushNil()
@@ -170,15 +170,15 @@ final class LuaArray<T: LuaValue>: LuaValue {
     }
     
     class func typeName() -> String { return "<Array of \(T.typeName())>" }
-    class func kind() -> VM.Kind { return .Table }
-    class func arg() -> LuaTypeChecker { return (LuaArray<T>.typeName, LuaArray<T>.isValid) }
+    class func kind() -> Kind { return .Table }
+    class func arg() -> TypeChecker { return (SequentialTable<T>.typeName, SequentialTable<T>.isValid) }
     class func isValid(L: VM, at position: Int) -> Bool {
-        return L.kind(position) == kind() && LuaArray<T>.fromLua(L, at: position) != nil
+        return L.kind(position) == kind() && SequentialTable<T>.fromLua(L, at: position) != nil
     }
     
 }
 
-final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue { // is there a less dumb way to write the generic signature here?
+final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // is there a less dumb way to write the generic signature here?
     
     var elements = [K:T]()
     
@@ -192,10 +192,10 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
         }
     }
     
-    class func fromLua(L: VM, var at position: Int) -> LuaDictionary<K, T>? {
+    class func fromLua(L: VM, var at position: Int) -> KeyedTable<K, T>? {
         position = L.absolutePosition(position) // pretty sure this is necessary
         
-        var dict = LuaDictionary<K, T>()
+        var dict = KeyedTable<K, T>()
         
         L.pushNil()
         while lua_next(L.L, Int32(position)) != 0 {
@@ -221,23 +221,23 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
     }
     
     class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
-    class func kind() -> VM.Kind { return .Table }
-    class func arg() -> LuaTypeChecker { return (LuaDictionary<K,T>.typeName, LuaDictionary<K,T>.isValid) }
+    class func kind() -> Kind { return .Table }
+    class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName, KeyedTable<K,T>.isValid) }
     class func isValid(L: VM, at position: Int) -> Bool {
-        return L.kind(position) == kind() && LuaDictionary<K,T>.fromLua(L, at: position) != nil
+        return L.kind(position) == kind() && KeyedTable<K,T>.fromLua(L, at: position) != nil
     }
     
 }
 
-final class LuaNilType: LuaValue {
+final class LuaNilType: Value {
     func pushValue(L: VM) { L.pushNil() }
     class func fromLua(L: VM, at position: Int) -> LuaNilType? {
         if L.kind(position) != .Nil { return nil }
         return LuaNil
     }
     class func typeName() -> String { return "<nil>" }
-    class func kind() -> VM.Kind { return .Nil }
-    class func arg() -> LuaTypeChecker { return (LuaNilType.typeName, LuaNilType.isValid) }
+    class func kind() -> Kind { return .Nil }
+    class func arg() -> TypeChecker { return (LuaNilType.typeName, LuaNilType.isValid) }
     class func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
@@ -256,7 +256,7 @@ public class VM {
         init(_ fn: Function) { self.fn = fn }
     }
     
-    typealias Function = () -> [LuaValue]
+    typealias Function = () -> [Value]
     
     typealias UserdataPointer = UnsafeMutablePointer<Void>
     var storedSwiftValues = [UserdataPointer : Any]()
@@ -315,9 +315,9 @@ extension VM {
         return lua_touserdata(L, Int32(position))
     }
     
-    func getUserdata(position: Int) -> LuaValue? {
+    func getUserdata(position: Int) -> Value? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
-        return UnsafeMutablePointer<LuaValue>(getUserdataPointer(position)!).memory
+        return UnsafeMutablePointer<Value>(getUserdataPointer(position)!).memory
     }
     
     func isTruthy(position: Int) -> Bool {
@@ -351,7 +351,7 @@ extension VM {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
-    func pushMethod(name: String, _ types: [LuaTypeChecker], _ fn: Function, tablePosition: Int = -1) {
+    func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
             for (i, (nameFn, testFn)) in enumerate(types) {
@@ -365,7 +365,7 @@ extension VM {
         setTable(tablePosition - 2)
     }
     
-    func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [LuaTypeChecker], _ fn: T -> VM -> [LuaValue], tablePosition: Int = -1) {
+    func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VM -> [Value], tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
@@ -374,7 +374,7 @@ extension VM {
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
     
-    func pushClassMethod(name: String, var _ types: [LuaTypeChecker], _ fn: VM -> [LuaValue], tablePosition: Int = -1) {
+    func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VM -> [Value], tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
@@ -396,7 +396,7 @@ extension VM {
         storedSwiftValues[userdata] = swiftObject
     }
     
-    func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
+    func pushMetaMethod<T: Library>(metaMethod: MetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [T.arg()]) {
@@ -413,7 +413,7 @@ extension VM {
         }
     }
     
-    func pushLibrary<T: LuaLibrary>(t: T.Type) {
+    func pushLibrary<T: Library>(t: T.Type) {
         pushTable()
         
         // setmetatable(lib, lib)
@@ -466,34 +466,30 @@ extension VM {
 }
 
 // type checking
-extension VM {
+enum Kind {
+    case String
+    case Double
+    case Integer
+    case Bool
+    case Function
+    case Table
+    case Userdata
+    case Thread
+    case Nil
+    case None
     
-    enum Kind {
-        case String
-        case Double
-        case Integer
-        case Bool
-        case Function
-        case Table
-        case Userdata
-        case Thread
-        case Nil
-        case None
-        
-        func toLuaType() -> Int32 {
-            switch self {
-            case String: return LUA_TSTRING
-            case Double: return LUA_TNUMBER
-            case Integer: return LUA_TNUMBER
-            case Bool: return LUA_TBOOLEAN
-            case Function: return LUA_TFUNCTION
-            case Table: return LUA_TTABLE
-            case Userdata: return LUA_TUSERDATA
-            case Thread: return LUA_TTHREAD
-            case Nil: return LUA_TNIL
-            default: return LUA_TNONE
-            }
+    func toLuaType() -> Int32 {
+        switch self {
+        case String: return LUA_TSTRING
+        case Double: return LUA_TNUMBER
+        case Integer: return LUA_TNUMBER
+        case Bool: return LUA_TBOOLEAN
+        case Function: return LUA_TFUNCTION
+        case Table: return LUA_TTABLE
+        case Userdata: return LUA_TUSERDATA
+        case Thread: return LUA_TTHREAD
+        case Nil: return LUA_TNIL
+        default: return LUA_TNONE
         }
     }
-    
 }
