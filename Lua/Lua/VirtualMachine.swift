@@ -4,7 +4,7 @@ import Cocoa
 public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 
 // basics
-public class VM {
+public class VirtualMachine {
     
     let L = luaL_newstate()
     
@@ -88,7 +88,7 @@ public class VM {
         setTable(tablePosition - 2)
     }
     
-    public func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VM -> [Value], tablePosition: Int = -1) {
+    public func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> [Value], tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
@@ -97,7 +97,7 @@ public class VM {
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
     
-    public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VM -> [Value], tablePosition: Int = -1) {
+    public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> [Value], tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     

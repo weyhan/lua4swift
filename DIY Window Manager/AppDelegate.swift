@@ -6,7 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let L = Lua.VM()
+        let L = Lua.VirtualMachine()
         
         L.pushLibrary(Hotkey.self)
         L.setGlobal("Hotkey")

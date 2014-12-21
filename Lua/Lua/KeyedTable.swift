@@ -4,7 +4,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
     
     public var elements = [K:T]()
     
-    public func pushValue(L: VM) {
+    public func pushValue(L: VirtualMachine) {
         L.pushTable(keyCapacity: elements.count)
         let tablePosition = Int(lua_absindex(L.L, -1)) // overkill? dunno.
         for (key, value) in elements {
@@ -14,7 +14,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
         }
     }
     
-    public class func fromLua(L: VM, var at position: Int) -> KeyedTable<K, T>? {
+    public class func fromLua(L: VirtualMachine, var at position: Int) -> KeyedTable<K, T>? {
         position = L.absolutePosition(position) // pretty sure this is necessary
         
         var dict = KeyedTable<K, T>()
@@ -45,7 +45,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
     public class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
     public class func kind() -> Kind { return .Table }
     public class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName, KeyedTable<K,T>.isValid) }
-    public class func isValid(L: VM, at position: Int) -> Bool {
+    public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == kind() && KeyedTable<K,T>.fromLua(L, at: position) != nil
     }
     

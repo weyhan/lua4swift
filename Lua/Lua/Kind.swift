@@ -28,7 +28,7 @@ public enum Kind {
     }
 }
 
-extension VM {
+extension VirtualMachine {
     
     public func kind(position: Int) -> Kind {
         switch lua_type(L, Int32(position)) {

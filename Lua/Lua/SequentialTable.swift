@@ -4,7 +4,7 @@ public final class SequentialTable<T: Value>: Value {
     
     public var elements = [T]()
     
-    public func pushValue(L: VM) {
+    public func pushValue(L: VirtualMachine) {
         L.pushTable(keyCapacity: elements.count)
         let tablePosition = Int(lua_absindex(L.L, -1)) // overkill? dunno.
         for (i, value) in enumerate(elements) {
@@ -14,7 +14,7 @@ public final class SequentialTable<T: Value>: Value {
         }
     }
     
-    public class func fromLua(L: VM, var at position: Int) -> SequentialTable<T>? {
+    public class func fromLua(L: VirtualMachine, var at position: Int) -> SequentialTable<T>? {
         position = L.absolutePosition(position) // pretty sure this is necessary
         
         let array = SequentialTable<T>()
@@ -54,7 +54,7 @@ public final class SequentialTable<T: Value>: Value {
     public class func typeName() -> String { return "<Array of \(T.typeName())>" }
     public class func kind() -> Kind { return .Table }
     public class func arg() -> TypeChecker { return (SequentialTable<T>.typeName, SequentialTable<T>.isValid) }
-    public class func isValid(L: VM, at position: Int) -> Bool {
+    public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == kind() && SequentialTable<T>.fromLua(L, at: position) != nil
     }
     
