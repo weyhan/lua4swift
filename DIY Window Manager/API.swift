@@ -10,7 +10,7 @@ class API {
         class var metatableName: String { return "Hotkey" }
         class func kind() -> Lua.Kind { return .Userdata }
         class func isValid(Lua, Int) -> Bool { return false }
-        class func arg() -> TypeChecker { return (Hotkey.kind(), Hotkey.typeName, Hotkey.isValid) }
+        class func arg() -> (Lua.Kind, () -> String, (Lua, Int) -> Bool) { return (Hotkey.kind(), Hotkey.typeName, Hotkey.isValid) }
         
         func pushValue(L: Lua) {
             L.pushUserdata(self)
@@ -64,16 +64,16 @@ class API {
             return fn == other.fn
         }
         
-        class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])] {
+        class func classMethods() -> [(String, [LuaTypeChecker], Lua -> [LuaValue])] {
             return [
-                ("bind", [.String, .Table, .Function, .None], Hotkey.bind),
+                ("bind", [String.arg, LuaArray<String>.arg, Lua.FunctionBox.arg], Hotkey.bind),
             ]
         }
         
-        class func instanceMethods() -> [(String, [Lua.Kind], Hotkey -> Lua -> [LuaValue])] {
+        class func instanceMethods() -> [(String, [LuaTypeChecker], Hotkey -> Lua -> [LuaValue])] {
             return [
-                ("enable", [.None], Hotkey.enable),
-                ("disable", [.None], Hotkey.enable),
+                ("enable", [], Hotkey.enable),
+                ("disable", [], Hotkey.enable),
             ]
         }
         
