@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		94042C921A47473E00A8B8CC /* libLuaSwift.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 94042C861A47473E00A8B8CC /* libLuaSwift.dylib */; };
 		94042D0A1A47477E00A8B8CC /* Lua.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94042D091A47477E00A8B8CC /* Lua.swift */; };
-		948292E51A474B2E009C3498 /* LuaNonMacros.c in Sources */ = {isa = PBXBuildFile; fileRef = 948292E31A474B2E009C3498 /* LuaNonMacros.c */; };
-		948292E61A474B2E009C3498 /* LuaNonMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 948292E41A474B2E009C3498 /* LuaNonMacros.h */; };
+		948292E51A474B2E009C3498 /* LuaSwift.c in Sources */ = {isa = PBXBuildFile; fileRef = 948292E31A474B2E009C3498 /* LuaSwift.c */; };
+		948292E61A474B2E009C3498 /* LuaSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 948292E41A474B2E009C3498 /* LuaSwift.h */; };
 		948293231A474BE4009C3498 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 948292E81A474BE4009C3498 /* lapi.c */; };
 		948293241A474BE4009C3498 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 948292E81A474BE4009C3498 /* lapi.c */; };
 		948293251A474BE4009C3498 /* lapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 948292E91A474BE4009C3498 /* lapi.h */; };
@@ -120,9 +120,8 @@
 		94042C911A47473E00A8B8CC /* LuaSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LuaSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		94042C971A47473E00A8B8CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		94042D091A47477E00A8B8CC /* Lua.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lua.swift; sourceTree = "<group>"; };
-		9418D9071A47478D00626B14 /* LuaSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LuaSwift-Bridging-Header.h"; sourceTree = "<group>"; };
-		948292E31A474B2E009C3498 /* LuaNonMacros.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = LuaNonMacros.c; sourceTree = "<group>"; };
-		948292E41A474B2E009C3498 /* LuaNonMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaNonMacros.h; sourceTree = "<group>"; };
+		948292E31A474B2E009C3498 /* LuaSwift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = LuaSwift.c; sourceTree = "<group>"; };
+		948292E41A474B2E009C3498 /* LuaSwift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaSwift.h; sourceTree = "<group>"; };
 		948292E81A474BE4009C3498 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
 		948292E91A474BE4009C3498 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
 		948292EA1A474BE4009C3498 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
@@ -225,9 +224,8 @@
 			isa = PBXGroup;
 			children = (
 				94042D091A47477E00A8B8CC /* Lua.swift */,
-				9418D9071A47478D00626B14 /* LuaSwift-Bridging-Header.h */,
-				948292E41A474B2E009C3498 /* LuaNonMacros.h */,
-				948292E31A474B2E009C3498 /* LuaNonMacros.c */,
+				948292E41A474B2E009C3498 /* LuaSwift.h */,
+				948292E31A474B2E009C3498 /* LuaSwift.c */,
 				948292E71A474BE4009C3498 /* LuaSource */,
 			);
 			path = LuaSwift;
@@ -333,7 +331,7 @@
 				9482935E1A474BE4009C3498 /* lparser.h in Headers */,
 				948293731A474BE4009C3498 /* lualib.h in Headers */,
 				948293711A474BE4009C3498 /* lua.hpp in Headers */,
-				948292E61A474B2E009C3498 /* LuaNonMacros.h in Headers */,
+				948292E61A474B2E009C3498 /* LuaSwift.h in Headers */,
 				9482934B1A474BE4009C3498 /* llex.h in Headers */,
 				948293561A474BE4009C3498 /* lobject.h in Headers */,
 				948293621A474BE4009C3498 /* lstate.h in Headers */,
@@ -462,7 +460,7 @@
 				948293571A474BE4009C3498 /* lopcodes.c in Sources */,
 				948293791A474BE4009C3498 /* lvm.c in Sources */,
 				948293491A474BE4009C3498 /* llex.c in Sources */,
-				948292E51A474B2E009C3498 /* LuaNonMacros.c in Sources */,
+				948292E51A474B2E009C3498 /* LuaSwift.c in Sources */,
 				9482933A1A474BE4009C3498 /* ldo.c in Sources */,
 				948293521A474BE4009C3498 /* loadlib.c in Sources */,
 				948293541A474BE4009C3498 /* lobject.c in Sources */,
@@ -617,7 +615,7 @@
 					"LUA_NOCVTS2N=1",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "LuaSwift/LuaSwift-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = LuaSwift/LuaSwift.h;
 			};
 			name = Debug;
 		};
@@ -633,7 +631,7 @@
 					"LUA_NOCVTS2N=1",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "LuaSwift/LuaSwift-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = LuaSwift/LuaSwift.h;
 			};
 			name = Release;
 		};
