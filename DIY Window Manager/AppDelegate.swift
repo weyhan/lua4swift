@@ -10,9 +10,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         L.pushLibrary(API.Hotkey.self)
         L.setGlobal("Hotkey")
         
-        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() end)")
+        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
         
-        NSApplication.sharedApplication().terminate(nil)
+//        NSApplication.sharedApplication().terminate(nil)
         
 //        let hotkey = Hotkey(key: "s", mods: [Hotkey.Mod.Command, Hotkey.Mod.Shift]) { println("woo!") }
 //        hotkey.enable()
