@@ -63,16 +63,16 @@ class API {
             return fn == other.fn
         }
         
-        class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])] {
+        class func classMethods() -> [(String, [Lua.TypeConverter], Lua -> [LuaValue])] {
             return [
-                ("bind", [.String, .Table, .Function, .None], Hotkey.bind),
+                ("bind", [String.convertibleFromLua, Lua.TableBox.convertibleFromLua, Lua.FunctionBox.convertibleFromLua], Hotkey.bind),
             ]
         }
         
-        class func instanceMethods() -> [(String, [Lua.Kind], Hotkey -> Lua -> [LuaValue])] {
+        class func instanceMethods() -> [(String, [Lua.TypeConverter], Hotkey -> Lua -> [LuaValue])] {
             return [
-                ("enable", [.None], Hotkey.enable),
-                ("disable", [.None], Hotkey.enable),
+                ("enable", [], Hotkey.enable),
+                ("disable", [], Hotkey.enable),
             ]
         }
         
