@@ -38,9 +38,7 @@ final class Hotkey: Lua.Library {
     
     class func bind(L: Lua.VirtualMachine) -> [Lua.Value] {
         let key = String.fromLua(L, at: 1)!
-        let mods = Lua.SequentialTable<String>.fromLua(L, at: 2)
-        if mods == nil { return [] }
-        let modStrings = mods!.elements
+        let modStrings = Lua.SequentialTable<String>.fromLua(L, at: 2)!.elements
         
         L.pushFromStack(3)
         let i = L.ref(Lua.RegistryIndex)
