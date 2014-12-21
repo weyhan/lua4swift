@@ -5,12 +5,11 @@ import Cocoa
 protocol LuaValue {
     func pushValue(L: Lua)
     class func fromLua(L: Lua, at position: Int) -> Self?
-    class func convertibleFromLua(L: Lua, at position: Int) -> Bool
 }
 
 protocol LuaLibrary: LuaValue {
-    class func classMethods() -> [(String, [Lua.TypeConverter], Lua -> [LuaValue])]
-    class func instanceMethods() -> [(String, [Lua.TypeConverter], Self -> Lua -> [LuaValue])]
+    class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])]
+    class func instanceMethods() -> [(String, [Lua.Kind], Self -> Lua -> [LuaValue])]
     class func metaMethods() -> [LuaMetaMethod<Self>]
     class var metatableName: String { get }
 }
@@ -35,11 +34,6 @@ extension NSPoint: LuaValue {
             return NSPoint(x: x ?? 0, y: y ?? 0)
         default: return nil}
     }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Table: return true
-        default: return false}
-    }
 }
 
 extension String: LuaValue {
@@ -52,11 +46,6 @@ extension String: LuaValue {
             return NSString(CString: str, encoding: NSUTF8StringEncoding)
         default: return nil}
     }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .String: return true
-        default: return false}
-    }
 }
 
 extension Int64: LuaValue {
@@ -65,11 +54,6 @@ extension Int64: LuaValue {
         switch L.kind(position) {
         case .Integer: return lua_tointegerx(L.L, Int32(position), nil)
         default: return nil}
-    }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Integer: return true
-        default: return false}
     }
 }
 
@@ -80,11 +64,6 @@ extension Double: LuaValue {
         case .Double: return lua_tonumberx(L.L, Int32(position), nil)
         default: return nil}
     }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Double: return true
-        default: return false}
-    }
 }
 
 extension Bool: LuaValue {
@@ -94,11 +73,6 @@ extension Bool: LuaValue {
         case .Bool: return lua_toboolean(L.L, Int32(position)) != 0
         default: return nil}
     }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Bool: return true
-        default: return false}
-    }
 }
 
 extension Lua.FunctionBox: LuaValue {
@@ -106,11 +80,6 @@ extension Lua.FunctionBox: LuaValue {
     static func fromLua(L: Lua, at position: Int) -> Lua.FunctionBox? {
         // can't ever convert functions to any usable object
         return nil
-    }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Function: return true
-        default: return false}
     }
 }
 
@@ -126,11 +95,6 @@ extension Lua.TableBox: LuaValue {
         }
         return t
     }
-    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Table: return true
-        default: return false}
-    }
 }
 
 final class LuaNilType: LuaValue {
@@ -138,19 +102,12 @@ final class LuaNilType: LuaValue {
     class func fromLua(L: Lua, at position: Int) -> LuaNilType? {
         return LuaNil
     }
-    class func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-        switch L.kind(position) {
-        case .Nil: return true
-        default: return false}
-    }
 }
 
 let LuaNil = LuaNilType()
 
 // basics
 class Lua {
-    
-    typealias TypeConverter = (Lua, Int) -> Bool
     
     let L = luaL_newstate()
     
@@ -288,18 +245,16 @@ extension Lua {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
-    func pushMethod(name: String, _ types: [Lua.TypeConverter], _ fn: Function, tablePosition: Int = -1) {
+    func pushMethod(name: String, _ types: [Kind], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
             for (i, t) in enumerate(types) {
-//                t(self, (i+1))
-                
-//                switch t {
-//                case let .Userdata(u) where u != nil:
-//                    luaL_checkudata(self.L, Int32(i+1), u!)
-//                default:
-//                    luaL_checktype(self.L, Int32(i+1), t.toLuaType())
-//                }
+                switch t {
+                case let .Userdata(u) where u != nil:
+                    luaL_checkudata(self.L, Int32(i+1), u!)
+                default:
+                    luaL_checktype(self.L, Int32(i+1), t.toLuaType())
+                }
             }
             
             return fn()
@@ -307,8 +262,8 @@ extension Lua {
         setTable(tablePosition - 2)
     }
     
-    func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [Lua.TypeConverter], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
-        types.insert(T.convertibleFromLua, atIndex: 0)
+    func pushInstanceMethod<T: LuaLibrary>(name: String, var _ types: [Kind], _ fn: T -> Lua -> [LuaValue], tablePosition: Int = -1) {
+        types.insert(.Userdata(T.metatableName), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
             return fn(o)(self)
@@ -316,7 +271,7 @@ extension Lua {
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
     
-    func pushClassMethod(name: String, var _ types: [Lua.TypeConverter], _ fn: Lua -> [LuaValue], tablePosition: Int = -1) {
+    func pushClassMethod(name: String, var _ types: [Kind], _ fn: Lua -> [LuaValue], tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
@@ -341,13 +296,13 @@ extension Lua {
     func pushMetaMethod<T: LuaLibrary>(metaMethod: LuaMetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
-            pushMethod("__gc", [T.convertibleFromLua]) {
+            pushMethod("__gc", [.Userdata(T.metatableName), .None]) {
                 fn(T.fromLua(self, at: 1)!)(self)
                 self.userdatas[self.getUserdataPointer(1)!] = nil
                 return []
             }
         case let .EQ(fn):
-            pushMethod("__eq", [T.convertibleFromLua, T.convertibleFromLua]) {
+            pushMethod("__eq", [.Userdata(T.metatableName), .Userdata(T.metatableName), .None]) {
                 let a = T.fromLua(self, at: 1)!
                 let b = T.fromLua(self, at: 2)!
                 return [fn(a)(b)]

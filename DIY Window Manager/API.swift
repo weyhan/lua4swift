@@ -16,10 +16,6 @@ class API {
             return L.getUserdata(position) as? Hotkey
         }
         
-        class func convertibleFromLua(L: Lua, at position: Int) -> Bool {
-            return true
-        }
-        
         init(fn: Int, hotkey: Carbon.Hotkey) {
             self.fn = fn
             self.hotkey = hotkey
@@ -63,16 +59,16 @@ class API {
             return fn == other.fn
         }
         
-        class func classMethods() -> [(String, [Lua.TypeConverter], Lua -> [LuaValue])] {
+        class func classMethods() -> [(String, [Lua.Kind], Lua -> [LuaValue])] {
             return [
-                ("bind", [String.convertibleFromLua, Lua.TableBox.convertibleFromLua, Lua.FunctionBox.convertibleFromLua], Hotkey.bind),
+                ("bind", [.String, .Table, .Function, .None], Hotkey.bind),
             ]
         }
         
-        class func instanceMethods() -> [(String, [Lua.TypeConverter], Hotkey -> Lua -> [LuaValue])] {
+        class func instanceMethods() -> [(String, [Lua.Kind], Hotkey -> Lua -> [LuaValue])] {
             return [
-                ("enable", [], Hotkey.enable),
-                ("disable", [], Hotkey.enable),
+                ("enable", [.None], Hotkey.enable),
+                ("disable", [.None], Hotkey.enable),
             ]
         }
         
