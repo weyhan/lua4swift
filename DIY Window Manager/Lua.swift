@@ -5,6 +5,7 @@ import Cocoa
 protocol LuaValue {
     func pushValue(L: Lua)
     class func fromLua(L: Lua, at position: Int) -> Self?
+    class func typeName() -> String
 }
 
 protocol LuaLibrary: LuaValue {
@@ -32,6 +33,7 @@ extension NSPoint: LuaValue {
         let y = table!["y"] ?? 0
         return NSPoint(x: x, y: y)
     }
+    static func typeName() -> String { return "<Point>" }
 }
 
 extension String: LuaValue {
@@ -42,6 +44,7 @@ extension String: LuaValue {
         let str = lua_tolstring(L.L, Int32(position), &len)
         return NSString(CString: str, encoding: NSUTF8StringEncoding)
     }
+    static func typeName() -> String { return "<String>" }
 }
 
 extension Int64: LuaValue {
@@ -50,6 +53,7 @@ extension Int64: LuaValue {
         if L.kind(position) != .Integer { return nil }
         return lua_tointegerx(L.L, Int32(position), nil)
     }
+    static func typeName() -> String { return "<Integer>" }
 }
 
 extension Double: LuaValue {
@@ -58,6 +62,7 @@ extension Double: LuaValue {
         if L.kind(position) != .Double { return nil }
         return lua_tonumberx(L.L, Int32(position), nil)
     }
+    static func typeName() -> String { return "<Double>" }
 }
 
 extension Bool: LuaValue {
@@ -66,6 +71,7 @@ extension Bool: LuaValue {
         if L.kind(position) != .Bool { return nil }
         return lua_toboolean(L.L, Int32(position)) != 0
     }
+    static func typeName() -> String { return "<Boolean>" }
 }
 
 extension Lua.FunctionBox: LuaValue {
@@ -74,6 +80,7 @@ extension Lua.FunctionBox: LuaValue {
         // can't ever convert functions to a usable object
         return nil
     }
+    static func typeName() -> String { return "<Function>" }
 }
 
 final class LuaArray<T: LuaValue>: LuaValue {
@@ -127,6 +134,8 @@ final class LuaArray<T: LuaValue>: LuaValue {
         elements = values
     }
     
+    class func typeName() -> String { return "<Array of \(T.typeName())>" }
+    
 }
 
 final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue { // is there a less dumb way to write the generic signature here?
@@ -171,6 +180,8 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
         elements = values
     }
     
+    class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
+    
 }
 
 final class LuaNilType: LuaValue {
@@ -179,6 +190,7 @@ final class LuaNilType: LuaValue {
         if L.kind(position) != .Nil { return nil }
         return LuaNil
     }
+    class func typeName() -> String { return "<nil>" }
 }
 
 let LuaNil = LuaNilType()

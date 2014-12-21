@@ -6,6 +6,7 @@ class API {
         let fn: Int
         let hotkey: Carbon.Hotkey
         
+        class func typeName() -> String { return "<Hotkey>" }
         class var metatableName: String { return "Hotkey" }
         
         func pushValue(L: Lua) {
