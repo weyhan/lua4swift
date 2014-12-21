@@ -26,12 +26,10 @@ extension NSPoint: LuaValue {
         L.pushDouble(Double(self.y)); L.setField("y", table: -2)
     }
     static func fromLua(L: Lua, at position: Int) -> NSPoint? {
-        let dict = LuaDictionary<String, Double>.fromLua(L, at: position)
-        if dict == nil { return nil }
-        let table = dict!
-        
-        let x = table["x"] ?? 0
-        let y = table["y"] ?? 0
+        let table = LuaDictionary<String, Double>.fromLua(L, at: position)
+        if table == nil { return nil }
+        let x = table!["x"] ?? 0
+        let y = table!["y"] ?? 0
         return NSPoint(x: x, y: y)
     }
 }
