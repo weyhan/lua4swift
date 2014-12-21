@@ -1,12 +1,12 @@
 import Cocoa
-import LuaSwift
+import Lua
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let L = LuaSwift.Lua(openLibs: true)
+        let L = Lua.VM(openLibs: true)
         
 //        L.pushLibrary(API.Hotkey.self)
 //        L.setGlobal("Hotkey")
