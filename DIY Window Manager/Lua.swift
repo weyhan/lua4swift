@@ -19,20 +19,20 @@ enum LuaMetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
-extension NSPoint: LuaValue {
-    func pushValue(L: Lua) {
-        L.pushTable(keyCapacity: 2)
-        L.pushDouble(Double(self.x)); L.setField("x", table: -2)
-        L.pushDouble(Double(self.y)); L.setField("y", table: -2)
-    }
-    static func fromLua(L: Lua, at position: Int) -> NSPoint? {
-        if L.kind(position) != .Table { return nil }
-        let t = Lua.TableBox.fromLua(L, at: position)!
-        let x = t.getField("x") as Double?
-        let y = t.getField("y") as Double?
-        return NSPoint(x: x ?? 0, y: y ?? 0)
-    }
-}
+//extension NSPoint: LuaValue {
+//    func pushValue(L: Lua) {
+//        L.pushTable(keyCapacity: 2)
+//        L.pushDouble(Double(self.x)); L.setField("x", table: -2)
+//        L.pushDouble(Double(self.y)); L.setField("y", table: -2)
+//    }
+//    static func fromLua(L: Lua, at position: Int) -> NSPoint? {
+//        if L.kind(position) != .Table { return nil }
+//        let t = Lua.TableBox.fromLua(L, at: position)!
+//        let x = t.getField("x") as Double?
+//        let y = t.getField("y") as Double?
+//        return NSPoint(x: x ?? 0, y: y ?? 0)
+//    }
+//}
 
 extension String: LuaValue {
     func pushValue(L: Lua) { L.pushString(self) }
@@ -76,19 +76,19 @@ extension Lua.FunctionBox: LuaValue {
     }
 }
 
-extension Lua.TableBox: LuaValue {
-    func pushValue(L: Lua) { L.pushTable(self.t) }
-    static func fromLua(L: Lua, at position: Int) -> Lua.TableBox? {
-        if L.kind(position) != .Table { return nil }
-        var t = Lua.TableBox()
-        L.pushNil()
-        while lua_next(L.L, Int32(position)) != 0 {
-            t.t.append((L.get(-2)!, L.get(-1)!))
-            L.pop(1)
-        }
-        return t
-    }
-}
+//extension Lua.TableBox: LuaValue {
+//    func pushValue(L: Lua) { L.pushTable(self.t) }
+//    static func fromLua(L: Lua, at position: Int) -> Lua.TableBox? {
+//        if L.kind(position) != .Table { return nil }
+//        var t = Lua.TableBox()
+//        L.pushNil()
+//        while lua_next(L.L, Int32(position)) != 0 {
+//            t.t.append((L.get(-2)!, L.get(-1)!))
+//            L.pop(1)
+//        }
+//        return t
+//    }
+//}
 
 final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
@@ -111,19 +111,8 @@ class Lua {
         init(_ fn: Function) { self.fn = fn }
     }
     
-    struct TableBox {
-        var t = Table()
-        
-        func getField(key: String) -> LuaValue? {
-            for (k, v) in t {
-                if let stringKey = k as? String { if stringKey == key { return v } }
-            }
-            return nil
-        }
-    }
-    
     typealias Function = () -> [LuaValue]
-    typealias Table = [(LuaValue, LuaValue)]
+//    typealias Table = [(LuaValue, LuaValue)]
     
     typealias Userdata = UnsafeMutablePointer<Void>
     var userdatas = [Userdata : Any]()
@@ -175,18 +164,18 @@ extension Lua {
         }
     }
     
-    func get(position: Int) -> LuaValue? {
-        switch kind(position) {
-        case .Nil: return LuaNil
-        case .Bool: return Bool.fromLua(self, at: position)!
-        case .Integer: return Int64.fromLua(self, at: position)!
-        case .Double: return Double.fromLua(self, at: position)!
-        case .String: return String.fromLua(self, at: position)!
-        case .Table: return TableBox.fromLua(self, at: position)!
-        case .Userdata: return getUserdata(position)!
-        default: return nil
-        }
-    }
+//    func get(position: Int) -> LuaValue? {
+//        switch kind(position) {
+//        case .Nil: return LuaNil
+//        case .Bool: return Bool.fromLua(self, at: position)!
+//        case .Integer: return Int64.fromLua(self, at: position)!
+//        case .Double: return Double.fromLua(self, at: position)!
+//        case .String: return String.fromLua(self, at: position)!
+//        case .Table: return TableBox.fromLua(self, at: position)!
+//        case .Userdata: return getUserdata(position)!
+//        default: return nil
+//        }
+//    }
     
     func getUserdataPointer(position: Int) -> Userdata? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
@@ -207,15 +196,15 @@ extension Lua {
 // push
 extension Lua {
     
-    func pushTable(table: Table) {
-        pushTable(keyCapacity: table.count)
-        let i = Int(lua_absindex(L, -1)) // overkill? dunno.
-        for (key, value) in table {
-            key.pushValue(self)
-            value.pushValue(self)
-            setTable(i)
-        }
-    }
+//    func pushTable(table: Table) {
+//        pushTable(keyCapacity: table.count)
+//        let i = Int(lua_absindex(L, -1)) // overkill? dunno.
+//        for (key, value) in table {
+//            key.pushValue(self)
+//            value.pushValue(self)
+//            setTable(i)
+//        }
+//    }
     
     func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
         lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
