@@ -124,7 +124,7 @@ final class LuaArray<T: LuaValue>: LuaValue {
     subscript(index: Int) -> T { return elements[index] }
     
     init(values: T...) {
-        elements.extend(values)
+        elements = values
     }
     
 }
