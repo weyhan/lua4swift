@@ -76,20 +76,6 @@ extension Lua.FunctionBox: LuaValue {
     }
 }
 
-//extension Lua.TableBox: LuaValue {
-//    func pushValue(L: Lua) { L.pushTable(self.t) }
-//    static func fromLua(L: Lua, at position: Int) -> Lua.TableBox? {
-//        if L.kind(position) != .Table { return nil }
-//        var t = Lua.TableBox()
-//        L.pushNil()
-//        while lua_next(L.L, Int32(position)) != 0 {
-//            t.t.append((L.get(-2)!, L.get(-1)!))
-//            L.pop(1)
-//        }
-//        return t
-//    }
-//}
-
 final class LuaHomogeneousArray<T: LuaValue>: LuaValue {
     
     var elements = [T]()
@@ -209,19 +195,6 @@ extension Lua {
         }
     }
     
-//    func get(position: Int) -> LuaValue? {
-//        switch kind(position) {
-//        case .Nil: return LuaNil
-//        case .Bool: return Bool.fromLua(self, at: position)!
-//        case .Integer: return Int64.fromLua(self, at: position)!
-//        case .Double: return Double.fromLua(self, at: position)!
-//        case .String: return String.fromLua(self, at: position)!
-//        case .Table: return TableBox.fromLua(self, at: position)!
-//        case .Userdata: return getUserdata(position)!
-//        default: return nil
-//        }
-//    }
-    
     func getUserdataPointer(position: Int) -> UserdataPointer? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return lua_touserdata(L, Int32(position))
@@ -240,16 +213,6 @@ extension Lua {
 
 // push
 extension Lua {
-    
-//    func pushTable(table: Table) {
-//        pushTable(keyCapacity: table.count)
-//        let i = Int(lua_absindex(L, -1)) // overkill? dunno.
-//        for (key, value) in table {
-//            key.pushValue(self)
-//            value.pushValue(self)
-//            setTable(i)
-//        }
-//    }
     
     func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
         lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
