@@ -60,8 +60,8 @@ extension Bool: Value {
 
 // meant for putting functions into Lua only; can't take them out
 public struct FunctionBox: Value {
-    let fn: Function
-    init(_ fn: Function) { self.fn = fn }
+    public let fn: Function
+    public init(_ fn: Function) { self.fn = fn }
     
     public func pushValue(L: VM) { L.pushFunction(self.fn) }
     public static func fromLua(L: VM, at position: Int) -> FunctionBox? {
@@ -89,6 +89,8 @@ public final class NilType: Value {
         return L.kind(position) == kind()
     }
 }
+
+public let Nil = NilType()
 
 extension NSPoint: Value {
     public func pushValue(L: VM) {

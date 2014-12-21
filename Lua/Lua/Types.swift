@@ -14,7 +14,7 @@ public protocol Value {
     class func arg() -> TypeChecker
 }
 
-protocol Library: Value {
+public protocol Library: Value {
     class func classMethods() -> [(String, [TypeChecker], VM -> [Value])]
     class func instanceMethods() -> [(String, [TypeChecker], Self -> VM -> [Value])]
     class func metaMethods() -> [MetaMethod<Self>]

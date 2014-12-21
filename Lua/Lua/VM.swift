@@ -1,8 +1,6 @@
 import Foundation
 import Cocoa
 
-public let Nil = NilType()
-
 // basics
 public class VM {
     
@@ -16,27 +14,27 @@ public class VM {
     
     // execute
     
-    func loadString(str: String) { luaL_loadstring(L, (str as NSString).UTF8String) }
+    public func loadString(str: String) { luaL_loadstring(L, (str as NSString).UTF8String) }
     
     public func doString(str: String) {
         loadString(str)
         call(arguments: 0, returnValues: Int(LUA_MULTRET))
     }
     
-    func call(arguments: Int = 0, returnValues: Int = 0) {
+    public func call(arguments: Int = 0, returnValues: Int = 0) {
         lua_pcallk(L, Int32(arguments), Int32(returnValues), 0, 0, nil)
     }
     
     // set
     
-    func setGlobal(name: String) { lua_setglobal(L, (name as NSString).UTF8String) }
-    func setField(name: String, table: Int) { lua_setfield(L, Int32(table), (name as NSString).UTF8String) }
-    func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
-    func setMetatable(position: Int) { lua_setmetatable(L, Int32(position)) }
+    public func setGlobal(name: String) { lua_setglobal(L, (name as NSString).UTF8String) }
+    public func setField(name: String, table: Int) { lua_setfield(L, Int32(table), (name as NSString).UTF8String) }
+    public func setTable(tablePosition: Int) { lua_settable(L, Int32(tablePosition)) }
+    public func setMetatable(position: Int) { lua_setmetatable(L, Int32(position)) }
     
     // get
     
-    func kind(position: Int) -> Kind {
+    public func kind(position: Int) -> Kind {
         switch lua_type(L, Int32(position)) {
         case LUA_TNIL: return .Nil
         case LUA_TBOOLEAN: return .Bool
@@ -50,33 +48,33 @@ public class VM {
         }
     }
     
-    func getUserdataPointer(position: Int) -> UserdataPointer? {
+    public func getUserdataPointer(position: Int) -> UserdataPointer? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return lua_touserdata(L, Int32(position))
     }
     
-    func getUserdata(position: Int) -> Value? {
+    public func getUserdata(position: Int) -> Value? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return UnsafeMutablePointer<Value>(getUserdataPointer(position)!).memory
     }
     
-    func isTruthy(position: Int) -> Bool {
+    public func isTruthy(position: Int) -> Bool {
         return lua_toboolean(L, Int32(position)) != 0
     }
     
     // push
     
-    func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
+    public func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
         lua_createtable(L, Int32(sequenceCapacity), Int32(keyCapacity))
     }
     
-    func pushNil()             { lua_pushnil(L) }
-    func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
-    func pushDouble(n: Double) { lua_pushnumber(L, n) }
-    func pushInteger(n: Int64) { lua_pushinteger(L, n) }
-    func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
+    public func pushNil()             { lua_pushnil(L) }
+    public func pushBool(value: Bool) { lua_pushboolean(L, value ? 1 : 0) }
+    public func pushDouble(n: Double) { lua_pushnumber(L, n) }
+    public func pushInteger(n: Int64) { lua_pushinteger(L, n) }
+    public func pushString(s: String) { lua_pushstring(L, (s as NSString).UTF8String) }
     
-    func pushFunction(fn: Function, upvalues: Int = 0) {
+    public func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in
             let results = fn()
             for result in results { result.pushValue(self) }
@@ -88,7 +86,7 @@ public class VM {
         lua_pushcclosure(L, fp, Int32(upvalues))
     }
     
-    func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
+    public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
             for (i, (nameFn, testFn)) in enumerate(types) {
@@ -102,7 +100,7 @@ public class VM {
         setTable(tablePosition - 2)
     }
     
-    func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VM -> [Value], tablePosition: Int = -1) {
+    public func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VM -> [Value], tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
@@ -111,29 +109,29 @@ public class VM {
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
     
-    func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VM -> [Value], tablePosition: Int = -1) {
+    public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VM -> [Value], tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
-    func pushFromStack(position: Int) {
+    public func pushFromStack(position: Int) {
         lua_pushvalue(L, Int32(position))
     }
     
-    func pop(n: Int) {
+    public func pop(n: Int) {
         lua_settop(L, -Int32(n)-1)
     }
     
-    func pushField(name: String, fromTable: Int) {
+    public func pushField(name: String, fromTable: Int) {
         lua_getfield(L, Int32(fromTable), (name as NSString).UTF8String)
     }
     
-    func pushUserdata<T>(swiftObject: T) {
+    public func pushUserdata<T>(swiftObject: T) {
         let userdata = UnsafeMutablePointer<T>(lua_newuserdata(L, UInt(sizeof(T))))
         userdata.memory = swiftObject
         storedSwiftValues[userdata] = swiftObject
     }
     
-    func pushMetaMethod<T: Library>(metaMethod: MetaMethod<T>) {
+    public func pushMetaMethod<T: Library>(metaMethod: MetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [T.arg()]) {
@@ -150,7 +148,7 @@ public class VM {
         }
     }
     
-    func pushLibrary<T: Library>(t: T.Type) {
+    public func pushLibrary<T: Library>(t: T.Type) {
         pushTable()
         
         // setmetatable(lib, lib)
@@ -176,18 +174,18 @@ public class VM {
     
     // ref
     
-    class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
+    public class var RegistryIndex: Int { return Int(SDegutisLuaRegistryIndex) } // ugh swift
     
-    func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
-    func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
+    public func ref(position: Int) -> Int { return Int(luaL_ref(L, Int32(position))) }
+    public func unref(table: Int, _ position: Int) { luaL_unref(L, Int32(table), Int32(position)) }
     
     // uhh, misc?
     
-    func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
+    public func absolutePosition(position: Int) -> Int { return Int(lua_absindex(L, Int32(position))) }
     
     // raw
     
-    func rawGet(#tablePosition: Int, index: Int) {
+    public func rawGet(#tablePosition: Int, index: Int) {
         lua_rawgeti(L, Int32(tablePosition), lua_Integer(index))
     }
     

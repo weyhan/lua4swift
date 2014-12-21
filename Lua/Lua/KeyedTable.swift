@@ -1,10 +1,10 @@
 import Foundation
 
-final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // is there a less dumb way to write the generic signature here?
+public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // is there a less dumb way to write the generic signature here?
     
-    var elements = [K:T]()
+    public var elements = [K:T]()
     
-    func pushValue(L: VM) {
+    public func pushValue(L: VM) {
         L.pushTable(keyCapacity: elements.count)
         let tablePosition = Int(lua_absindex(L.L, -1)) // overkill? dunno.
         for (key, value) in elements {
@@ -14,7 +14,7 @@ final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // is ther
         }
     }
     
-    class func fromLua(L: VM, var at position: Int) -> KeyedTable<K, T>? {
+    public class func fromLua(L: VM, var at position: Int) -> KeyedTable<K, T>? {
         position = L.absolutePosition(position) // pretty sure this is necessary
         
         var dict = KeyedTable<K, T>()
@@ -34,18 +34,18 @@ final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // is ther
         return dict
     }
     
-    subscript(key: K) -> T? { return elements[key] }
+    public subscript(key: K) -> T? { return elements[key] }
     
-    init() {}
+    public init() {}
     
-    init(_ values: [K:T]) {
+    public init(_ values: [K:T]) {
         elements = values
     }
     
-    class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
-    class func kind() -> Kind { return .Table }
-    class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName, KeyedTable<K,T>.isValid) }
-    class func isValid(L: VM, at position: Int) -> Bool {
+    public class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
+    public class func kind() -> Kind { return .Table }
+    public class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName, KeyedTable<K,T>.isValid) }
+    public class func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind() && KeyedTable<K,T>.fromLua(L, at: position) != nil
     }
     
