@@ -7,12 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		94C884DA1A475095007954F1 /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C884D91A475095007954F1 /* Accessibility.swift */; };
+		94C884DA1A475095007954F1 /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C884D91A475095007954F1 /* Window.swift */; };
+		94DCD0341A4788DD00CE45A5 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DCD0331A4788DD00CE45A5 /* Extensions.swift */; };
+		94DCD0361A4788F400CE45A5 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DCD0351A4788F400CE45A5 /* Object.swift */; };
+		94DCD0381A47890B00CE45A5 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DCD0371A47890B00CE45A5 /* App.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		94C884B11A475031007954F1 /* libDesktop.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libDesktop.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		94C884D91A475095007954F1 /* Accessibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
+		94C884D91A475095007954F1 /* Window.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
+		94DCD0331A4788DD00CE45A5 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		94DCD0351A4788F400CE45A5 /* Object.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
+		94DCD0371A47890B00CE45A5 /* App.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +51,10 @@
 		94C884B31A475031007954F1 /* Desktop */ = {
 			isa = PBXGroup;
 			children = (
-				94C884D91A475095007954F1 /* Accessibility.swift */,
+				94DCD0331A4788DD00CE45A5 /* Extensions.swift */,
+				94DCD0351A4788F400CE45A5 /* Object.swift */,
+				94DCD0371A47890B00CE45A5 /* App.swift */,
+				94C884D91A475095007954F1 /* Window.swift */,
 			);
 			path = Desktop;
 			sourceTree = "<group>";
@@ -116,7 +125,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				94C884DA1A475095007954F1 /* Accessibility.swift in Sources */,
+				94C884DA1A475095007954F1 /* Window.swift in Sources */,
+				94DCD0381A47890B00CE45A5 /* App.swift in Sources */,
+				94DCD0361A4788F400CE45A5 /* Object.swift in Sources */,
+				94DCD0341A4788DD00CE45A5 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +248,7 @@
 				94C884C71A475031007954F1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
