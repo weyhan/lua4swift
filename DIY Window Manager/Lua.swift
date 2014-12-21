@@ -76,7 +76,7 @@ extension Lua.FunctionBox: LuaValue {
     }
 }
 
-final class LuaHomogeneousArray<T: LuaValue>: LuaValue {
+final class LuaArray<T: LuaValue>: LuaValue {
     
     var elements = [T]()
     
@@ -90,8 +90,8 @@ final class LuaHomogeneousArray<T: LuaValue>: LuaValue {
         }
     }
     
-    class func fromLua(L: Lua, at position: Int) -> LuaHomogeneousArray<T>? {
-        let array = LuaHomogeneousArray<T>()
+    class func fromLua(L: Lua, at position: Int) -> LuaArray<T>? {
+        let array = LuaArray<T>()
         var bag = [Int64:T]()
         
         L.pushNil()

@@ -33,7 +33,7 @@ class API {
         
         class func bind(L: Lua) -> [LuaValue] {
             let key = String.fromLua(L, at: 1)!
-            let mods = LuaHomogeneousArray<String>.fromLua(L, at: 2)
+            let mods = LuaArray<String>.fromLua(L, at: 2)
             if mods == nil { return [] }
             let modStrings = mods!.elements
             
