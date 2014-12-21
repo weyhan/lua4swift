@@ -56,8 +56,7 @@ extension String: LuaValue {
     static func kind() -> Lua.Kind { return .String }
     static func arg() -> LuaTypeChecker { return (String.typeName, String.isValid) }
     static func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind()
     }
 }
 
@@ -71,8 +70,7 @@ extension Int64: LuaValue {
     static func kind() -> Lua.Kind { return .Integer }
     static func arg() -> LuaTypeChecker { return (Int64.typeName, Int64.isValid) }
     static func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind()
     }
 }
 
@@ -86,8 +84,7 @@ extension Double: LuaValue {
     static func kind() -> Lua.Kind { return .Double }
     static func arg() -> LuaTypeChecker { return (Double.typeName, Double.isValid) }
     static func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind()
     }
 }
 
@@ -101,8 +98,7 @@ extension Bool: LuaValue {
     static func kind() -> Lua.Kind { return .Bool }
     static func arg() -> LuaTypeChecker { return (Bool.typeName, Bool.isValid) }
     static func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind()
     }
 }
 
@@ -116,8 +112,7 @@ extension Lua.FunctionBox: LuaValue {
     static func kind() -> Lua.Kind { return .Function }
     static func arg() -> LuaTypeChecker { return (Lua.FunctionBox.typeName, Lua.FunctionBox.isValid) }
     static func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind()
     }
 }
 
@@ -244,8 +239,7 @@ final class LuaNilType: LuaValue {
     class func kind() -> Lua.Kind { return .Nil }
     class func arg() -> LuaTypeChecker { return (LuaNilType.typeName, LuaNilType.isValid) }
     class func isValid(L: Lua, at position: Int) -> Bool {
-        if L.kind(position) != kind() { return false }
-        return false
+        return L.kind(position) == kind()
     }
 }
 
