@@ -16,6 +16,10 @@ class API {
             return L.getUserdata(position) as? Hotkey
         }
         
+        class func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+            return true
+        }
+        
         init(fn: Int, hotkey: Carbon.Hotkey) {
             self.fn = fn
             self.hotkey = hotkey

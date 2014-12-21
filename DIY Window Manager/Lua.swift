@@ -5,6 +5,7 @@ import Cocoa
 protocol LuaValue {
     func pushValue(L: Lua)
     class func fromLua(L: Lua, at position: Int) -> Self?
+    class func convertibleFromLua(L: Lua, at position: Int) -> Bool
 }
 
 protocol LuaLibrary: LuaValue {
@@ -34,6 +35,11 @@ extension NSPoint: LuaValue {
             return NSPoint(x: x ?? 0, y: y ?? 0)
         default: return nil}
     }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Table: return true
+        default: return false}
+    }
 }
 
 extension String: LuaValue {
@@ -46,6 +52,11 @@ extension String: LuaValue {
             return NSString(CString: str, encoding: NSUTF8StringEncoding)
         default: return nil}
     }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .String: return true
+        default: return false}
+    }
 }
 
 extension Int64: LuaValue {
@@ -54,6 +65,11 @@ extension Int64: LuaValue {
         switch L.kind(position) {
         case .Integer: return lua_tointegerx(L.L, Int32(position), nil)
         default: return nil}
+    }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Integer: return true
+        default: return false}
     }
 }
 
@@ -64,6 +80,11 @@ extension Double: LuaValue {
         case .Double: return lua_tonumberx(L.L, Int32(position), nil)
         default: return nil}
     }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Double: return true
+        default: return false}
+    }
 }
 
 extension Bool: LuaValue {
@@ -73,6 +94,11 @@ extension Bool: LuaValue {
         case .Bool: return lua_toboolean(L.L, Int32(position)) != 0
         default: return nil}
     }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Bool: return true
+        default: return false}
+    }
 }
 
 extension Lua.FunctionBox: LuaValue {
@@ -80,6 +106,11 @@ extension Lua.FunctionBox: LuaValue {
     static func fromLua(L: Lua, at position: Int) -> Lua.FunctionBox? {
         // can't ever convert functions to any usable object
         return nil
+    }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Function: return true
+        default: return false}
     }
 }
 
@@ -95,12 +126,22 @@ extension Lua.TableBox: LuaValue {
         }
         return t
     }
+    static func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Table: return true
+        default: return false}
+    }
 }
 
 final class LuaNilType: LuaValue {
     func pushValue(L: Lua) { L.pushNil() }
     class func fromLua(L: Lua, at position: Int) -> LuaNilType? {
         return LuaNil
+    }
+    class func convertibleFromLua(L: Lua, at position: Int) -> Bool {
+        switch L.kind(position) {
+        case .Nil: return true
+        default: return false}
     }
 }
 
