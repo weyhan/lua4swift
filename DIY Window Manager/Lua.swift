@@ -22,9 +22,7 @@ enum LuaMetaMethod<T> {
 
 extension NSPoint: LuaValue {
     func pushValue(L: Lua) {
-        L.pushTable(keyCapacity: 2)
-        L.pushDouble(Double(self.x)); L.setField("x", table: -2)
-        L.pushDouble(Double(self.y)); L.setField("y", table: -2)
+        LuaDictionary<String,Double>(["x":Double(self.x), "y":Double(self.y)]).pushValue(L)
     }
     static func fromLua(L: Lua, at position: Int) -> NSPoint? {
         let table = LuaDictionary<String, Double>.fromLua(L, at: position)
@@ -176,7 +174,7 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
     
     init() {}
     
-    init(values: [K:T]) {
+    init(_ values: [K:T]) {
         elements = values
     }
     
