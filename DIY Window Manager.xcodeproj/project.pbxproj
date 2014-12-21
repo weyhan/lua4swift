@@ -12,9 +12,8 @@
 		9407F7241A3CBA8500BE8C7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7231A3CBA8500BE8C7A /* Images.xcassets */; };
 		9407F7271A3CBA8500BE8C7A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9407F7251A3CBA8500BE8C7A /* MainMenu.xib */; };
 		9407F73D1A3CBBBD00BE8C7A /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */; };
-		9407F73F1A3CBD7C00BE8C7A /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9407F73E1A3CBD7C00BE8C7A /* Hotkey.swift */; };
-		9407F7441A3CBD9900BE8C7A /* SDegutisObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9407F7411A3CBD9900BE8C7A /* SDegutisObjC.m */; };
 		9475807C1A43D94A00947E6B /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475807B1A43D94A00947E6B /* API.swift */; };
+		948293AE1A474DCB009C3498 /* libGraphite.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 948293A91A474DAF009C3498 /* libGraphite.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +38,27 @@
 			remoteGlobalIDString = 94042C851A47473E00A8B8CC;
 			remoteInfo = LuaSwift;
 		};
+		948293A81A474DAF009C3498 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 948293A31A474DAF009C3498 /* Graphite.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 948293891A474DAE009C3498;
+			remoteInfo = Graphite;
+		};
+		948293AA1A474DAF009C3498 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 948293A31A474DAF009C3498 /* Graphite.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 948293941A474DAF009C3498;
+			remoteInfo = GraphiteTests;
+		};
+		948293AF1A474DD9009C3498 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 948293A31A474DAF009C3498 /* Graphite.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 948293881A474DAE009C3498;
+			remoteInfo = Graphite;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -49,11 +69,8 @@
 		9407F7231A3CBA8500BE8C7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9407F7261A3CBA8500BE8C7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
-		9407F73E1A3CBD7C00BE8C7A /* Hotkey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
-		9407F7411A3CBD9900BE8C7A /* SDegutisObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDegutisObjC.m; sourceTree = "<group>"; };
-		9407F7421A3CBD9900BE8C7A /* SDegutisObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDegutisObjC.h; sourceTree = "<group>"; };
-		9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DIY Window Manager-Bridging-Header.h"; sourceTree = "<group>"; };
 		9475807B1A43D94A00947E6B /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		948293A31A474DAF009C3498 /* Graphite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Graphite.xcodeproj; path = Graphite/Graphite.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				948293AE1A474DCB009C3498 /* libGraphite.dylib in Frameworks */,
 				94042CA91A47474600A8B8CC /* libLuaSwift.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,6 +98,7 @@
 		9407F7131A3CBA8500BE8C7A = {
 			isa = PBXGroup;
 			children = (
+				948293A31A474DAF009C3498 /* Graphite.xcodeproj */,
 				94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */,
 				9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */,
 				9407F71D1A3CBA8500BE8C7A /* Products */,
@@ -100,9 +119,7 @@
 				9407F7251A3CBA8500BE8C7A /* MainMenu.xib */,
 				9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */,
 				9407F73C1A3CBBBD00BE8C7A /* Accessibility.swift */,
-				9407F73E1A3CBD7C00BE8C7A /* Hotkey.swift */,
 				9475807B1A43D94A00947E6B /* API.swift */,
-				946DA9581A3E39F8009C841F /* ObjC */,
 				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
 			);
 			path = "DIY Window Manager";
@@ -117,14 +134,13 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		946DA9581A3E39F8009C841F /* ObjC */ = {
+		948293A41A474DAF009C3498 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9407F7431A3CBD9900BE8C7A /* DIY Window Manager-Bridging-Header.h */,
-				9407F7411A3CBD9900BE8C7A /* SDegutisObjC.m */,
-				9407F7421A3CBD9900BE8C7A /* SDegutisObjC.h */,
+				948293A91A474DAF009C3498 /* libGraphite.dylib */,
+				948293AB1A474DAF009C3498 /* GraphiteTests.xctest */,
 			);
-			name = ObjC;
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,6 +157,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				948293B01A474DD9009C3498 /* PBXTargetDependency */,
 				94042CAB1A47474A00A8B8CC /* PBXTargetDependency */,
 			);
 			name = "DIY Window Manager";
@@ -175,6 +192,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 948293A41A474DAF009C3498 /* Products */;
+					ProjectRef = 948293A31A474DAF009C3498 /* Graphite.xcodeproj */;
+				},
+				{
 					ProductGroup = 94042CA11A47473E00A8B8CC /* Products */;
 					ProjectRef = 94042CA01A47473E00A8B8CC /* LuaSwift.xcodeproj */;
 				},
@@ -201,6 +222,20 @@
 			remoteRef = 94042CA71A47473F00A8B8CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		948293A91A474DAF009C3498 /* libGraphite.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libGraphite.dylib;
+			remoteRef = 948293A81A474DAF009C3498 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		948293AB1A474DAF009C3498 /* GraphiteTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = GraphiteTests.xctest;
+			remoteRef = 948293AA1A474DAF009C3498 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -221,10 +256,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9475807C1A43D94A00947E6B /* API.swift in Sources */,
-				9407F7441A3CBD9900BE8C7A /* SDegutisObjC.m in Sources */,
 				9407F73D1A3CBBBD00BE8C7A /* Accessibility.swift in Sources */,
 				9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */,
-				9407F73F1A3CBD7C00BE8C7A /* Hotkey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +268,11 @@
 			isa = PBXTargetDependency;
 			name = LuaSwift;
 			targetProxy = 94042CAA1A47474A00A8B8CC /* PBXContainerItemProxy */;
+		};
+		948293B01A474DD9009C3498 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Graphite;
+			targetProxy = 948293AF1A474DD9009C3498 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -336,7 +374,6 @@
 				INFOPLIST_FILE = "DIY Window Manager/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "DIY Window Manager/DIY Window Manager-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -350,7 +387,6 @@
 				INFOPLIST_FILE = "DIY Window Manager/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "DIY Window Manager/DIY Window Manager-Bridging-Header.h";
 			};
 			name = Release;
 		};

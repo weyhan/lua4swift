@@ -1,0 +1,258 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9482938D1A474DAE009C3498 /* Graphite.h in Headers */ = {isa = PBXBuildFile; fileRef = 9482938C1A474DAE009C3498 /* Graphite.h */; };
+		9482938F1A474DAE009C3498 /* Graphite.m in Sources */ = {isa = PBXBuildFile; fileRef = 9482938E1A474DAE009C3498 /* Graphite.m */; };
+		948293AD1A474DBD009C3498 /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948293AC1A474DBD009C3498 /* Hotkey.swift */; };
+		94C884A71A474ED7007954F1 /* Keycode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C884A61A474ED7007954F1 /* Keycode.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		948293891A474DAE009C3498 /* libGraphite.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libGraphite.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		9482938C1A474DAE009C3498 /* Graphite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Graphite.h; sourceTree = "<group>"; };
+		9482938E1A474DAE009C3498 /* Graphite.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Graphite.m; sourceTree = "<group>"; };
+		948293AC1A474DBD009C3498 /* Hotkey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
+		94C884A61A474ED7007954F1 /* Keycode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keycode.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		948293861A474DAE009C3498 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		948293801A474DAE009C3498 = {
+			isa = PBXGroup;
+			children = (
+				9482938B1A474DAE009C3498 /* Graphite */,
+				9482938A1A474DAE009C3498 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9482938A1A474DAE009C3498 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				948293891A474DAE009C3498 /* libGraphite.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9482938B1A474DAE009C3498 /* Graphite */ = {
+			isa = PBXGroup;
+			children = (
+				9482938C1A474DAE009C3498 /* Graphite.h */,
+				9482938E1A474DAE009C3498 /* Graphite.m */,
+				94C884A61A474ED7007954F1 /* Keycode.swift */,
+				948293AC1A474DBD009C3498 /* Hotkey.swift */,
+			);
+			path = Graphite;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		948293871A474DAE009C3498 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9482938D1A474DAE009C3498 /* Graphite.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		948293881A474DAE009C3498 /* Graphite */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9482939D1A474DAF009C3498 /* Build configuration list for PBXNativeTarget "Graphite" */;
+			buildPhases = (
+				948293851A474DAE009C3498 /* Sources */,
+				948293861A474DAE009C3498 /* Frameworks */,
+				948293871A474DAE009C3498 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Graphite;
+			productName = Graphite;
+			productReference = 948293891A474DAE009C3498 /* libGraphite.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		948293811A474DAE009C3498 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Tiny Robot Software";
+				TargetAttributes = {
+					948293881A474DAE009C3498 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 948293841A474DAE009C3498 /* Build configuration list for PBXProject "Graphite" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 948293801A474DAE009C3498;
+			productRefGroup = 9482938A1A474DAE009C3498 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				948293881A474DAE009C3498 /* Graphite */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		948293851A474DAE009C3498 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9482938F1A474DAE009C3498 /* Graphite.m in Sources */,
+				94C884A71A474ED7007954F1 /* Keycode.swift in Sources */,
+				948293AD1A474DBD009C3498 /* Hotkey.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9482939B1A474DAF009C3498 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9482939C1A474DAF009C3498 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9482939E1A474DAF009C3498 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = Graphite/Graphite.h;
+			};
+			name = Debug;
+		};
+		9482939F1A474DAF009C3498 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = Graphite/Graphite.h;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		948293841A474DAE009C3498 /* Build configuration list for PBXProject "Graphite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9482939B1A474DAF009C3498 /* Debug */,
+				9482939C1A474DAF009C3498 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9482939D1A474DAF009C3498 /* Build configuration list for PBXNativeTarget "Graphite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9482939E1A474DAF009C3498 /* Debug */,
+				9482939F1A474DAF009C3498 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 948293811A474DAE009C3498 /* Project object */;
+}
