@@ -36,20 +36,6 @@ public class VM {
     
     // get
     
-    public func kind(position: Int) -> Kind {
-        switch lua_type(L, Int32(position)) {
-        case LUA_TNIL: return .Nil
-        case LUA_TBOOLEAN: return .Bool
-        case LUA_TNUMBER: return lua_isinteger(L, Int32(position)) == 0 ? .Double : .Integer
-        case LUA_TSTRING: return .String
-        case LUA_TFUNCTION: return .Function
-        case LUA_TTABLE: return .Table
-        case LUA_TUSERDATA, LUA_TLIGHTUSERDATA: return .Userdata
-        case LUA_TTHREAD: return .Thread
-        default: return .None
-        }
-    }
-    
     public func getUserdataPointer(position: Int) -> UserdataPointer? {
         if lua_type(L, Int32(position)) != LUA_TUSERDATA { return nil }
         return lua_touserdata(L, Int32(position))
