@@ -32,24 +32,23 @@ class API {
         }
         
         class func bind(L: Lua) -> [LuaValue] {
-            return []
+            let key = String.fromLua(L, at: 1)!
+            let mods = LuaHomogeneousArray<String>.fromLua(L, at: 2)
+            if mods == nil { return [] }
+            let modStrings = mods!.elements
             
-//            let key = String.fromLua(L, at: 1)!
-//            let mods = Lua.TableBox.fromLua(L, at: 2)!.t
-//            let modStrings = mods.map{$1 as? String}.filter{$0 != nil}.map{$0!}
-//            
-//            L.pushFromStack(3)
-//            let i = L.ref(Lua.RegistryIndex)
-//            
-//            let downFn: Carbon.Hotkey.Callback = {
-//                L.rawGet(tablePosition: Lua.RegistryIndex, index: i)
-//                L.call(arguments: 1, returnValues: 0)
-//            }
-//            
-//            let hotkey = Carbon.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)
-//            hotkey.enable()
-//            
-//            return [Hotkey(fn: i, hotkey: hotkey)]
+            L.pushFromStack(3)
+            let i = L.ref(Lua.RegistryIndex)
+            
+            let downFn: Carbon.Hotkey.Callback = {
+                L.rawGet(tablePosition: Lua.RegistryIndex, index: i)
+                L.call(arguments: 1, returnValues: 0)
+            }
+            
+            let hotkey = Carbon.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)
+            hotkey.enable()
+            
+            return [Hotkey(fn: i, hotkey: hotkey)]
         }
         
         func cleanup(L: Lua) {
