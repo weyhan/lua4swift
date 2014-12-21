@@ -229,21 +229,21 @@ final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // is ther
     
 }
 
-final class LuaNilType: Value {
+final class NilType: Value {
     func pushValue(L: VM) { L.pushNil() }
-    class func fromLua(L: VM, at position: Int) -> LuaNilType? {
+    class func fromLua(L: VM, at position: Int) -> NilType? {
         if L.kind(position) != .Nil { return nil }
-        return LuaNil
+        return Nil
     }
     class func typeName() -> String { return "<nil>" }
     class func kind() -> Kind { return .Nil }
-    class func arg() -> TypeChecker { return (LuaNilType.typeName, LuaNilType.isValid) }
+    class func arg() -> TypeChecker { return (NilType.typeName, NilType.isValid) }
     class func isValid(L: VM, at position: Int) -> Bool {
         return L.kind(position) == kind()
     }
 }
 
-let LuaNil = LuaNilType()
+let Nil = NilType()
 
 // basics
 public class VM {
