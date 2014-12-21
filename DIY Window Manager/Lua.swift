@@ -189,8 +189,10 @@ extension Lua {
         case LUA_TBOOLEAN: return .Bool
         case LUA_TNUMBER: return lua_isinteger(L, Int32(position)) == 0 ? .Double : .Integer
         case LUA_TSTRING: return .String
+        case LUA_TFUNCTION: return .Function
         case LUA_TTABLE: return .Table
         case LUA_TUSERDATA, LUA_TLIGHTUSERDATA: return .Userdata
+        case LUA_TTHREAD: return .Thread
         default: return .None
         }
     }
@@ -368,6 +370,7 @@ extension Lua {
         case Function
         case Table
         case Userdata
+        case Thread
         case Nil
         case None
         
@@ -380,6 +383,7 @@ extension Lua {
             case Function: return LUA_TFUNCTION
             case Table: return LUA_TTABLE
             case Userdata: return LUA_TUSERDATA
+            case Thread: return LUA_TTHREAD
             case Nil: return LUA_TNIL
             default: return LUA_TNONE
             }
