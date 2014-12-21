@@ -2,11 +2,15 @@ import Foundation
 
 import Cocoa
 
+typealias TypeChecker = (Lua.Kind, () -> String, (Lua, Int) -> Bool)
+
 protocol LuaValue {
     func pushValue(L: Lua)
     class func fromLua(L: Lua, at position: Int) -> Self?
     class func typeName() -> String
     class func kind() -> Lua.Kind
+    class func isValid(Lua, Int) -> Bool
+    class func arg() -> TypeChecker
 }
 
 protocol LuaLibrary: LuaValue {
@@ -34,6 +38,8 @@ extension NSPoint: LuaValue {
     }
     static func typeName() -> String { return "<Point>" }
     static func kind() -> Lua.Kind { return .Table }
+    static func isValid(Lua, Int) -> Bool { return false }
+    static func arg() -> TypeChecker { return (NSPoint.kind(), NSPoint.typeName, NSPoint.isValid) }
 }
 
 extension String: LuaValue {
@@ -46,6 +52,8 @@ extension String: LuaValue {
     }
     static func typeName() -> String { return "<String>" }
     static func kind() -> Lua.Kind { return .String }
+    static func isValid(Lua, Int) -> Bool { return false }
+    static func arg() -> TypeChecker { return (String.kind(), String.typeName, String.isValid) }
 }
 
 extension Int64: LuaValue {
@@ -56,6 +64,8 @@ extension Int64: LuaValue {
     }
     static func typeName() -> String { return "<Integer>" }
     static func kind() -> Lua.Kind { return .Integer }
+    static func isValid(Lua, Int) -> Bool { return false }
+    static func arg() -> TypeChecker { return (Int64.kind(), Int64.typeName, Int64.isValid) }
 }
 
 extension Double: LuaValue {
@@ -66,6 +76,8 @@ extension Double: LuaValue {
     }
     static func typeName() -> String { return "<Double>" }
     static func kind() -> Lua.Kind { return .Double }
+    static func isValid(Lua, Int) -> Bool { return false }
+    static func arg() -> TypeChecker { return (Double.kind(), Double.typeName, Double.isValid) }
 }
 
 extension Bool: LuaValue {
@@ -76,6 +88,8 @@ extension Bool: LuaValue {
     }
     static func typeName() -> String { return "<Boolean>" }
     static func kind() -> Lua.Kind { return .Bool }
+    static func isValid(Lua, Int) -> Bool { return false }
+    static func arg() -> TypeChecker { return (Bool.kind(), Bool.typeName, Bool.isValid) }
 }
 
 extension Lua.FunctionBox: LuaValue {
@@ -86,6 +100,8 @@ extension Lua.FunctionBox: LuaValue {
     }
     static func typeName() -> String { return "<Function>" }
     static func kind() -> Lua.Kind { return .Function }
+    static func isValid(Lua, Int) -> Bool { return false }
+    static func arg() -> TypeChecker { return (Lua.FunctionBox.kind(), Lua.FunctionBox.typeName, Lua.FunctionBox.isValid) }
 }
 
 final class LuaArray<T: LuaValue>: LuaValue {
@@ -141,6 +157,8 @@ final class LuaArray<T: LuaValue>: LuaValue {
     
     class func typeName() -> String { return "<Array of \(T.typeName())>" }
     class func kind() -> Lua.Kind { return .Table }
+    class func isValid(Lua, Int) -> Bool { return false }
+    class func arg() -> TypeChecker { return (LuaArray<T>.kind(), LuaArray<T>.typeName, LuaArray<T>.isValid) }
     
 }
 
@@ -188,6 +206,8 @@ final class LuaDictionary<K: LuaValue, T: LuaValue where K: Hashable>: LuaValue 
     
     class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
     class func kind() -> Lua.Kind { return .Table }
+    class func isValid(Lua, Int) -> Bool { return false }
+    class func arg() -> TypeChecker { return (LuaDictionary<K,T>.kind(), LuaDictionary<K,T>.typeName, LuaDictionary<K,T>.isValid) }
     
 }
 
@@ -199,6 +219,8 @@ final class LuaNilType: LuaValue {
     }
     class func typeName() -> String { return "<nil>" }
     class func kind() -> Lua.Kind { return .Nil }
+    class func isValid(Lua, Int) -> Bool { return false }
+    class func arg() -> TypeChecker { return (LuaNilType.kind(), LuaNilType.typeName, LuaNilType.isValid) }
 }
 
 let LuaNil = LuaNilType()
