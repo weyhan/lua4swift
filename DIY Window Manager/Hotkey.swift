@@ -28,12 +28,12 @@ final class Hotkey: Lua.Library {
     
     func enable(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         hotkey.enable()
-        return .Values([])
+        return .Nothing
     }
     
     func disable(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         hotkey.disable()
-        return .Values([])
+        return .Nothing
     }
     
     class func bind(L: Lua.VirtualMachine) -> Lua.ReturnValue {

@@ -3,6 +3,7 @@ import Foundation
 public enum ReturnValue {
     case Values([Value])
     case Error(String)
+    case Nothing // convenience for Values([])
 }
 
 public typealias Function = () -> ReturnValue

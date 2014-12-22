@@ -65,6 +65,8 @@ public class VirtualMachine {
     public func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in
             switch fn() {
+            case .Nothing:
+                return 0
             case let .Values(values):
                 for value in values {
                     value.pushValue(self)
