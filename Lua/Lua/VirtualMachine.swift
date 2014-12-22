@@ -76,6 +76,7 @@ public class VirtualMachine {
                 }
                 return Int32(values.count)
             case let .Error(error):
+                println("pushing error: \(error)")
                 error.pushValue(self)
                 lua_error(self.luaState)
                 return 0 // uhh, we don't actually return here
