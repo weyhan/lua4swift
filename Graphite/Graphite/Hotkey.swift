@@ -1,9 +1,14 @@
 import Foundation
 import AppKit
 
-private let lazilySetupHotkeys: Void = SDegutisSetupHotkeyCallback(Hotkey.callback)
+private var setupToken: dispatch_once_t = 0
 private typealias chk = Hotkey // because otherwise swift crashes
 private var enabledHotkeys = [UInt32 : chk]()
+
+public enum HotkeyEnablingResult {
+    case Success
+    case Error(String)
+}
 
 public class Hotkey {
     
@@ -59,13 +64,13 @@ public class Hotkey {
         self.upFn = upFn
     }
     
-    public func enable() -> (Bool, String) {
-        lazilySetupHotkeys
+    public func enable() -> HotkeyEnablingResult {
+        dispatch_once(&setupToken) { SDegutisSetupHotkeyCallback(Hotkey.callback) }
         
-        if self.carbonHotkey != nil { return (false, "Hotkey already enabled; disable first.") }
+        if self.carbonHotkey != nil { return .Error("Hotkey already enabled; disable first.") }
         
         let code = Keycode.codeForKey(key)
-        if code == nil { return (false, "Hotkey's key is not valid.") }
+        if code == nil { return .Error("Hotkey's key is not valid.") }
         
         let id = UInt32(enabledHotkeys.count)
         enabledHotkeys[id] = self
@@ -73,7 +78,7 @@ public class Hotkey {
         let carbonModFlags = map(self.mods) { $0.toCarbonFlag() }
         self.carbonHotkey = SDegutisRegisterHotkey(id, UInt32(code!), UInt32(reduce(carbonModFlags, 0, |)))
         
-        return (true, "")
+        return .Success
     }
     
     public func disable() {

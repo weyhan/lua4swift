@@ -44,14 +44,18 @@ final class Hotkey: Lua.Library {
         let i = L.ref(Lua.RegistryIndex)
         
         let downFn: Graphite.Hotkey.Callback = {
+            println("bla")
             L.rawGet(tablePosition: Lua.RegistryIndex, index: i)
             L.call(arguments: 1, returnValues: 0)
         }
         
         let hotkey = Graphite.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)
-        hotkey.enable()
-        
-        return .Value(Hotkey(fn: i, hotkey: hotkey))
+        switch hotkey.enable() {
+        case let .Error(error):
+            return .Error(error)
+        case .Success:
+            return .Value(Hotkey(fn: i, hotkey: hotkey))
+        }
     }
     
     func cleanup(L: Lua.VirtualMachine) {

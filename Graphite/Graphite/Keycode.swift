@@ -21,7 +21,7 @@ private func pushCode(code: Int, key: String) {
     codeToKey[code] = key
 }
 
-private let lazilySetupKeycodes: () = Keycode.setup()
+private var setupToken: dispatch_once_t = 0
 
 public struct Keycode {
     
@@ -170,12 +170,12 @@ public struct Keycode {
     }
     
     public static func keyForCode(code: Int) -> String? {
-        lazilySetupKeycodes
+        dispatch_once(&setupToken) { self.setup() }
         return codeToKey[code]
     }
     
     public static func codeForKey(key: String) -> Int? {
-        lazilySetupKeycodes
+        dispatch_once(&setupToken) { self.setup() }
         return keyToCode[key]
     }
     
