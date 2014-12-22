@@ -20,7 +20,7 @@ public protocol Value {
     class func arg() -> TypeChecker
 }
 
-public protocol Library: Value {
+public protocol UserType: Value {
     class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
     class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
     class func metaMethods() -> [MetaMethod<Self>]

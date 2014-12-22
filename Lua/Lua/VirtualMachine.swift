@@ -102,7 +102,7 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
-    public func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
+    public func pushInstanceMethod<T: UserType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
@@ -133,7 +133,7 @@ public class VirtualMachine {
         storedSwiftValues[userdata] = swiftObject
     }
     
-    public func pushMetaMethod<T: Library>(metaMethod: MetaMethod<T>) {
+    public func pushMetaMethod<T: UserType>(metaMethod: MetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [T.arg()]) {
@@ -150,7 +150,7 @@ public class VirtualMachine {
         }
     }
     
-    public func pushLibrary<T: Library>(t: T.Type) {
+    public func pushUserType<T: UserType>(t: T.Type) {
         pushTable()
         
         // setmetatable(lib, lib)
