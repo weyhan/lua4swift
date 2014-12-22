@@ -41,9 +41,9 @@ public class VirtualMachine {
         return lua_touserdata(luaState, Int32(position))
     }
     
-    public func getUserdata(position: Int) -> Value? {
+    public func getUserdata<T: Value>(position: Int) -> T? {
         if lua_type(luaState, Int32(position)) != LUA_TUSERDATA { return nil }
-        return UnsafeMutablePointer<Value>(getUserdataPointer(position)!).memory
+        return UnsafeMutablePointer<T>(getUserdataPointer(position)!).memory
     }
     
     public func isTruthy(position: Int) -> Bool {
@@ -102,7 +102,7 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
-    public func pushInstanceMethod<T: UserType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
+    public func pushInstanceMethod<U, T: Userdata<U>>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T(fromLua: self, at: 1)!
@@ -133,7 +133,7 @@ public class VirtualMachine {
         storedSwiftValues[userdata] = swiftObject
     }
     
-    public func pushMetaMethod<T: UserType>(metaMethod: MetaMethod<T>) {
+    public func pushMetaMethod<U, T: Userdata<U>>(metaMethod: MetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [T.arg()]) {
@@ -150,7 +150,7 @@ public class VirtualMachine {
         }
     }
     
-    public func pushUserType<T: UserType>(t: T.Type) {
+    public func pushUserType<U, T: Userdata<U>>(t: T.Type) {
         pushTable()
         
         // setmetatable(lib, lib)

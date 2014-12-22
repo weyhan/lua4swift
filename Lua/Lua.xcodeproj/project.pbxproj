@@ -69,6 +69,7 @@
 		944A33991A475A9C00BF8675 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A335E1A475A9C00BF8675 /* lzio.c */; };
 		944A339A1A475A9C00BF8675 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 944A335F1A475A9C00BF8675 /* lzio.h */; };
 		944A339D1A475AA800BF8675 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A339C1A475AA800BF8675 /* VirtualMachine.swift */; };
+		9453AD2A1A48DE5D00503603 /* Userdata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9453AD291A48DE5D00503603 /* Userdata.swift */; };
 		94C68C971A475D5400C54B88 /* Kind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C961A475D5400C54B88 /* Kind.swift */; };
 		94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C981A475D7400C54B88 /* KeyedTable.swift */; };
 		94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9A1A475D8500C54B88 /* SequentialTable.swift */; };
@@ -140,6 +141,7 @@
 		944A335E1A475A9C00BF8675 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		944A335F1A475A9C00BF8675 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		944A339C1A475AA800BF8675 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachine.swift; sourceTree = "<group>"; };
+		9453AD291A48DE5D00503603 /* Userdata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Userdata.swift; sourceTree = "<group>"; };
 		94C68C961A475D5400C54B88 /* Kind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Kind.swift; sourceTree = "<group>"; };
 		94C68C981A475D7400C54B88 /* KeyedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedTable.swift; sourceTree = "<group>"; };
 		94C68C9A1A475D8500C54B88 /* SequentialTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequentialTable.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				94C68C9C1A475DAE00C54B88 /* Types.swift */,
+				9453AD291A48DE5D00503603 /* Userdata.swift */,
 				944A339C1A475AA800BF8675 /* VirtualMachine.swift */,
 				94C68C9F1A475E2E00C54B88 /* Values.swift */,
 				94C68C961A475D5400C54B88 /* Kind.swift */,
@@ -353,6 +356,7 @@
 				944A33711A475A9C00BF8675 /* lfunc.c in Sources */,
 				944A339D1A475AA800BF8675 /* VirtualMachine.swift in Sources */,
 				944A337E1A475A9C00BF8675 /* lobject.c in Sources */,
+				9453AD2A1A48DE5D00503603 /* Userdata.swift in Sources */,
 				944A336E1A475A9C00BF8675 /* ldo.c in Sources */,
 				944A33941A475A9C00BF8675 /* lundump.c in Sources */,
 				944A33821A475A9C00BF8675 /* loslib.c in Sources */,

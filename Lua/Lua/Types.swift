@@ -18,14 +18,3 @@ public protocol Value {
     class func isValid(L: VirtualMachine, at position: Int) -> Bool
     class func arg() -> TypeChecker
 }
-
-public protocol UserType: Value {
-    class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
-    class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
-    class func metaMethods() -> [MetaMethod<Self>]
-}
-
-public enum MetaMethod<T> {
-    case GC(T -> VirtualMachine -> Void)
-    case EQ(T -> T -> Bool)
-}

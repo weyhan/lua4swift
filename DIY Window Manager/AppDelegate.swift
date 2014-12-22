@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let L = Lua.VirtualMachine()
         
-        L.pushUserType(Hotkey.self)
+        L.pushUserType(Lua.Userdata<Hotkey>.self)
         L.setGlobal("Hotkey")
         
         L.doString("print(34 + 2)")
