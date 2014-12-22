@@ -102,14 +102,14 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
-    public func pushInstanceMethod<U, T: Userdata<U>>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
-        types.insert(T.arg(), atIndex: 0)
-        let f: Function = {
-            let o = T(fromLua: self, at: 1)!
-            return fn(o)(self)
-        }
-        pushMethod(name, types, f, tablePosition: tablePosition)
-    }
+//    public func pushInstanceMethod<T>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
+//        types.insert(T.arg(), atIndex: 0)
+//        let f: Function = {
+//            let o = T(fromLua: self, at: 1)!
+//            return fn(o)(self)
+//        }
+//        pushMethod(name, types, f, tablePosition: tablePosition)
+//    }
     
     public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
@@ -133,24 +133,25 @@ public class VirtualMachine {
         storedSwiftValues[userdata] = swiftObject
     }
     
-    public func pushMetaMethod<U, T: Userdata<U>>(metaMethod: MetaMethod<T>) {
-        switch metaMethod {
-        case let .GC(fn):
-            pushMethod("__gc", [T.arg()]) {
-                fn(T(fromLua: self, at: 1)!)(self)
-                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
-                return .Values([])
-            }
-        case let .EQ(fn):
-            pushMethod("__eq", [T.arg(), T.arg()]) {
-                let a = T(fromLua: self, at: 1)!
-                let b = T(fromLua: self, at: 2)!
-                return .Values([fn(a)(b)])
-            }
-        }
-    }
+//    public func pushMetaMethod<T, U where T: Userdata<U>, U: UserType>(metaMethod: MetaMethod<T>) {
+//        switch metaMethod {
+//        case let .GC(fn):
+//            T.arg()
+//            pushMethod("__gc", [T.arg()]) {
+//                fn(T(fromLua: self, at: 1)!)(self)
+//                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+//                return .Values([])
+//            }
+//        case let .EQ(fn):
+//            pushMethod("__eq", [T.arg(), T.arg()]) {
+//                let a = T(fromLua: self, at: 1)!
+//                let b = T(fromLua: self, at: 2)!
+//                return .Values([fn(a)(b)])
+//            }
+//        }
+//    }
     
-    public func pushUserType<U, T: Userdata<U>>(t: T.Type) {
+    public func pushUserType<T: UserType>(t: Userdata<T>.Type) {
         pushTable()
         
         // setmetatable(lib, lib)
@@ -161,17 +162,17 @@ public class VirtualMachine {
         pushFromStack(-1)
         setField("__index", table: -2)
         
-        for mm in t.metaMethods() {
-            pushMetaMethod(mm)
-        }
-        
-        for (name, kinds, fn) in t.classMethods() {
-            pushClassMethod(name, kinds, fn)
-        }
-        
-        for (name, kinds, fn) in t.instanceMethods() {
-            pushInstanceMethod(name, kinds, fn)
-        }
+//        for mm in t.metaMethods() {
+//            pushMetaMethod(mm)
+//        }
+//        
+//        for (name, kinds, fn) in t.classMethods() {
+//            pushClassMethod(name, kinds, fn)
+//        }
+//        
+//        for (name, kinds, fn) in t.instanceMethods() {
+//            pushInstanceMethod(name, kinds, fn)
+//        }
     }
     
     // ref

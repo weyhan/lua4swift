@@ -180,9 +180,9 @@
 			isa = PBXGroup;
 			children = (
 				94C68C9C1A475DAE00C54B88 /* Types.swift */,
-				9453AD291A48DE5D00503603 /* Userdata.swift */,
 				944A339C1A475AA800BF8675 /* VirtualMachine.swift */,
 				94C68C9F1A475E2E00C54B88 /* Values.swift */,
+				9453AD291A48DE5D00503603 /* Userdata.swift */,
 				94C68C961A475D5400C54B88 /* Kind.swift */,
 				94C68C981A475D7400C54B88 /* KeyedTable.swift */,
 				94C68C9A1A475D8500C54B88 /* SequentialTable.swift */,

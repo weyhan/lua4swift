@@ -14,7 +14,11 @@ public enum MetaMethod<T> {
 
 public final class Userdata<T: UserType>: Value {
     
-    var inner: T
+    let object: T
+    
+    public init(object: T) {
+        self.object = object
+    }
     
     public func pushValue(L: VirtualMachine) {
         L.pushUserdata(self)
@@ -22,7 +26,7 @@ public final class Userdata<T: UserType>: Value {
     
     public required init?(fromLua L: VirtualMachine, at position: Int) {
         let ud: Userdata<T> = L.getUserdata(position)!
-        inner = ud.inner
+        object = ud.object
     }
     
     public class func typeName() -> String {
