@@ -16,8 +16,10 @@ final class Hotkey: Lua.UserType {
         L.pushUserdata(self)
     }
     
-    class func fromLua(L: Lua.VirtualMachine, at position: Int) -> Hotkey? {
-        return L.getUserdata(position) as? Hotkey
+    init?(fromLua L: VirtualMachine, at position: Int) {
+        self.fn = 0
+        self.hotkey = Graphite.Hotkey(key: "f", mods: ["s"], downFn: {}, upFn: nil)
+//        self = L.getUserdata(position) as? Hotkey
     }
     
     init(fn: Int, hotkey: Graphite.Hotkey) {
@@ -36,8 +38,8 @@ final class Hotkey: Lua.UserType {
     }
     
     class func bind(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        let key = String.fromLua(L, at: 1)!
-        let modStrings = Lua.SequentialTable<String>.fromLua(L, at: 2)!.elements
+        let key = String(fromLua: L, at: 1)!
+        let modStrings = Lua.SequentialTable<String>(fromLua: L, at: 2)!.elements
         
         L.pushFromStack(3)
         let i = L.ref(Lua.RegistryIndex)

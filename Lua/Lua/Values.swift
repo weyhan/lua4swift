@@ -2,11 +2,11 @@ import Foundation
 
 extension String: Value {
     public func pushValue(L: VirtualMachine) { L.pushString(self) }
-    public static func fromLua(L: VirtualMachine, at position: Int) -> String? {
+    public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .String { return nil }
         var len: UInt = 0
         let str = lua_tolstring(L.luaState, Int32(position), &len)
-        return NSString(CString: str, encoding: NSUTF8StringEncoding)
+        self = NSString(CString: str, encoding: NSUTF8StringEncoding)!
     }
     public static func typeName() -> String { return "<String>" }
     public static func arg() -> TypeChecker { return (String.typeName, String.isValid) }
@@ -17,9 +17,9 @@ extension String: Value {
 
 extension Int64: Value {
     public func pushValue(L: VirtualMachine) { L.pushInteger(self) }
-    public static func fromLua(L: VirtualMachine, at position: Int) -> Int64? {
+    public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Integer { return nil }
-        return lua_tointegerx(L.luaState, Int32(position), nil)
+        self = lua_tointegerx(L.luaState, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Integer>" }
     public static func arg() -> TypeChecker { return (Int64.typeName, Int64.isValid) }
@@ -30,9 +30,9 @@ extension Int64: Value {
 
 extension Double: Value {
     public func pushValue(L: VirtualMachine) { L.pushDouble(self) }
-    public static func fromLua(L: VirtualMachine, at position: Int) -> Double? {
+    public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Double { return nil }
-        return lua_tonumberx(L.luaState, Int32(position), nil)
+        self = lua_tonumberx(L.luaState, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Double>" }
     public static func arg() -> TypeChecker { return (Double.typeName, Double.isValid) }
@@ -43,9 +43,9 @@ extension Double: Value {
 
 extension Bool: Value {
     public func pushValue(L: VirtualMachine) { L.pushBool(self) }
-    public static func fromLua(L: VirtualMachine, at position: Int) -> Bool? {
+    public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Bool { return nil }
-        return lua_toboolean(L.luaState, Int32(position)) != 0
+        self = lua_toboolean(L.luaState, Int32(position)) != 0
     }
     public static func typeName() -> String { return "<Boolean>" }
     public static func arg() -> TypeChecker { return (Bool.typeName, Bool.isValid) }
@@ -60,7 +60,7 @@ public struct FunctionBox: Value {
     public init(_ fn: Function) { self.fn = fn }
     
     public func pushValue(L: VirtualMachine) { L.pushFunction(self.fn) }
-    public static func fromLua(L: VirtualMachine, at position: Int) -> FunctionBox? {
+    public init?(fromLua L: VirtualMachine, at position: Int) {
         // can't ever convert functions to a usable object
         return nil
     }
@@ -73,9 +73,9 @@ public struct FunctionBox: Value {
 
 public final class NilType: Value {
     public func pushValue(L: VirtualMachine) { L.pushNil() }
-    public class func fromLua(L: VirtualMachine, at position: Int) -> NilType? {
+    public init() {}
+    public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Nil { return nil }
-        return Nil
     }
     public class func typeName() -> String { return "<nil>" }
     public class func arg() -> TypeChecker { return (NilType.typeName, NilType.isValid) }
@@ -90,18 +90,18 @@ extension NSPoint: Value {
     public func pushValue(L: VirtualMachine) {
         KeyedTable<String,Double>(["x":Double(self.x), "y":Double(self.y)]).pushValue(L)
     }
-    public static func fromLua(L: VirtualMachine, at position: Int) -> NSPoint? {
-        let table = KeyedTable<String, Double>.fromLua(L, at: position)
+    public init?(fromLua L: VirtualMachine, at position: Int) {
+        let table = KeyedTable<String, Double>(fromLua: L, at: position)
         if table == nil { return nil }
         let x = table!["x"] ?? 0
         let y = table!["y"] ?? 0
-        return NSPoint(x: x, y: y)
+        self = NSPoint(x: x, y: y)
     }
     public static func typeName() -> String { return "<Point>" }
     public static func arg() -> TypeChecker { return (NSPoint.typeName, NSPoint.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         if L.kind(position) != .Table { return false }
-        let dict = KeyedTable<String,Double>.fromLua(L, at: position)
+        let dict = KeyedTable<String,Double>(fromLua: L, at: position)
         if dict == nil { return false }
         return dict!["x"] != nil && dict!["y"] != nil
     }

@@ -105,7 +105,7 @@ public class VirtualMachine {
     public func pushInstanceMethod<T: UserType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
-            let o = T.fromLua(self, at: 1)!
+            let o = T(fromLua: self, at: 1)!
             return fn(o)(self)
         }
         pushMethod(name, types, f, tablePosition: tablePosition)
@@ -137,14 +137,14 @@ public class VirtualMachine {
         switch metaMethod {
         case let .GC(fn):
             pushMethod("__gc", [T.arg()]) {
-                fn(T.fromLua(self, at: 1)!)(self)
+                fn(T(fromLua: self, at: 1)!)(self)
                 self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                 return .Values([])
             }
         case let .EQ(fn):
             pushMethod("__eq", [T.arg(), T.arg()]) {
-                let a = T.fromLua(self, at: 1)!
-                let b = T.fromLua(self, at: 2)!
+                let a = T(fromLua: self, at: 1)!
+                let b = T(fromLua: self, at: 2)!
                 return .Values([fn(a)(b)])
             }
         }
