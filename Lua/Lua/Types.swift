@@ -1,6 +1,11 @@
 import Foundation
 
-public typealias Function = () -> [Value]
+public enum ReturnValue {
+    case Values([Value])
+    case Error(String)
+}
+
+public typealias Function = () -> ReturnValue
 public typealias UserdataPointer = UnsafeMutablePointer<Void>
 
 public typealias TypeChecker = (() -> String, (VirtualMachine, Int) -> Bool)
@@ -15,8 +20,8 @@ public protocol Value {
 }
 
 public protocol Library: Value {
-    class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> [Value])]
-    class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> [Value])]
+    class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
+    class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
     class func metaMethods() -> [MetaMethod<Self>]
 }
 

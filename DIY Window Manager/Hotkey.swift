@@ -26,17 +26,17 @@ final class Hotkey: Lua.Library {
         self.hotkey = hotkey
     }
     
-    func enable(L: Lua.VirtualMachine) -> [Lua.Value] {
+    func enable(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         hotkey.enable()
-        return []
+        return .Values([])
     }
     
-    func disable(L: Lua.VirtualMachine) -> [Lua.Value] {
+    func disable(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         hotkey.disable()
-        return []
+        return .Values([])
     }
     
-    class func bind(L: Lua.VirtualMachine) -> [Lua.Value] {
+    class func bind(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         let key = String.fromLua(L, at: 1)!
         let modStrings = Lua.SequentialTable<String>.fromLua(L, at: 2)!.elements
         
@@ -51,7 +51,7 @@ final class Hotkey: Lua.Library {
         let hotkey = Graphite.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)
         hotkey.enable()
         
-        return [Hotkey(fn: i, hotkey: hotkey)]
+        return .Values([Hotkey(fn: i, hotkey: hotkey)])
     }
     
     func cleanup(L: Lua.VirtualMachine) {
@@ -63,13 +63,13 @@ final class Hotkey: Lua.Library {
         return fn == other.fn
     }
     
-    class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> [Lua.Value])] {
+    class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
             ("bind", [String.arg(), Lua.SequentialTable<String>.arg(), Lua.FunctionBox.arg()], Hotkey.bind),
         ]
     }
     
-    class func instanceMethods() -> [(String, [Lua.TypeChecker], Hotkey -> Lua.VirtualMachine -> [Lua.Value])] {
+    class func instanceMethods() -> [(String, [Lua.TypeChecker], Hotkey -> Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
             ("enable", [], Hotkey.enable),
             ("disable", [], Hotkey.enable),

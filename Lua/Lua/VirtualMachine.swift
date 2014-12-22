@@ -64,9 +64,17 @@ public class VirtualMachine {
     
     public func pushFunction(fn: Function, upvalues: Int = 0) {
         let f: @objc_block (COpaquePointer) -> Int32 = { _ in
-            let results = fn()
-            for result in results { result.pushValue(self) }
-            return Int32(results.count)
+            switch fn() {
+            case let .Values(values):
+                for value in values {
+                    value.pushValue(self)
+                }
+                return Int32(values.count)
+            case let .Error(error):
+                error.pushValue(self)
+                lua_error(self.luaState)
+                return 0 // uhh, we don't actually return here
+            }
         }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
@@ -88,7 +96,7 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
-    public func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> [Value], tablePosition: Int = -1) {
+    public func pushInstanceMethod<T: Library>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         types.insert(T.arg(), atIndex: 0)
         let f: Function = {
             let o = T.fromLua(self, at: 1)!
@@ -97,7 +105,7 @@ public class VirtualMachine {
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
     
-    public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> [Value], tablePosition: Int = -1) {
+    public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
@@ -125,13 +133,13 @@ public class VirtualMachine {
             pushMethod("__gc", [T.arg()]) {
                 fn(T.fromLua(self, at: 1)!)(self)
                 self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
-                return []
+                return .Values([])
             }
         case let .EQ(fn):
             pushMethod("__eq", [T.arg(), T.arg()]) {
                 let a = T.fromLua(self, at: 1)!
                 let b = T.fromLua(self, at: 2)!
-                return [fn(a)(b)]
+                return .Values([fn(a)(b)])
             }
         }
     }
