@@ -2,18 +2,18 @@ import Cocoa
 
 internal let systemWideElement = AXUIElementCreateSystemWide()!.takeRetainedValue()
 
-class Object: Equatable {
+public class Object: Equatable {
     
-    var element: AXUIElement!
+    public var element: AXUIElement!
     
-    init?(_ el: AXUIElement?) {
+    public init?(_ el: AXUIElement?) {
         if el == nil { return nil }
         element = el
     }
     
-    init(_ el: AXUIElement) { element = el }
+    public init(_ el: AXUIElement) { element = el }
     
-    func title() -> String? {
+    public func title() -> String? {
         return element.getAttribute(NSAccessibilityTitleAttribute)
     }
     
@@ -27,6 +27,6 @@ class Object: Equatable {
     
 }
 
-func ==(left: Object, right: Object) -> Bool {
+public func ==(left: Object, right: Object) -> Bool {
     return CFEqual(left.element, right.element) != 0
 }
