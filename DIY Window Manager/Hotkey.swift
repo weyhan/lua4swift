@@ -51,7 +51,7 @@ final class Hotkey: Lua.Library {
         let hotkey = Graphite.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)
         hotkey.enable()
         
-        return .Values([Hotkey(fn: i, hotkey: hotkey)])
+        return .Value(Hotkey(fn: i, hotkey: hotkey))
     }
     
     func cleanup(L: Lua.VirtualMachine) {

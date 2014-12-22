@@ -1,9 +1,10 @@
 import Foundation
 
 public enum ReturnValue {
-    case Values([Value])
-    case Error(String)
+    case Value(Lua.Value)
+    case Values([Lua.Value])
     case Nothing // convenience for Values([])
+    case Error(String)
 }
 
 public typealias Function = () -> ReturnValue

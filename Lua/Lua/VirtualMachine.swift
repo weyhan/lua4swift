@@ -67,6 +67,9 @@ public class VirtualMachine {
             switch fn() {
             case .Nothing:
                 return 0
+            case let .Value(value):
+                value.pushValue(self)
+                return 1
             case let .Values(values):
                 for value in values {
                     value.pushValue(self)
