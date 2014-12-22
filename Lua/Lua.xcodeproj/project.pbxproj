@@ -144,7 +144,6 @@
 		94C68C981A475D7400C54B88 /* KeyedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedTable.swift; sourceTree = "<group>"; };
 		94C68C9A1A475D8500C54B88 /* SequentialTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequentialTable.swift; sourceTree = "<group>"; };
 		94C68C9C1A475DAE00C54B88 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
-		94C68C9E1A475DEB00C54B88 /* Lua-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Lua-Bridging-Header.h"; sourceTree = "<group>"; };
 		94C68C9F1A475E2E00C54B88 /* BasicTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicTypes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -186,7 +185,6 @@
 				94C68C9A1A475D8500C54B88 /* SequentialTable.swift */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
-				94C68C9E1A475DEB00C54B88 /* Lua-Bridging-Header.h */,
 				944A33241A475A9C00BF8675 /* LuaSource */,
 			);
 			path = Lua;
@@ -487,7 +485,7 @@
 				);
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Lua/Lua-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = Lua/Lua.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -506,7 +504,7 @@
 				);
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Lua/Lua-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = Lua/Lua.h;
 			};
 			name = Release;
 		};
