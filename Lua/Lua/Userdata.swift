@@ -16,7 +16,7 @@ public final class Userdata<T: UserType>: Value {
     
     let object: T
     
-    public init(object: T) {
+    public init(_ object: T) {
         self.object = object
     }
     
