@@ -127,8 +127,9 @@ public class VirtualMachine {
     }
     
     public func pushUserdata<T>(swiftObject: T) {
-        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(luaState, UInt(sizeof(T))))
-        userdata.memory = swiftObject
+        let ud = lua_newuserdata(luaState, UInt(sizeof(T)))
+        let userdata = UnsafeMutablePointer<T>(ud)
+        userdata.initialize(swiftObject)
         storedSwiftValues[userdata] = swiftObject
     }
     
