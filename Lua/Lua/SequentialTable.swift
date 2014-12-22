@@ -52,10 +52,9 @@ public final class SequentialTable<T: Value>: Value {
     }
     
     public class func typeName() -> String { return "<Array of \(T.typeName())>" }
-    public class func kind() -> Kind { return .Table }
     public class func arg() -> TypeChecker { return (SequentialTable<T>.typeName, SequentialTable<T>.isValid) }
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
-        return L.kind(position) == kind() && SequentialTable<T>.fromLua(L, at: position) != nil
+        return L.kind(position) == .Table && SequentialTable<T>.fromLua(L, at: position) != nil
     }
     
 }

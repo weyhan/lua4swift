@@ -15,7 +15,6 @@ public protocol Value {
     func pushValue(L: VirtualMachine)
     class func fromLua(L: VirtualMachine, at position: Int) -> Self?
     class func typeName() -> String
-    class func kind() -> Kind
     class func isValid(L: VirtualMachine, at position: Int) -> Bool
     class func arg() -> TypeChecker
 }

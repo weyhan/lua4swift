@@ -7,10 +7,9 @@ final class Hotkey: Lua.UserType {
     let hotkey: Graphite.Hotkey
     
     class func typeName() -> String { return "<Hotkey>" }
-    class func kind() -> Lua.Kind { return .Userdata }
     class func arg() -> Lua.TypeChecker { return (Hotkey.typeName, Hotkey.isValid) }
     class func isValid(L: Lua.VirtualMachine, at position: Int) -> Bool {
-        return L.kind(position) == kind() && L.getUserdata(position) is Hotkey
+        return L.kind(position) == .Userdata && L.getUserdata(position) is Hotkey
     }
     
     func pushValue(L: Lua.VirtualMachine) {
