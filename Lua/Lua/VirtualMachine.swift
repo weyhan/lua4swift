@@ -159,6 +159,13 @@ public class VirtualMachine {
     public func pushCustomType<T: CustomType>(t: T.Type) {
         pushTable()
         
+        pushFromStack(RegistryIndex)
+        pushFromStack(-2)
+        setField(T.metatableName(), table: -2)
+        pop(1)
+        
+        // registry[metatableName] = lib
+        
         // setmetatable(lib, lib)
         pushFromStack(-1)
         setMetatable(-2)

@@ -5,7 +5,7 @@ public protocol CustomType {
     class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)]
     class func instanceMethods() -> [(String, [Lua.TypeChecker], Self -> Lua.VirtualMachine -> Lua.ReturnValue)]
     class func metaMethods() -> [MetaMethod<Self>]
-    class func typeName() -> String
+    class func metatableName() -> String
     
 }
 
@@ -38,12 +38,13 @@ public final class UserdataBox<T: CustomType>: Value {
         if ptr == nil {
             // it doesn't exist yet, so create it.
             ptr = UserdataPointer(lua_newuserdata(L.luaState, 1))
+            luaL_setmetatable(L.luaState, (T.metatableName() as NSString).UTF8String)
             L.storedSwiftValues[ptr!] = self
         }
     }
     
     public class func typeName() -> String {
-        return T.typeName()
+        return "<\(T.metatableName())>"
     }
     
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {

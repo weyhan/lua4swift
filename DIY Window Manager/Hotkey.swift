@@ -7,7 +7,7 @@ final class Hotkey: Lua.CustomType {
     let fn: Int
     let hotkey: Graphite.Hotkey
     
-    class func typeName() -> String { return "<Hotkey>" }
+    class func metatableName() -> String { return "Hotkey" }
     
     init(fn: Int, hotkey: Graphite.Hotkey) {
         self.fn = fn
