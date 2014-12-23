@@ -120,49 +120,18 @@ public class VirtualMachine {
     }
     
     func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
-        let ptr = getUserdataPointer(position)
-        if ptr == nil { return nil }
-        return storedSwiftValues[ptr!]! as? UserdataBox<T>
-    }
-    
-    public func pushInstanceMethod<T: CustomType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
-        types.insert(UserdataBox<T>.arg(), atIndex: 0)
-        let f: Function = {
-            let o: UserdataBox<T> = self.getUserdata(1)!
-            return fn(o.object!)(self)
+        if let ptr = getUserdataPointer(position) {
+            return storedSwiftValues[ptr]! as? UserdataBox<T>
         }
-        pushMethod(name, types, f, tablePosition: tablePosition)
-    }
-    
-    public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
-        pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
-    }
-    
-    public func pushMetaMethod<T: CustomType>(metaMethod: MetaMethod<T>) {
-        switch metaMethod {
-        case let .GC(fn):
-            pushMethod("__gc", [UserdataBox<T>.arg()]) {
-                let o: UserdataBox<T> = self.getUserdata(1)!
-                fn(o.object!)(self)
-                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
-                return .Values([])
-            }
-        case let .EQ(fn):
-            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
-                let a: UserdataBox<T> = self.getUserdata(1)!
-                let b: UserdataBox<T> = self.getUserdata(2)!
-                return .Values([fn(a.object!)(b.object!)])
-            }
-        }
+        return nil
     }
     
     public func pushCustomType<T: CustomType>(t: T.Type) {
         pushTable()
         
+        // registry[metatableName] = lib
         pushFromStack(-1)
         setField(T.metatableName(), table: RegistryIndex)
-        
-        // registry[metatableName] = lib
         
         // setmetatable(lib, lib)
         pushFromStack(-1)
@@ -172,16 +141,35 @@ public class VirtualMachine {
         pushFromStack(-1)
         setField("__index", table: -2)
         
-        for (name, kinds, fn) in t.instanceMethods() {
-            pushInstanceMethod(name, kinds, fn)
+        for (name, var kinds, fn) in t.instanceMethods() {
+            kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
+            let f: Function = {
+                let o: UserdataBox<T> = self.getUserdata(1)!
+                return fn(o.object!)(self)
+            }
+            pushMethod(name, kinds, f)
         }
         
         for (name, kinds, fn) in t.classMethods() {
-            pushClassMethod(name, kinds, fn)
+            pushMethod(name, kinds, { fn(self) })
         }
         
-        for mm in T.metaMethods() {
-            pushMetaMethod(mm)
+        for metaMethod in T.metaMethods() {
+            switch metaMethod {
+            case let .GC(fn):
+                pushMethod("__gc", [UserdataBox<T>.arg()]) {
+                    let o: UserdataBox<T> = self.getUserdata(1)!
+                    fn(o.object!)(self)
+                    self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+                    return .Values([])
+                }
+            case let .EQ(fn):
+                pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
+                    let a: UserdataBox<T> = self.getUserdata(1)!
+                    let b: UserdataBox<T> = self.getUserdata(2)!
+                    return .Values([fn(a.object!)(b.object!)])
+                }
+            }
         }
         
         /*
