@@ -102,14 +102,14 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
-//    public func pushInstanceMethod<T>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
+    public func pushInstanceMethod<T>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
 //        types.insert(T.arg(), atIndex: 0)
-//        let f: Function = {
-//            let o = T(fromLua: self, at: 1)!
-//            return fn(o)(self)
-//        }
-//        pushMethod(name, types, f, tablePosition: tablePosition)
-//    }
+        let f: Function = {
+            let o = self.storedSwiftValues[self.getUserdataPointer(1)!]! as T
+            return fn(o)(self)
+        }
+        pushMethod(name, types, f, tablePosition: tablePosition)
+    }
     
     public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
@@ -133,25 +133,28 @@ public class VirtualMachine {
         storedSwiftValues[userdata] = swiftObject
     }
     
-//    public func pushMetaMethod<T, U where T: Userdata<U>, U: CustomType>(metaMethod: MetaMethod<T>) {
-//        switch metaMethod {
-//        case let .GC(fn):
+    public func pushMetaMethod<T: CustomType>(metaMethod: MetaMethod<T>) {
+        switch metaMethod {
+        case let .GC(fn):
 //            T.arg()
+            pushMethod("__gc", []) {
 //            pushMethod("__gc", [T.arg()]) {
-//                fn(T(fromLua: self, at: 1)!)(self)
-//                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
-//                return .Values([])
-//            }
-//        case let .EQ(fn):
+                let o = self.storedSwiftValues[self.getUserdataPointer(1)!]! as T
+                fn(o)(self)
+                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+                return .Values([])
+            }
+        case let .EQ(fn):
+            pushMethod("__eq", []) {
 //            pushMethod("__eq", [T.arg(), T.arg()]) {
-//                let a = T(fromLua: self, at: 1)!
-//                let b = T(fromLua: self, at: 2)!
-//                return .Values([fn(a)(b)])
-//            }
-//        }
-//    }
+                let a = self.storedSwiftValues[self.getUserdataPointer(1)!]! as T
+                let b = self.storedSwiftValues[self.getUserdataPointer(2)!]! as T
+                return .Values([fn(a)(b)])
+            }
+        }
+    }
     
-    public func pushCustomType() {
+    public func pushCustomType<T: CustomType>(t: T.Type) {
         pushTable()
         
         // setmetatable(lib, lib)
@@ -162,18 +165,27 @@ public class VirtualMachine {
         pushFromStack(-1)
         setField("__index", table: -2)
         
-//        for mm in T.metaMethods() {
-//            U(fromLua: self, at: 1)
-//            pushMetaMethod(mm)
-//        }
+        for (name, kinds, fn) in t.instanceMethods() {
+            pushInstanceMethod(name, kinds, fn)
+        }
         
-//        for (name, kinds, fn) in t.classMethods() {
-//            pushClassMethod(name, kinds, fn)
-//        }
-//        
-//        for (name, kinds, fn) in t.instanceMethods() {
-//            pushInstanceMethod(name, kinds, fn)
-//        }
+        for (name, kinds, fn) in t.classMethods() {
+            pushClassMethod(name, kinds, fn)
+        }
+        
+        for mm in T.metaMethods() {
+            pushMetaMethod(mm)
+        }
+        
+        // when we create the value, we create a lua_newuserdata.
+        // this represents out swift object when in lua.
+        
+        // when functions/methods are called on our userdata,
+        // we fetch this object, and call methods on it directly.
+        
+        // when we push this userdata onto the stack, we'll store it in the thing.
+        // when we want to GC it, we remove it, and only then.
+        
     }
     
     // ref
