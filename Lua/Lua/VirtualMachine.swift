@@ -18,13 +18,24 @@ public class VirtualMachine {
     
     public func loadString(str: String) { luaL_loadstring(luaState, (str as NSString).UTF8String) }
     
-    public func doString(str: String) {
+    public func doString(str: String) -> Bool {
+        
+        luaL_loadstring(luaState, "k=2=3".UTF8String)
+        return true
+        
         loadString(str)
-        call(arguments: 0, returnValues: Int(LUA_MULTRET))
+        return call(arguments: 0, returnValues: Int(LUA_MULTRET))
     }
     
-    public func call(arguments: Int = 0, returnValues: Int = 0) {
-        lua_pcallk(luaState, Int32(arguments), Int32(returnValues), 0, 0, nil)
+    public func call(arguments: Int = 0, returnValues: Int = 0) -> Bool {
+        let result = lua_pcallk(luaState, Int32(arguments), Int32(returnValues), 0, 0, nil)
+        if result != LUA_OK {
+            let x = lua_tolstring(luaState, -1, nil)
+            println("\(String(CString: x, encoding: NSASCIIStringEncoding))")
+            println("error: (\(result)) \(String(fromLua: self, at: -1)!)")
+            return false
+        }
+        return true
     }
     
     // set

@@ -8,16 +8,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let L = Lua.VirtualMachine()
         
-        L.pushCustomType(Hotkey)
-        L.setGlobal("Hotkey")
         
-        L.doString("print(34 + 2)")
-        L.doString("print(Hotkey)")
-        L.doString("print(Hotkey.bind)")
-        L.doString("print(Hotkey.__index)")
-        L.doString("print(Hotkey.__index == Hotkey)")
-        L.doString("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end)")
-        L.doString("k.disable()")
+        L.doString("k = 2 = 3")
+        
+//        L.pushCustomType(Hotkey)
+//        L.setGlobal("Hotkey")
+//        
+//        L.doString("print(34 + 2)")
+//        L.doString("print(Hotkey)")
+//        L.doString("print(Hotkey.bind)")
+//        L.doString("print(Hotkey.__index)")
+//        L.doString("print(Hotkey.__index == Hotkey)")
+//        L.doString("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end)")
+//        L.doString("k.disable()")
         
 //        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
         
