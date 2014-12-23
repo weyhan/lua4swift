@@ -102,11 +102,15 @@ public class VirtualMachine {
     
     // custom types
     
-    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
+    func getUserdataPointer(position: Int) -> UserdataPointer? {
         if kind(position) != .Userdata { return nil }
-        let ptr = UserdataPointer(lua_touserdata(luaState, Int32(position)))
+        return lua_touserdata(luaState, Int32(position))
+    }
+    
+    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
+        let ptr = getUserdataPointer(position)
         if ptr == nil { return nil }
-        return storedSwiftValues[ptr]! as? UserdataBox<T>
+        return storedSwiftValues[ptr!]! as? UserdataBox<T>
     }
     
     public func pushInstanceMethod<T: CustomType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
@@ -128,7 +132,7 @@ public class VirtualMachine {
             pushMethod("__gc", [UserdataBox<T>.arg()]) {
                 let o: UserdataBox<T> = self.getUserdata(1)!
                 fn(o.object!)(self)
-//                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                 return .Values([])
             }
         case let .EQ(fn):
