@@ -46,7 +46,7 @@ public final class UserdataBox<T: CustomType>: Value {
     }
     
     public class func arg() -> TypeChecker {
-        return (UserdataBox.typeName, UserdataBox.isValid)
+        return (UserdataBox.typeName(), UserdataBox.isValid)
     }
     
 }

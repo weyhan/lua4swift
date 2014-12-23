@@ -39,7 +39,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
     }
     
     public class func typeName() -> String { return "<Dictionary of \(K.typeName()) : \(T.typeName())>" }
-    public class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName, KeyedTable<K,T>.isValid) }
+    public class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName(), KeyedTable<K,T>.isValid) }
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Table && KeyedTable<K,T>(fromLua: L, at: position) != nil
     }

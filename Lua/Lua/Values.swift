@@ -10,7 +10,7 @@ extension String: Value {
         self = NSString(data: data, encoding: NSUTF8StringEncoding)!
     }
     public static func typeName() -> String { return "<String>" }
-    public static func arg() -> TypeChecker { return (String.typeName, String.isValid) }
+    public static func arg() -> TypeChecker { return (String.typeName(), String.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .String
     }
@@ -23,7 +23,7 @@ extension Int64: Value {
         self = lua_tointegerx(L.luaState, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Integer>" }
-    public static func arg() -> TypeChecker { return (Int64.typeName, Int64.isValid) }
+    public static func arg() -> TypeChecker { return (Int64.typeName(), Int64.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Integer
     }
@@ -36,7 +36,7 @@ extension Double: Value {
         self = lua_tonumberx(L.luaState, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Double>" }
-    public static func arg() -> TypeChecker { return (Double.typeName, Double.isValid) }
+    public static func arg() -> TypeChecker { return (Double.typeName(), Double.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Double
     }
@@ -49,7 +49,7 @@ extension Bool: Value {
         self = lua_toboolean(L.luaState, Int32(position)) != 0
     }
     public static func typeName() -> String { return "<Boolean>" }
-    public static func arg() -> TypeChecker { return (Bool.typeName, Bool.isValid) }
+    public static func arg() -> TypeChecker { return (Bool.typeName(), Bool.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Bool
     }
@@ -66,7 +66,7 @@ public struct FunctionBox: Value {
         return nil
     }
     public static func typeName() -> String { return "<Function>" }
-    public static func arg() -> TypeChecker { return (FunctionBox.typeName, FunctionBox.isValid) }
+    public static func arg() -> TypeChecker { return (FunctionBox.typeName(), FunctionBox.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Function
     }
@@ -79,7 +79,7 @@ public final class NilType: Value {
         if L.kind(position) != .Nil { return nil }
     }
     public class func typeName() -> String { return "<nil>" }
-    public class func arg() -> TypeChecker { return (NilType.typeName, NilType.isValid) }
+    public class func arg() -> TypeChecker { return (NilType.typeName(), NilType.isValid) }
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Nil
     }
@@ -99,7 +99,7 @@ extension NSPoint: Value {
         self = NSPoint(x: x, y: y)
     }
     public static func typeName() -> String { return "<Point>" }
-    public static func arg() -> TypeChecker { return (NSPoint.typeName, NSPoint.isValid) }
+    public static func arg() -> TypeChecker { return (NSPoint.typeName(), NSPoint.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         if L.kind(position) != .Table { return false }
         let dict = KeyedTable<String,Double>(fromLua: L, at: position)

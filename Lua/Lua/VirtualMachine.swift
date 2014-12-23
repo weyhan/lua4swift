@@ -92,7 +92,7 @@ public class VirtualMachine {
         pushFunction {
             for (i, (nameFn, testFn)) in enumerate(types) {
                 if !testFn(self, i+1) {
-                    self.argError(nameFn(), argPosition: i+1)
+                    self.argError(nameFn, argPosition: i+1)
                 }
             }
             

@@ -8,7 +8,7 @@ public enum ReturnValue {
 }
 
 public typealias Function = () -> ReturnValue
-public typealias TypeChecker = (() -> String, (VirtualMachine, Int) -> Bool)
+public typealias TypeChecker = (String, (VirtualMachine, Int) -> Bool)
 public typealias UserdataPointer = UnsafeMutablePointer<Void>
 
 public protocol Value {
