@@ -24,8 +24,7 @@ public class VirtualMachine {
     }
     
     public func doString(str: String) -> String? {
-        let err = loadString(str)
-        if err != nil { return err }
+        if let err = loadString(str) { return err }
         return call(arguments: 0, returnValues: Int(LUA_MULTRET))
     }
     
@@ -45,7 +44,6 @@ public class VirtualMachine {
     public func setField(name: String, table: Int) { lua_setfield(luaState, Int32(table), (name as NSString).UTF8String) }
     public func setTable(tablePosition: Int) { lua_settable(luaState, Int32(tablePosition)) }
     public func setMetatable(position: Int) { lua_setmetatable(luaState, Int32(position)) }
-    
     
     
     // push
@@ -104,12 +102,12 @@ public class VirtualMachine {
         lua_pushvalue(luaState, Int32(position))
     }
     
-    public func pop(n: Int) {
-        lua_settop(luaState, -Int32(n)-1)
-    }
-    
     public func pushField(name: String, fromTable: Int) {
         lua_getfield(luaState, Int32(fromTable), (name as NSString).UTF8String)
+    }
+    
+    public func pop(n: Int) {
+        lua_settop(luaState, -Int32(n)-1)
     }
     
     // custom types
@@ -230,8 +228,6 @@ public class VirtualMachine {
     
     // raw
     
-    public func rawGet(#tablePosition: Int, index: Int) {
-        lua_rawgeti(luaState, Int32(tablePosition), lua_Integer(index))
-    }
+    public func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(luaState, Int32(tablePosition), lua_Integer(index)) }
     
 }
