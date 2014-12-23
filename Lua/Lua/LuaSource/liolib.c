@@ -464,7 +464,7 @@ static int test_eof (lua_State *L, FILE *f) {
 
 static int read_line (lua_State *L, FILE *f, int chop) {
   luaL_Buffer b;
-  int c;
+  int c = 0;
   luaL_buffinit(L, &b);
   for (;;) {
     char *buff = luaL_prepbuffer(&b);  /* pre-allocate buffer */
