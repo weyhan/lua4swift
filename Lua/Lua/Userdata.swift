@@ -2,8 +2,8 @@ import Foundation
 
 public protocol CustomType {
     
-    class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)]
-    class func instanceMethods() -> [(String, [Lua.TypeChecker], Self -> Lua.VirtualMachine -> Lua.ReturnValue)]
+    class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
+    class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
     class func metaMethods() -> [MetaMethod<Self>]
     class func metatableName() -> String
     
