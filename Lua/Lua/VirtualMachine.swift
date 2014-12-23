@@ -202,12 +202,6 @@ public class VirtualMachine {
         2. method = fn(object)
         3. result = method(self)  // self = Lua instance
         
-        QUESTIONS:
-        
-        1. What object do we store in the dictionary?
-        2. Should Hotkey be a subclass of Userdata?
-        3. Should Userdata be an instance that stores Hotkey?
-        
         */
         
     }
