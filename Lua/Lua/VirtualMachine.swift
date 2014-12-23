@@ -133,7 +133,7 @@ public class VirtualMachine {
         storedSwiftValues[userdata] = swiftObject
     }
     
-    public func pushMetaMethod<T, U where T: Userdata<U>, U: CustomType>(metaMethod: MetaMethod<T>) {
+//    public func pushMetaMethod<T, U where T: Userdata<U>, U: CustomType>(metaMethod: MetaMethod<T>) {
 //        switch metaMethod {
 //        case let .GC(fn):
 //            T.arg()
@@ -149,7 +149,7 @@ public class VirtualMachine {
 //                return .Values([fn(a)(b)])
 //            }
 //        }
-    }
+//    }
     
     public func pushCustomType<T: CustomType>(t: Userdata<T>.Type) {
         pushTable()
