@@ -2,5 +2,5 @@
 
 *Do-It-Yourself Window Manager for OS X (pronounced "dime")*
 
-* Current version: Mjolnir 0.4.3
-* Requires: OS X 10.8 or higher
+* Current version: diywm 0.1
+* Requires: OS X 10.10 or higher
