@@ -16,26 +16,27 @@ public class VirtualMachine {
     
     // execute
     
-    public func loadString(str: String) { luaL_loadstring(luaState, (str as NSString).UTF8String) }
+    public func loadString(str: String) -> String? {
+        if luaL_loadstring(luaState, (str as NSString).UTF8String) == LUA_OK { return nil }
+        let error = String(fromLua: self, at: -1)
+        println(error)
+        return error
+    }
     
-    public func doString(str: String) -> Bool {
-        
-        luaL_loadstring(luaState, "k=2=3".UTF8String)
-        return true
-        
-        loadString(str)
+    public func doString(str: String) -> String? {
+        let err = loadString(str)
+        if err != nil { return err }
         return call(arguments: 0, returnValues: Int(LUA_MULTRET))
     }
     
-    public func call(arguments: Int = 0, returnValues: Int = 0) -> Bool {
+    public func call(arguments: Int = 0, returnValues: Int = 0) -> String? {
         let result = lua_pcallk(luaState, Int32(arguments), Int32(returnValues), 0, 0, nil)
         if result != LUA_OK {
-            let x = lua_tolstring(luaState, -1, nil)
-            println("\(String(CString: x, encoding: NSASCIIStringEncoding))")
-            println("error: (\(result)) \(String(fromLua: self, at: -1)!)")
-            return false
+            let error = String(fromLua: self, at: -1)!
+            println("error: \(error)")
+            return error
         }
-        return true
+        return nil
     }
     
     // set
