@@ -18,9 +18,12 @@ public class VirtualMachine {
     
     public func loadString(str: String) -> String? {
         if luaL_loadstring(luaState, (str as NSString).UTF8String) == LUA_OK { return nil }
-        let error = String(fromLua: self, at: -1)
-        println(error)
-        return error
+        return printError(String(fromLua: self, at: -1)!)
+    }
+    
+    func printError(err: String) -> String {
+        println("error: \(err)")
+        return err
     }
     
     public func doString(str: String) -> String? {
@@ -29,13 +32,8 @@ public class VirtualMachine {
     }
     
     public func call(arguments: Int = 0, returnValues: Int = 0) -> String? {
-        let result = lua_pcallk(luaState, Int32(arguments), Int32(returnValues), 0, 0, nil)
-        if result != LUA_OK {
-            let error = String(fromLua: self, at: -1)!
-            println("error: \(error)")
-            return error
-        }
-        return nil
+        if lua_pcallk(luaState, Int32(arguments), Int32(returnValues), 0, 0, nil) == LUA_OK { return nil }
+        return printError(String(fromLua: self, at: -1)!)
     }
     
     // set
