@@ -34,16 +34,15 @@ public class VirtualMachine {
     public func setTable(tablePosition: Int) { lua_settable(luaState, Int32(tablePosition)) }
     public func setMetatable(position: Int) { lua_setmetatable(luaState, Int32(position)) }
     
+    
+    
     // get
     
-    public func getUserdataPointer(position: Int) -> UserdataPointer? {
-        if lua_type(luaState, Int32(position)) != LUA_TUSERDATA { return nil }
-        return lua_touserdata(luaState, Int32(position))
-    }
-    
-    public func getUserdata<T: Value>(position: Int) -> T? {
-        if lua_type(luaState, Int32(position)) != LUA_TUSERDATA { return nil }
-        return UnsafeMutablePointer<T>(getUserdataPointer(position)!).memory
+    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
+        if kind(position) != .Userdata { return nil }
+        let ptr = UserdataPointer(lua_touserdata(luaState, Int32(position)))
+        if ptr == nil { return nil }
+        return storedSwiftValues[ptr]! as? UserdataBox<T>
     }
     
     public func isTruthy(position: Int) -> Bool {
@@ -79,7 +78,7 @@ public class VirtualMachine {
                 println("pushing error: \(error)")
                 error.pushValue(self)
                 lua_error(self.luaState)
-                return 0 // uhh, we don't actually return here
+                return 0 // uhh, we don't actually get here
             }
         }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
@@ -102,11 +101,11 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
-    public func pushInstanceMethod<T>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
+    public func pushInstanceMethod<T: CustomType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
 //        types.insert(T.arg(), atIndex: 0)
         let f: Function = {
-            let o = self.storedSwiftValues[self.getUserdataPointer(1)!]! as T
-            return fn(o)(self)
+            let o: UserdataBox<T> = self.getUserdata(1)!
+            return fn(o.object!)(self)
         }
         pushMethod(name, types, f, tablePosition: tablePosition)
     }
@@ -127,29 +126,23 @@ public class VirtualMachine {
         lua_getfield(luaState, Int32(fromTable), (name as NSString).UTF8String)
     }
     
-    public func pushUserdata<T>(swiftObject: T) {
-        let userdata = UnsafeMutablePointer<T>(lua_newuserdata(luaState, UInt(sizeof(T))))
-        userdata.initialize(swiftObject)
-        storedSwiftValues[userdata] = swiftObject
-    }
-    
     public func pushMetaMethod<T: CustomType>(metaMethod: MetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
 //            T.arg()
             pushMethod("__gc", []) {
 //            pushMethod("__gc", [T.arg()]) {
-                let o = self.storedSwiftValues[self.getUserdataPointer(1)!]! as T
-                fn(o)(self)
-                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+                let o: UserdataBox<T> = self.getUserdata(1)!
+                fn(o.object!)(self)
+//                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                 return .Values([])
             }
         case let .EQ(fn):
             pushMethod("__eq", []) {
 //            pushMethod("__eq", [T.arg(), T.arg()]) {
-                let a = self.storedSwiftValues[self.getUserdataPointer(1)!]! as T
-                let b = self.storedSwiftValues[self.getUserdataPointer(2)!]! as T
-                return .Values([fn(a)(b)])
+                let a: UserdataBox<T> = self.getUserdata(1)!
+                let b: UserdataBox<T> = self.getUserdata(2)!
+                return .Values([fn(a.object!)(b.object!)])
             }
         }
     }
@@ -177,14 +170,52 @@ public class VirtualMachine {
             pushMetaMethod(mm)
         }
         
-        // when we create the value, we create a lua_newuserdata.
-        // this represents out swift object when in lua.
+        /*
         
-        // when functions/methods are called on our userdata,
-        // we fetch this object, and call methods on it directly.
+        Phases:
         
-        // when we push this userdata onto the stack, we'll store it in the thing.
-        // when we want to GC it, we remove it, and only then.
+        1. Registering type
+        2. Pushing type onto stack
+        3. Getting off the stack for method calls
+        
+        # Registering type
+        
+        We only need a type definitino, which consists of:
+        - class/instance/method definitions
+        - type-checking function
+        - type name for use in type-checking errors
+        
+        # Pushing onto stack
+        
+        If we're creating a new instance, we need to:
+        1. Use lua_newuserdata to get a new void*
+        2. Wrap our CustomType in a Userdata
+        3. dictionary[void*] = Userdata
+        
+        If it's an existing instance (i.e. "self"), then:
+        1. Find void* from within dictionary (may be hard)
+        2. Push it onto the stack
+        
+        If that last step is impossible without defining ==, then:
+        1. Store the void* on the object itself
+        2. It can then push itself onto the stack
+        3. This probably requires it to have a superclass to do pushValue for us.
+        
+        # Getting from the stack
+        
+        The stack gives us a void* that we can use as a key to dictionary.
+        
+        1. let object = dictionary[void*]
+        2. method = fn(object)
+        3. result = method(self)  // self = Lua instance
+        
+        QUESTIONS:
+        
+        1. What object do we store in the dictionary?
+        2. Should Hotkey be a subclass of Userdata?
+        3. Should Userdata be an instance that stores Hotkey?
+        
+        */
         
     }
     

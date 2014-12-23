@@ -41,8 +41,7 @@ final class Hotkey: Lua.CustomType {
         case let .Error(error):
             return .Error(error)
         case .Success:
-            return .Nothing
-//            return .Value(Lua.Userdata(Hotkey(fn: i, hotkey: hotkey)))
+            return .Value(Lua.UserdataBox(Hotkey(fn: i, hotkey: hotkey)))
         }
     }
     
