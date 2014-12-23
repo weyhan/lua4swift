@@ -2,7 +2,7 @@ import Foundation
 import Graphite
 import Lua
 
-final class Hotkey: Lua.UserType {
+final class Hotkey: Lua.CustomType {
     let fn: Int
     let hotkey: Graphite.Hotkey
     

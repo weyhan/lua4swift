@@ -133,7 +133,7 @@ public class VirtualMachine {
         storedSwiftValues[userdata] = swiftObject
     }
     
-//    public func pushMetaMethod<T, U where T: Userdata<U>, U: UserType>(metaMethod: MetaMethod<T>) {
+    public func pushMetaMethod<T, U where T: Userdata<U>, U: CustomType>(metaMethod: MetaMethod<T>) {
 //        switch metaMethod {
 //        case let .GC(fn):
 //            T.arg()
@@ -149,9 +149,9 @@ public class VirtualMachine {
 //                return .Values([fn(a)(b)])
 //            }
 //        }
-//    }
+    }
     
-    public func pushUserType<T: UserType>(t: Userdata<T>.Type) {
+    public func pushCustomType<T: CustomType>(t: Userdata<T>.Type) {
         pushTable()
         
         // setmetatable(lib, lib)
@@ -162,10 +162,11 @@ public class VirtualMachine {
         pushFromStack(-1)
         setField("__index", table: -2)
         
-//        for mm in t.metaMethods() {
+//        for mm in T.metaMethods() {
+//            U(fromLua: self, at: 1)
 //            pushMetaMethod(mm)
 //        }
-//        
+        
 //        for (name, kinds, fn) in t.classMethods() {
 //            pushClassMethod(name, kinds, fn)
 //        }

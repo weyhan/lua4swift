@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol UserType {
+public protocol CustomType {
     class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
     class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
     class func metaMethods() -> [MetaMethod<Self>]
@@ -12,7 +12,7 @@ public enum MetaMethod<T> {
     case EQ(T -> T -> Bool)
 }
 
-public final class Userdata<T: UserType>: Value {
+public final class Userdata<T: CustomType>: Value {
     
     let object: T
     
@@ -39,18 +39,6 @@ public final class Userdata<T: UserType>: Value {
     
     public class func arg() -> TypeChecker {
         return (Userdata.typeName, Userdata.isValid)
-    }
-    
-    public class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)] {
-        return T.classMethods()
-    }
-    
-    public class func instanceMethods() -> [(String, [TypeChecker], T -> VirtualMachine -> ReturnValue)] {
-        return T.instanceMethods()
-    }
-    
-    public class func metaMethods() -> [MetaMethod<T>] {
-        return T.metaMethods()
     }
     
 }
