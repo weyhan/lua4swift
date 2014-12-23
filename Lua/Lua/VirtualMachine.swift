@@ -151,7 +151,7 @@ public class VirtualMachine {
 //        }
 //    }
     
-    public func pushCustomType<T: CustomType>(t: Userdata<T>.Type) {
+    public func pushCustomType() {
         pushTable()
         
         // setmetatable(lib, lib)
