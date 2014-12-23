@@ -83,8 +83,25 @@ public class VirtualMachine {
         lua_pushcclosure(luaState, fp, Int32(upvalues))
     }
     
-    func argError(expectedType: String, argPosition: Int) {
-        luaL_argerror(luaState, Int32(argPosition), ("\(expectedType) expected, got <TODO>" as NSString).UTF8String)
+    func argError(expectedType: String, argPosition: Int) -> ReturnValue {
+        
+        var gotType: String
+        
+        if luaL_getmetafield(luaState, Int32(argPosition), "__name".UTF8String) == LUA_TSTRING {
+            gotType = String(fromLua: self, at: -1)!
+        }
+        else if lua_type(luaState, Int32(argPosition)) == LUA_TLIGHTUSERDATA {
+            gotType = "light userdata"
+        }
+        else {
+            let t = lua_typename(luaState, lua_type(luaState, Int32(argPosition)))
+            gotType = String(CString: t, encoding: NSUTF8StringEncoding)!
+        }
+        
+        luaL_argerror(luaState, Int32(argPosition), ("\(expectedType) expected, got \(gotType)" as NSString).UTF8String)
+        
+        return .Nothing
+        // TODO: return .Error instead
     }
     
     public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
@@ -92,7 +109,7 @@ public class VirtualMachine {
         pushFunction {
             for (i, (nameFn, testFn)) in enumerate(types) {
                 if !testFn(self, i+1) {
-                    self.argError(nameFn, argPosition: i+1)
+                    return self.argError(nameFn, argPosition: i+1)
                 }
             }
             
