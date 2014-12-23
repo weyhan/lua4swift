@@ -102,7 +102,7 @@ public class VirtualMachine {
     }
     
     public func pushInstanceMethod<T: CustomType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
-//        types.insert(T.arg(), atIndex: 0)
+        types.insert(UserdataBox<T>.arg(), atIndex: 0)
         let f: Function = {
             let o: UserdataBox<T> = self.getUserdata(1)!
             return fn(o.object!)(self)
@@ -129,17 +129,14 @@ public class VirtualMachine {
     public func pushMetaMethod<T: CustomType>(metaMethod: MetaMethod<T>) {
         switch metaMethod {
         case let .GC(fn):
-//            T.arg()
-            pushMethod("__gc", []) {
-//            pushMethod("__gc", [T.arg()]) {
+            pushMethod("__gc", [UserdataBox<T>.arg()]) {
                 let o: UserdataBox<T> = self.getUserdata(1)!
                 fn(o.object!)(self)
 //                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                 return .Values([])
             }
         case let .EQ(fn):
-            pushMethod("__eq", []) {
-//            pushMethod("__eq", [T.arg(), T.arg()]) {
+            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
                 let a: UserdataBox<T> = self.getUserdata(1)!
                 let b: UserdataBox<T> = self.getUserdata(2)!
                 return .Values([fn(a.object!)(b.object!)])
