@@ -17,30 +17,22 @@ public enum MetaMethod<T> {
 public final class UserdataBox<T: CustomType>: Value {
     
     var ptr: UserdataPointer?
-    let object: T?
+    let object: T
     
     public init(_ object: T) {
         self.object = object
     }
     
     public init?(fromLua L: VirtualMachine, at position: Int) {
-        if let box: UserdataBox<T> = L.getUserdata(position) {
-            ptr = box.ptr
-            object = box.object
-        }
-        else {
-            return nil
-        }
+        let box: UserdataBox<T> = L.getUserdata(position)!
+        ptr = box.ptr
+        object = box.object
     }
     
     // for the time being, you can't actually return one of these from a function if you got it as an arg :'(
     public func pushValue(L: VirtualMachine) {
-        if ptr == nil {
-            // it doesn't exist yet, so create it.
-            ptr = UserdataPointer(lua_newuserdata(L.luaState, 1))
-            luaL_setmetatable(L.luaState, (T.metatableName() as NSString).UTF8String)
-            L.storedSwiftValues[ptr!] = self
-        }
+        // only create it if it doesn't exist yet
+        if ptr == nil { ptr = L.pushUserdataBox(self) }
     }
     
     public class func typeName() -> String {

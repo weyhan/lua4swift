@@ -44,6 +44,7 @@ public class VirtualMachine {
     public func setField(name: String, table: Int) { lua_setfield(luaState, Int32(table), (name as NSString).UTF8String) }
     public func setTable(tablePosition: Int) { lua_settable(luaState, Int32(tablePosition)) }
     public func setMetatable(position: Int) { lua_setmetatable(luaState, Int32(position)) }
+    public func setMetatable(metatableName: String) { luaL_setmetatable(luaState, (metatableName as NSString).UTF8String) }
     
     
     // push
@@ -117,6 +118,13 @@ public class VirtualMachine {
         return lua_touserdata(luaState, Int32(position))
     }
     
+    func pushUserdataBox<T: CustomType>(ud: UserdataBox<T>) -> UserdataPointer {
+        let ptr = lua_newuserdata(luaState, 1)
+        setMetatable(T.metatableName())
+        storedSwiftValues[ptr] = ud
+        return ptr
+    }
+    
     func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
         if let ptr = getUserdataPointer(position) {
             return storedSwiftValues[ptr]! as? UserdataBox<T>
@@ -143,7 +151,7 @@ public class VirtualMachine {
             kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
             let f: Function = {
                 let o: UserdataBox<T> = self.getUserdata(1)!
-                return fn(o.object!)(self)
+                return fn(o.object)(self)
             }
             pushMethod(name, kinds, f)
         }
@@ -157,7 +165,7 @@ public class VirtualMachine {
             case let .GC(fn):
                 pushMethod("__gc", [UserdataBox<T>.arg()]) {
                     let o: UserdataBox<T> = self.getUserdata(1)!
-                    fn(o.object!)(self)
+                    fn(o.object)(self)
                     self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                     return .Values([])
                 }
@@ -165,52 +173,10 @@ public class VirtualMachine {
                 pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
                     let a: UserdataBox<T> = self.getUserdata(1)!
                     let b: UserdataBox<T> = self.getUserdata(2)!
-                    return .Values([fn(a.object!)(b.object!)])
+                    return .Values([fn(a.object)(b.object)])
                 }
             }
         }
-        
-        /*
-        
-        Phases:
-        
-        1. Registering type
-        2. Pushing type onto stack
-        3. Getting off the stack for method calls
-        
-        # Registering type
-        
-        We only need a type definitino, which consists of:
-        - class/instance/method definitions
-        - type-checking function
-        - type name for use in type-checking errors
-        
-        # Pushing onto stack
-        
-        If we're creating a new instance, we need to:
-        1. Use lua_newuserdata to get a new void*
-        2. Wrap our CustomType in a Userdata
-        3. dictionary[void*] = Userdata
-        
-        If it's an existing instance (i.e. "self"), then:
-        1. Find void* from within dictionary (may be hard)
-        2. Push it onto the stack
-        
-        If that last step is impossible without defining ==, then:
-        1. Store the void* on the object itself
-        2. It can then push itself onto the stack
-        3. This probably requires it to have a superclass to do pushValue for us.
-        
-        # Getting from the stack
-        
-        The stack gives us a void* that we can use as a key to dictionary.
-        
-        1. let object = dictionary[void*]
-        2. method = fn(object)
-        3. result = method(self)  // self = Lua instance
-        
-        */
-        
     }
     
     // ref
