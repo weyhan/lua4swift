@@ -36,19 +36,6 @@ public class VirtualMachine {
     
     
     
-    // get
-    
-    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
-        if kind(position) != .Userdata { return nil }
-        let ptr = UserdataPointer(lua_touserdata(luaState, Int32(position)))
-        if ptr == nil { return nil }
-        return storedSwiftValues[ptr]! as? UserdataBox<T>
-    }
-    
-    public func isTruthy(position: Int) -> Bool {
-        return lua_toboolean(luaState, Int32(position)) != 0
-    }
-    
     // push
     
     public func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
@@ -101,6 +88,20 @@ public class VirtualMachine {
         setTable(tablePosition - 2)
     }
     
+    public func pushFromStack(position: Int) {
+        lua_pushvalue(luaState, Int32(position))
+    }
+    
+    public func pop(n: Int) {
+        lua_settop(luaState, -Int32(n)-1)
+    }
+    
+    public func pushField(name: String, fromTable: Int) {
+        lua_getfield(luaState, Int32(fromTable), (name as NSString).UTF8String)
+    }
+    
+    // userdata
+    
     public func pushInstanceMethod<T: CustomType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         types.insert(UserdataBox<T>.arg(), atIndex: 0)
         let f: Function = {
@@ -114,16 +115,11 @@ public class VirtualMachine {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
     }
     
-    public func pushFromStack(position: Int) {
-        lua_pushvalue(luaState, Int32(position))
-    }
-    
-    public func pop(n: Int) {
-        lua_settop(luaState, -Int32(n)-1)
-    }
-    
-    public func pushField(name: String, fromTable: Int) {
-        lua_getfield(luaState, Int32(fromTable), (name as NSString).UTF8String)
+    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
+        if kind(position) != .Userdata { return nil }
+        let ptr = UserdataPointer(lua_touserdata(luaState, Int32(position)))
+        if ptr == nil { return nil }
+        return storedSwiftValues[ptr]! as? UserdataBox<T>
     }
     
     public func pushMetaMethod<T: CustomType>(metaMethod: MetaMethod<T>) {
@@ -222,6 +218,10 @@ public class VirtualMachine {
     public func unref(table: Int, _ position: Int) { luaL_unref(luaState, Int32(table), Int32(position)) }
     
     // uhh, misc?
+    
+    public func isTruthy(position: Int) -> Bool {
+        return lua_toboolean(luaState, Int32(position)) != 0
+    }
     
     public func absolutePosition(position: Int) -> Int { return Int(lua_absindex(luaState, Int32(position))) }
     
