@@ -18,7 +18,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         L.doString("print(Hotkey.__index)")
         L.doString("print(Hotkey.__index == Hotkey)")
         L.doString("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end)")
-        L.doString("k.disable()")
+        L.doString("k:disable()")
+        L.doString("k:enable()")
         
 //        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
         
