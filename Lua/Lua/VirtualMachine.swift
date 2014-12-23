@@ -100,7 +100,14 @@ public class VirtualMachine {
         lua_getfield(luaState, Int32(fromTable), (name as NSString).UTF8String)
     }
     
-    // userdata
+    // custom types
+    
+    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
+        if kind(position) != .Userdata { return nil }
+        let ptr = UserdataPointer(lua_touserdata(luaState, Int32(position)))
+        if ptr == nil { return nil }
+        return storedSwiftValues[ptr]! as? UserdataBox<T>
+    }
     
     public func pushInstanceMethod<T: CustomType>(name: String, var _ types: [TypeChecker], _ fn: T -> VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         types.insert(UserdataBox<T>.arg(), atIndex: 0)
@@ -113,13 +120,6 @@ public class VirtualMachine {
     
     public func pushClassMethod(name: String, var _ types: [TypeChecker], _ fn: VirtualMachine -> ReturnValue, tablePosition: Int = -1) {
         pushMethod(name, types, { fn(self) }, tablePosition: tablePosition)
-    }
-    
-    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
-        if kind(position) != .Userdata { return nil }
-        let ptr = UserdataPointer(lua_touserdata(luaState, Int32(position)))
-        if ptr == nil { return nil }
-        return storedSwiftValues[ptr]! as? UserdataBox<T>
     }
     
     public func pushMetaMethod<T: CustomType>(metaMethod: MetaMethod<T>) {
