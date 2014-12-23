@@ -17,7 +17,7 @@ public enum MetaMethod<T> {
 public final class UserdataBox<T: CustomType>: Value {
     
     let object: T?
-    let ptr: UserdataPointer?
+    var ptr: UserdataPointer?
     
     public init(_ object: T) {
         self.object = object
@@ -28,16 +28,13 @@ public final class UserdataBox<T: CustomType>: Value {
         object = box.object
     }
     
+    // for the time being, you can't actually return one of these from a function if you got it as an arg :'(
     public func pushValue(L: VirtualMachine) {
-//        if ptr == nil {
-//            // it doesn't exist yet, so create it.
-//            let userdata = UserdataPointer(lua_newuserdata(L.luaState, 1))
-//            L.storedSwiftValues[userdata] = self
-//        }
-//        else {
-//            // this is just a copy, so push the original.
-//            // oh wait, we can't.
-//        }
+        if ptr == nil {
+            // it doesn't exist yet, so create it.
+            ptr = UserdataPointer(lua_newuserdata(L.luaState, 1))
+            L.storedSwiftValues[ptr!] = self
+        }
     }
     
     public class func typeName() -> String {
@@ -45,8 +42,8 @@ public final class UserdataBox<T: CustomType>: Value {
     }
     
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
-//        if L.kind(position) != .Userdata { return false }
-//        if let ud: UserdataBox<T> = L.getUserdata(position) { return true }
+        if L.kind(position) != .Userdata { return false }
+        if let _: UserdataBox<T> = L.getUserdata(position) { return true }
         return false
     }
     
