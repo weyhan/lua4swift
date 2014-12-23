@@ -6,7 +6,8 @@ extension String: Value {
         if L.kind(position) != .String { return nil }
         var len: UInt = 0
         let str = lua_tolstring(L.luaState, Int32(position), &len)
-        self = NSString(CString: str, encoding: NSUTF8StringEncoding)!
+        let data = NSData(bytes: str, length: Int(len))
+        self = NSString(data: data, encoding: NSUTF8StringEncoding)!
     }
     public static func typeName() -> String { return "<String>" }
     public static func arg() -> TypeChecker { return (String.typeName, String.isValid) }
