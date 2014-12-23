@@ -83,12 +83,16 @@ public class VirtualMachine {
         lua_pushcclosure(luaState, fp, Int32(upvalues))
     }
     
+    func argError(expectedType: String, argPosition: Int) {
+        luaL_argerror(luaState, Int32(argPosition), ("\(expectedType) expected, got <TODO>" as NSString).UTF8String)
+    }
+    
     public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
         pushFunction {
             for (i, (nameFn, testFn)) in enumerate(types) {
                 if !testFn(self, i+1) {
-                    luaL_argerror(self.luaState, Int32(i+1), ("\(nameFn()) expected, got <TODO>" as NSString).UTF8String)
+                    self.argError(nameFn(), argPosition: i+1)
                 }
             }
             
