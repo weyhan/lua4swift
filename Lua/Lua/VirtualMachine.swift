@@ -17,12 +17,18 @@ public class VirtualMachine {
     
     public func loadString(str: String) -> String? {
         if luaL_loadstring(vm, (str as NSString).UTF8String) == LUA_OK { return nil }
-        return printError(String(fromLua: self, at: -1)!)
+        return popError()
     }
     
-    func printError(err: String) -> String {
+    func popError() -> String {
+        let err = String(fromLua: self, at: -1)!
         println("error: \(err)")
+        pop(1)
         return err
+    }
+    
+    public func stackSize() -> Int {
+        return Int(lua_gettop(vm))
     }
     
     public func doString(str: String) -> String? {
@@ -40,8 +46,15 @@ public class VirtualMachine {
         remove(-2) // pop debug
         insert(messageHandler) // push before fn
         
-        if lua_pcallk(vm, Int32(arguments), Int32(returnValues), Int32(messageHandler), 0, nil) == LUA_OK { return nil }
-        return printError(String(fromLua: self, at: -1)!)
+        var err: String?
+        
+        if lua_pcallk(vm, Int32(arguments), Int32(returnValues), Int32(messageHandler), 0, nil) != LUA_OK {
+            err = popError()
+        }
+        
+        pop(1) // message handler
+        
+        return err
     }
     
     // set
