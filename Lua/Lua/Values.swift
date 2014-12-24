@@ -19,26 +19,26 @@ extension String: Value {
 extension Int64: Value {
     public func pushValue(L: VirtualMachine) { L.pushInteger(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
-        if L.kind(position) != .Integer { return nil }
+        if L.kind(position) != .Number { return nil }
         self = lua_tointegerx(L.vm, Int32(position), nil)
     }
     public static func typeName() -> String { return "integer" }
     public static func arg() -> TypeChecker { return (Int64.typeName(), Int64.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
-        return L.kind(position) == .Integer
+        return L.kind(position) == .Number
     }
 }
 
 extension Double: Value {
     public func pushValue(L: VirtualMachine) { L.pushDouble(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
-        if L.kind(position) != .Double { return nil }
+        if L.kind(position) != .Number { return nil }
         self = lua_tonumberx(L.vm, Int32(position), nil)
     }
     public static func typeName() -> String { return "double" }
     public static func arg() -> TypeChecker { return (Double.typeName(), Double.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
-        return L.kind(position) == .Double
+        return L.kind(position) == .Number
     }
 }
 

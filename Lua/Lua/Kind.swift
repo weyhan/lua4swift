@@ -2,8 +2,7 @@ import Foundation
 
 public enum Kind {
     case String
-    case Double
-    case Integer
+    case Number
     case Bool
     case Function
     case Table
@@ -15,8 +14,7 @@ public enum Kind {
     public func toLuaType() -> Int32 {
         switch self {
         case String: return LUA_TSTRING
-        case Double: return LUA_TNUMBER
-        case Integer: return LUA_TNUMBER
+        case Number: return LUA_TNUMBER
         case Bool: return LUA_TBOOLEAN
         case Function: return LUA_TFUNCTION
         case Table: return LUA_TTABLE
@@ -34,7 +32,7 @@ extension VirtualMachine {
         switch lua_type(vm, Int32(position)) {
         case LUA_TNIL: return .Nil
         case LUA_TBOOLEAN: return .Bool
-        case LUA_TNUMBER: return lua_isinteger(vm, Int32(position)) == 0 ? .Double : .Integer
+        case LUA_TNUMBER: return .Number
         case LUA_TSTRING: return .String
         case LUA_TFUNCTION: return .Function
         case LUA_TTABLE: return .Table
