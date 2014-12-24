@@ -2,6 +2,8 @@ import Cocoa
 
 public class Window: Object {
     
+    var winid: Int?
+    
     public class func focusedWindow() -> Window? {
         return App.focusedApp()?.focusedWindow()
     }
@@ -37,6 +39,15 @@ public class Window: Object {
     
     public func isStandard() -> Bool? {
         return subrole()? == "AXStandardWindow"
+    }
+    
+    public func id() -> Int? {
+        if winid != nil { return winid }
+        var _winid: CGWindowID = 0
+        let result = _AXUIElementGetWindow(element, &_winid)
+        if result != AXError(kAXErrorSuccess) { return nil }
+        winid = Int(_winid)
+        return winid
     }
     
 }

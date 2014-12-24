@@ -1,11 +1,3 @@
-//
-//  Graphite.m
-//  Graphite
-//
-//  Created by Steven Degutis on 12/21/14.
-//  Copyright (c) 2014 Tiny Robot Software. All rights reserved.
-//
-
 #import "Graphite.h"
 
 static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {

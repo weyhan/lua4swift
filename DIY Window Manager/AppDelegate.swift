@@ -22,6 +22,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         L.pushCustomType(Hotkey)
         L.setGlobal("Hotkey")
         
+        L.pushCustomType(Window)
+        L.setGlobal("Window")
+        
         L.doString("Hotkey.bind(3)")
         L.doString("print(34 + 2)")
         L.doString("print(Hotkey)")

@@ -13,6 +13,7 @@
 		944A339E1A475AD400BF8675 /* libLua.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 944A33211A475A6400BF8675 /* libLua.dylib */; };
 		9475807C1A43D94A00947E6B /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9475807B1A43D94A00947E6B /* Hotkey.swift */; };
 		948293AE1A474DCB009C3498 /* libGraphite.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 948293A91A474DAF009C3498 /* libGraphite.dylib */; };
+		94C5BCD41A4A9CDA00D47B72 /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C5BCD31A4A9CDA00D47B72 /* Window.swift */; };
 		94C884D41A475042007954F1 /* libDesktop.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C884D11A475032007954F1 /* libDesktop.dylib */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,7 @@
 		944A331B1A475A6400BF8675 /* Lua.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lua.xcodeproj; path = Lua/Lua.xcodeproj; sourceTree = "<group>"; };
 		9475807B1A43D94A00947E6B /* Hotkey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		948293A31A474DAF009C3498 /* Graphite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Graphite.xcodeproj; path = Graphite/Graphite.xcodeproj; sourceTree = "<group>"; };
+		94C5BCD31A4A9CDA00D47B72 /* Window.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
 		94C884CB1A475031007954F1 /* Desktop.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Desktop.xcodeproj; path = Desktop/Desktop.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -112,6 +114,7 @@
 				9407F7251A3CBA8500BE8C7A /* MainMenu.xib */,
 				9407F7211A3CBA8500BE8C7A /* AppDelegate.swift */,
 				9475807B1A43D94A00947E6B /* Hotkey.swift */,
+				94C5BCD31A4A9CDA00D47B72 /* Window.swift */,
 				9407F71F1A3CBA8500BE8C7A /* Supporting Files */,
 			);
 			path = "DIY Window Manager";
@@ -262,6 +265,7 @@
 			files = (
 				9475807C1A43D94A00947E6B /* Hotkey.swift in Sources */,
 				9407F7221A3CBA8500BE8C7A /* AppDelegate.swift in Sources */,
+				94C5BCD41A4A9CDA00D47B72 /* Window.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
