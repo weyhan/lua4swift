@@ -8,6 +8,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let L = Lua.VirtualMachine()
         
+        L.errorHandler = nil
+        let errh = L.errorHandler
+        L.errorHandler = { err in
+            println("crap!")
+            errh?(err)
+        }
+        
         println("before", L.stackSize())
         L.doString("Hotkey.bind(3)")
         println("now", L.stackSize())

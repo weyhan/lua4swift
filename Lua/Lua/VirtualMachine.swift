@@ -3,15 +3,13 @@ import Cocoa
 
 public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 
-typealias ErrorHandler = (String) -> Void
-
 // basics
 public class VirtualMachine {
     
     let vm = luaL_newstate()
     var storedSwiftValues = [UserdataPointer : Any]()
     
-    var errorHandler: ErrorHandler? = { println("error: \($0)") }
+    public var errorHandler: ErrorHandler? = { println("error: \($0)") }
     
     public init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(vm) }

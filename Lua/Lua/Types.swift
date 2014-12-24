@@ -18,3 +18,5 @@ public protocol Value {
     class func isValid(L: VirtualMachine, at position: Int) -> Bool
     class func arg() -> TypeChecker
 }
+
+public typealias ErrorHandler = (String) -> Void
