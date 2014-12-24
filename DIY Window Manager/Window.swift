@@ -17,8 +17,7 @@ final class Window: Lua.CustomType {
     }
     
     class func allWindows(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        // TODO
-        return .Nothing
+        return .Values(Desktop.Window.allWindows().map{UserdataBox(Window($0))})
     }
     
     class func focusedWindow(L: Lua.VirtualMachine) -> Lua.ReturnValue {

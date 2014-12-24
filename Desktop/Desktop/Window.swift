@@ -8,6 +8,10 @@ public class Window: Object {
         return App.focusedApp()?.focusedWindow()
     }
     
+    public class func allWindows() -> [Window] {
+        return App.allApps().map{$0.allWindows()!}.reduce([], combine: +)
+    }
+    
     public func topLeft() -> NSPoint? {
         return (element.getAttribute(NSAccessibilityPositionAttribute) as AXValue?)?.convertToStruct()
     }

@@ -16,7 +16,7 @@ public class App: Object {
         self.init(AXUIElementCreateApplication(app.processIdentifier).takeRetainedValue())
     }
     
-    public class func allApps() -> [App]? {
+    public class func allApps() -> [App] {
         return (NSWorkspace.sharedWorkspace().runningApplications as [NSRunningApplication]).map{ App($0) }
     }
     
@@ -34,6 +34,10 @@ public class App: Object {
     
     public func allWindows() -> [Window]? {
         return (element.getAttributes("AXWindows") as [AXUIElement]?)?.map{ Window($0) }
+    }
+    
+    public override func title() -> String? {
+        return app?.localizedName
     }
     
     public func activate(allWindows: Bool) -> Bool? {
