@@ -9,7 +9,7 @@ extension String: Value {
         let data = NSData(bytes: str, length: Int(len))
         self = NSString(data: data, encoding: NSUTF8StringEncoding)!
     }
-    public static func typeName() -> String { return "<String>" }
+    public static func typeName() -> String { return "string" }
     public static func arg() -> TypeChecker { return (String.typeName(), String.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .String
@@ -22,7 +22,7 @@ extension Int64: Value {
         if L.kind(position) != .Integer { return nil }
         self = lua_tointegerx(L.vm, Int32(position), nil)
     }
-    public static func typeName() -> String { return "<Integer>" }
+    public static func typeName() -> String { return "integer" }
     public static func arg() -> TypeChecker { return (Int64.typeName(), Int64.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Integer
@@ -35,7 +35,7 @@ extension Double: Value {
         if L.kind(position) != .Double { return nil }
         self = lua_tonumberx(L.vm, Int32(position), nil)
     }
-    public static func typeName() -> String { return "<Double>" }
+    public static func typeName() -> String { return "double" }
     public static func arg() -> TypeChecker { return (Double.typeName(), Double.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Double
@@ -48,7 +48,7 @@ extension Bool: Value {
         if L.kind(position) != .Bool { return nil }
         self = lua_toboolean(L.vm, Int32(position)) != 0
     }
-    public static func typeName() -> String { return "<Boolean>" }
+    public static func typeName() -> String { return "boolean" }
     public static func arg() -> TypeChecker { return (Bool.typeName(), Bool.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Bool
@@ -65,7 +65,7 @@ public struct FunctionBox: Value {
         // can't ever convert functions to a usable object
         return nil
     }
-    public static func typeName() -> String { return "<Function>" }
+    public static func typeName() -> String { return "function" }
     public static func arg() -> TypeChecker { return (FunctionBox.typeName(), FunctionBox.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Function
@@ -78,7 +78,7 @@ public final class NilType: Value {
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Nil { return nil }
     }
-    public class func typeName() -> String { return "<nil>" }
+    public class func typeName() -> String { return "nil" }
     public class func arg() -> TypeChecker { return (NilType.typeName(), NilType.isValid) }
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Nil
@@ -98,7 +98,7 @@ extension NSPoint: Value {
         let y = table!["y"] ?? 0
         self = NSPoint(x: x, y: y)
     }
-    public static func typeName() -> String { return "<Point>" }
+    public static func typeName() -> String { return "point" }
     public static func arg() -> TypeChecker { return (NSPoint.typeName(), NSPoint.isValid) }
     public static func isValid(L: VirtualMachine, at position: Int) -> Bool {
         if L.kind(position) != .Table { return false }

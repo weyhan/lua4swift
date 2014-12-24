@@ -47,7 +47,7 @@ public final class SequentialTable<T: Value>: Value {
         elements = values
     }
     
-    public class func typeName() -> String { return "<Array of \(T.typeName())>" }
+    public class func typeName() -> String { return "array(\(T.typeName()))" }
     public class func arg() -> TypeChecker { return (SequentialTable<T>.typeName(), SequentialTable<T>.isValid) }
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
         return L.kind(position) == .Table && SequentialTable<T>(fromLua: L, at: position) != nil

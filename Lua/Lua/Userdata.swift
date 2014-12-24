@@ -36,7 +36,7 @@ public final class UserdataBox<T: CustomType>: Value {
     }
     
     public class func typeName() -> String {
-        return "<\(T.metatableName())>"
+        return T.metatableName()
     }
     
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
