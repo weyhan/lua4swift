@@ -3,11 +3,15 @@ import Cocoa
 
 public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 
+typealias ErrorHandler = (String) -> Void
+
 // basics
 public class VirtualMachine {
     
     let vm = luaL_newstate()
     var storedSwiftValues = [UserdataPointer : Any]()
+    
+    var errorHandler: ErrorHandler? = { println("error: \($0)") }
     
     public init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(vm) }
@@ -22,8 +26,8 @@ public class VirtualMachine {
     
     func popError() -> String {
         let err = String(fromLua: self, at: -1)!
-        println("error: \(err)")
         pop(1)
+        if let fn = errorHandler { fn(err) }
         return err
     }
     
