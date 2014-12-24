@@ -107,22 +107,7 @@ public class VirtualMachine {
     }
     
     func argError(expectedType: String, argPosition: Int) -> ReturnValue {
-        
-        var gotType: String
-        
-        if luaL_getmetafield(vm, Int32(argPosition), "__name".UTF8String) == LUA_TSTRING {
-            gotType = String(fromLua: self, at: -1)!
-        }
-        else if lua_type(vm, Int32(argPosition)) == LUA_TLIGHTUSERDATA {
-            gotType = "light userdata"
-        }
-        else {
-            let t = lua_typename(vm, lua_type(vm, Int32(argPosition)))
-            gotType = String(CString: t, encoding: NSUTF8StringEncoding)!
-        }
-        
-        luaL_argerror(vm, Int32(argPosition), ("\(expectedType) expected, got \(gotType)" as NSString).UTF8String)
-        
+        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
         return .Nothing
         // TODO: return .Error instead
     }
