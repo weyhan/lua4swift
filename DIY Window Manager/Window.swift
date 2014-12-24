@@ -16,6 +16,10 @@ final class Window: Lua.CustomType {
         return .Value(win.title()!)
     }
     
+    func topLeft(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(win.topLeft()!)
+    }
+    
     class func allWindows(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Values(Desktop.Window.allWindows().map{UserdataBox(Window($0))})
     }
@@ -41,6 +45,7 @@ final class Window: Lua.CustomType {
     class func instanceMethods() -> [(String, [Lua.TypeChecker], Window -> Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
             ("title", [], Window.title),
+            ("topLeft", [], Window.topLeft),
         ]
     }
     
