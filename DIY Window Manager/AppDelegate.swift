@@ -8,32 +8,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let L = Lua.VirtualMachine()
         
-        L.errorHandler = nil
-        let errh = L.errorHandler
-        L.errorHandler = { err in
-            println("crap!")
-            errh?(err)
-        }
-        
-        println("before", L.stackSize())
-        L.doString("Hotkey.bind(3)")
-        println("now", L.stackSize())
-        
-        L.pushCustomType(Hotkey)
+//        L.errorHandler = nil
+//        let errh = L.errorHandler
+//        L.errorHandler = { err in
+//            println("crap!")
+//            errh?(err)
+//        }
+//        
+//        println("before", L.stackSize())
+//        L.doString("Hotkey.bind(3)")
+//        println("now", L.stackSize())
+//        
+//        L.pushCustomType(Hotkey)
         L.setGlobal("Hotkey")
         
         L.pushCustomType(Window)
         L.setGlobal("Window")
         
-        L.doString("Hotkey.bind(3)")
-        L.doString("print(34 + 2)")
-        L.doString("print(Hotkey)")
-        L.doString("print(Hotkey.bind)")
-        L.doString("print(Hotkey.__index)")
-        L.doString("print(Hotkey.__index == Hotkey)")
-        L.doString("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end)")
-        L.doString("k:disable()")
-        L.doString("k:enable()")
+        L.doString("print(Window.focusedWindow():title())")
+        
+//        L.doString("Hotkey.bind(3)")
+//        L.doString("print(34 + 2)")
+//        L.doString("print(Hotkey)")
+//        L.doString("print(Hotkey.bind)")
+//        L.doString("print(Hotkey.__index)")
+//        L.doString("print(Hotkey.__index == Hotkey)")
+//        L.doString("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end)")
+//        L.doString("k:disable()")
+//        L.doString("k:enable()")
         
 //        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
         
