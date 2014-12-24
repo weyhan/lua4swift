@@ -13,11 +13,11 @@ final class Window: Lua.CustomType {
     }
     
     func title(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        return .Value(win.title()!)
+        return .Value(win.title())
     }
     
     func topLeft(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
-        return .Value(win.topLeft()!)
+        return .Value(win.topLeft())
     }
     
     class func allWindows(L: Lua.VirtualMachine) -> Lua.ReturnValue {

@@ -1,7 +1,7 @@
 import Foundation
 
 public enum ReturnValue {
-    case Value(Lua.Value)
+    case Value(Lua.Value?)
     case Values([Lua.Value])
     case Nothing // convenience for Values([])
     case Error(String)

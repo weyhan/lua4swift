@@ -13,7 +13,7 @@ final class App: Lua.CustomType {
     }
     
     func title(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        return .Value(app.title()!)
+        return .Value(app.title())
     }
     
     class func allApps(L: Lua.VirtualMachine) -> Lua.ReturnValue {

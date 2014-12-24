@@ -86,7 +86,12 @@ public class VirtualMachine {
             case .Nothing:
                 return 0
             case let .Value(value):
-                value.pushValue(self)
+                if let v = value {
+                    v.pushValue(self)
+                }
+                else {
+                    self.pushNil()
+                }
                 return 1
             case let .Values(values):
                 for value in values {
