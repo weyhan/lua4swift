@@ -19,8 +19,6 @@ public final class UserdataBox<T: CustomType>: Value {
     var ptr: UserdataPointer?
     let object: T
     
-    public class func kind() -> Kind { return .Userdata }
-    
     public init(_ object: T) {
         self.object = object
     }
