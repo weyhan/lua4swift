@@ -6,7 +6,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
     
     public func pushValue(L: VirtualMachine) {
         L.pushTable(keyCapacity: elements.count)
-        let tablePosition = Int(lua_absindex(L.luaState, -1)) // overkill? dunno.
+        let tablePosition = Int(lua_absindex(L.vm, -1)) // overkill? dunno.
         for (key, value) in elements {
             key.pushValue(L)
             value.pushValue(L)
@@ -18,7 +18,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
         position = L.absolutePosition(position) // pretty sure this is necessary
         
         L.pushNil()
-        while lua_next(L.luaState, Int32(position)) != 0 {
+        while lua_next(L.vm, Int32(position)) != 0 {
             let key = K(fromLua: L, at: -2)
             let val = T(fromLua: L, at: -1)
             L.pop(1)

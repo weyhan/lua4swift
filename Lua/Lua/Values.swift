@@ -5,7 +5,7 @@ extension String: Value {
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .String { return nil }
         var len: UInt = 0
-        let str = lua_tolstring(L.luaState, Int32(position), &len)
+        let str = lua_tolstring(L.vm, Int32(position), &len)
         let data = NSData(bytes: str, length: Int(len))
         self = NSString(data: data, encoding: NSUTF8StringEncoding)!
     }
@@ -20,7 +20,7 @@ extension Int64: Value {
     public func pushValue(L: VirtualMachine) { L.pushInteger(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Integer { return nil }
-        self = lua_tointegerx(L.luaState, Int32(position), nil)
+        self = lua_tointegerx(L.vm, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Integer>" }
     public static func arg() -> TypeChecker { return (Int64.typeName(), Int64.isValid) }
@@ -33,7 +33,7 @@ extension Double: Value {
     public func pushValue(L: VirtualMachine) { L.pushDouble(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Double { return nil }
-        self = lua_tonumberx(L.luaState, Int32(position), nil)
+        self = lua_tonumberx(L.vm, Int32(position), nil)
     }
     public static func typeName() -> String { return "<Double>" }
     public static func arg() -> TypeChecker { return (Double.typeName(), Double.isValid) }
@@ -46,7 +46,7 @@ extension Bool: Value {
     public func pushValue(L: VirtualMachine) { L.pushBool(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Bool { return nil }
-        self = lua_toboolean(L.luaState, Int32(position)) != 0
+        self = lua_toboolean(L.vm, Int32(position)) != 0
     }
     public static func typeName() -> String { return "<Boolean>" }
     public static func arg() -> TypeChecker { return (Bool.typeName(), Bool.isValid) }

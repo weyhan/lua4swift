@@ -90,10 +90,10 @@
 		9407F7131A3CBA8500BE8C7A = {
 			isa = PBXGroup;
 			children = (
+				9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */,
 				944A331B1A475A6400BF8675 /* Lua.xcodeproj */,
 				94C884CB1A475031007954F1 /* Desktop.xcodeproj */,
 				948293A31A474DAF009C3498 /* Graphite.xcodeproj */,
-				9407F71E1A3CBA8500BE8C7A /* DIY Window Manager */,
 				9407F71D1A3CBA8500BE8C7A /* Products */,
 			);
 			sourceTree = "<group>";
