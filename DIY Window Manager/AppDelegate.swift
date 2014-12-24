@@ -8,7 +8,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let L = Lua.VirtualMachine()
         
+        println("before", L.stackSize())
         L.doString("Hotkey.bind(3)")
+        println("now", L.stackSize())
         
         L.pushCustomType(Hotkey)
         L.setGlobal("Hotkey")
