@@ -31,7 +31,16 @@ public class VirtualMachine {
     }
     
     public func call(arguments: Int = 0, returnValues: Int = 0) -> String? {
-        if lua_pcallk(vm, Int32(arguments), Int32(returnValues), 0, 0, nil) == LUA_OK { return nil }
+        var messageHandler = -1 // top of stack
+        messageHandler -= arguments // before all arguments
+        messageHandler -= 1 // before function
+        
+        pushGlobal("debug")
+        pushField("traceback")
+        remove(-2) // pop debug
+        insert(messageHandler) // push before fn
+        
+        if lua_pcallk(vm, Int32(arguments), Int32(returnValues), Int32(messageHandler), 0, nil) == LUA_OK { return nil }
         return printError(String(fromLua: self, at: -1)!)
     }
     
