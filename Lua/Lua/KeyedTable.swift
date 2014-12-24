@@ -38,6 +38,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
         elements = values
     }
     
+    public class func kind() -> Kind { return .Table }
     public class func typeName() -> String { return "table(\(K.typeName()) : \(T.typeName()))" }
     public class func arg() -> TypeChecker { return (KeyedTable<K,T>.typeName(), KeyedTable<K,T>.isValid) }
     public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
