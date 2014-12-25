@@ -4,12 +4,18 @@ import Lua
 
 final class App: Lua.CustomType {
     
-    let app: Desktop.App
+    private let _app: Desktop.App?
+    var app: Desktop.App { return _app! }
     
     class func metatableName() -> String { return "App" }
     
     init(_ win: Desktop.App) {
-        self.app = win
+        _app = win
+    }
+    
+    init?(_ win: Desktop.App?) {
+        if win == nil { return nil }
+        _app = win
     }
     
     func title(L: Lua.VirtualMachine) -> Lua.ReturnValue {
@@ -21,10 +27,7 @@ final class App: Lua.CustomType {
     }
     
     class func focusedApp(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        if let win = Desktop.App.focusedApp() {
-            return .Value(Lua.UserdataBox(App(win)))
-        }
-        return .Value(Lua.Nil)
+        return .Value(Lua.UserdataBox(App(Desktop.App.focusedApp())))
     }
     
     func equals(other: App) -> Bool {

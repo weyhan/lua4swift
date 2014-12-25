@@ -17,16 +17,22 @@ public enum MetaMethod<T> {
 public final class UserdataBox<T: CustomType>: Value {
     
     var ptr: UserdataPointer?
-    let object: T
+    private let _object: T?
+    var object: T { return _object! }
     
     public init(_ object: T) {
-        self.object = object
+        self._object = object
+    }
+    
+    public init?(_ object: T?) {
+        if object == nil { return nil }
+        self._object = object
     }
     
     public init?(fromLua L: VirtualMachine, at position: Int) {
         let box: UserdataBox<T> = L.getUserdata(position)!
         ptr = box.ptr
-        object = box.object
+        _object = box.object
     }
     
     // for the time being, you can't actually return one of these from a function if you got it as an arg :'(

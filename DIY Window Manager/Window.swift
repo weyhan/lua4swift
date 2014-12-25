@@ -4,12 +4,18 @@ import Lua
 
 final class Window: Lua.CustomType {
     
-    let win: Desktop.Window
+    private let _win: Desktop.Window?
+    var win: Desktop.Window { return _win! }
     
     class func metatableName() -> String { return "Window" }
     
     init(_ win: Desktop.Window) {
-        self.win = win
+        _win = win
+    }
+    
+    init?(_ win: Desktop.Window?) {
+        if win == nil { return nil }
+        _win = win
     }
     
     func title(L: Lua.VirtualMachine) -> Lua.ReturnValue {
@@ -25,10 +31,7 @@ final class Window: Lua.CustomType {
     }
     
     class func focusedWindow(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        if let win = Desktop.Window.focusedWindow() {
-            return .Value(Lua.UserdataBox(Window(win)))
-        }
-        return .Value(Lua.Nil)
+        return .Value(Lua.UserdataBox(Window(Desktop.Window.focusedWindow())))
     }
     
     func equals(other: Window) -> Bool {
