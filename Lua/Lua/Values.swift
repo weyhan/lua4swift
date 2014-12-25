@@ -57,13 +57,14 @@ extension Bool: Value {
 
 // meant for putting functions into Lua only; can't take them out
 public struct FunctionBox: Value {
-    public let fn: Function
-    public init(_ fn: Function) { self.fn = fn }
+    private let _fn: Function?
+    public var fn: Function { return _fn! }
+    public init(_ fn: Function) { _fn = fn }
     
     public func pushValue(L: VirtualMachine) { L.pushFunction(self.fn) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         // can't ever convert functions to a usable object
-        return nil
+//        return nil
     }
     public static func typeName() -> String { return "function" }
     public static func arg() -> TypeChecker { return (FunctionBox.typeName(), FunctionBox.isValid) }
