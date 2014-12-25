@@ -212,20 +212,19 @@ public class VirtualMachine {
         var metaMethods = MetaMethods<T>()
         T.setMetaMethods(&metaMethods)
         
-        if let fn = metaMethods.gc {
-            pushMethod("__gc", [UserdataBox<T>.arg()]) {
-                let o: UserdataBox<T> = self.getUserdata(1)!
-                fn(o.object, self)
-                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
-                return .Values([])
-            }
+        let gc = metaMethods.gc
+        pushMethod("__gc", [UserdataBox<T>.arg()]) {
+            let o: UserdataBox<T> = self.getUserdata(1)!
+            gc?(o.object, self)
+            self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+            return .Values([])
         }
         
-        if let fn = metaMethods.eq {
+        if let eq = metaMethods.eq {
             pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
                 let a: UserdataBox<T> = self.getUserdata(1)!
                 let b: UserdataBox<T> = self.getUserdata(2)!
-                return .Values([fn(a.object, b.object)])
+                return .Values([eq(a.object, b.object)])
             }
         }
     }
