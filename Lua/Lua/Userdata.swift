@@ -10,8 +10,8 @@ public protocol CustomType {
 }
 
 public enum MetaMethod<T> {
-    case GC(T -> VirtualMachine -> Void)
-    case EQ(T -> T -> Bool)
+    case GC((T, VirtualMachine) -> Void)
+    case EQ((T, T) -> Bool)
 }
 
 public final class UserdataBox<T: CustomType>: Value {

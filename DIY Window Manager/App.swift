@@ -30,10 +30,6 @@ final class App: Lua.CustomType {
         return .Value(Lua.UserdataBox(App(Desktop.App.focusedApp())))
     }
     
-    func equals(other: App) -> Bool {
-        return app.pid == other.app.pid
-    }
-    
     class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
             ("allApps", [], App.allApps),
@@ -49,7 +45,7 @@ final class App: Lua.CustomType {
     
     class func metaMethods() -> [Lua.MetaMethod<App>] {
         return [
-            .EQ(App.equals),
+            .EQ({ $0.app.pid == $1.app.pid }),
         ]
     }
     

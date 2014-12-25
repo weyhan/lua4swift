@@ -45,15 +45,6 @@ final class Hotkey: Lua.CustomType {
         }
     }
     
-    func cleanup(L: Lua.VirtualMachine) {
-        hotkey.disable()
-        L.unref(Lua.RegistryIndex, fn)
-    }
-    
-    func equals(other: Hotkey) -> Bool {
-        return fn == other.fn
-    }
-    
     class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
             ("bind", [String.arg(), Lua.SequentialTable<String>.arg(), Lua.FunctionBox.arg()], Hotkey.bind),
@@ -69,8 +60,11 @@ final class Hotkey: Lua.CustomType {
     
     class func metaMethods() -> [Lua.MetaMethod<Hotkey>] {
         return [
-            .GC(Hotkey.cleanup),
-            .EQ(Hotkey.equals),
+            .GC({ this, L in
+                this.hotkey.disable()
+                L.unref(Lua.RegistryIndex, this.fn)
+            }),
+            .EQ({ $0.fn == $1.fn }),
         ]
     }
     

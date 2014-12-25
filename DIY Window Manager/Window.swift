@@ -34,10 +34,6 @@ final class Window: Lua.CustomType {
         return .Value(Lua.UserdataBox(Window(Desktop.Window.focusedWindow())))
     }
     
-    func equals(other: Window) -> Bool {
-        return win.id() == other.win.id()
-    }
-    
     class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
             ("allWindows", [], Window.allWindows),
@@ -54,7 +50,7 @@ final class Window: Lua.CustomType {
     
     class func metaMethods() -> [Lua.MetaMethod<Window>] {
         return [
-            .EQ(Window.equals),
+            .EQ({ $0.win.id() == $1.win.id() }),
         ]
     }
     

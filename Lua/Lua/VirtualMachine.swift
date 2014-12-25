@@ -214,7 +214,7 @@ public class VirtualMachine {
             case let .GC(fn):
                 pushMethod("__gc", [UserdataBox<T>.arg()]) {
                     let o: UserdataBox<T> = self.getUserdata(1)!
-                    fn(o.object)(self)
+                    fn(o.object, self)
                     self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
                     return .Values([])
                 }
@@ -222,7 +222,7 @@ public class VirtualMachine {
                 pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
                     let a: UserdataBox<T> = self.getUserdata(1)!
                     let b: UserdataBox<T> = self.getUserdata(2)!
-                    return .Values([fn(a.object)(b.object)])
+                    return .Values([fn(a.object, b.object)])
                 }
             }
         }
