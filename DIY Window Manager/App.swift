@@ -43,10 +43,8 @@ final class App: Lua.CustomType {
         ]
     }
     
-    class func metaMethods() -> [Lua.MetaMethod<App>] {
-        return [
-            .EQ({ $0.app.pid == $1.app.pid }),
-        ]
+    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<App>) {
+        metaMethods.eq = { $0.app.pid == $1.app.pid }
     }
     
 }

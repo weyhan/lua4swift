@@ -4,14 +4,15 @@ public protocol CustomType {
     
     class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
     class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
-    class func metaMethods() -> [MetaMethod<Self>]
+    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Self>)
     class func metatableName() -> String
     
 }
 
-public enum MetaMethod<T> {
-    case GC((T, VirtualMachine) -> Void)
-    case EQ((T, T) -> Bool)
+public struct MetaMethods<T> {
+    init() {}
+    public var gc: ((T, VirtualMachine) -> Void)?
+    public var eq: ((T, T) -> Bool)?
 }
 
 public final class UserdataBox<T: CustomType>: Value {

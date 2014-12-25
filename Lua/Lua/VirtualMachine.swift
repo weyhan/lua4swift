@@ -209,21 +209,23 @@ public class VirtualMachine {
             pushMethod(name, kinds, { fn(self) })
         }
         
-        for metaMethod in T.metaMethods() {
-            switch metaMethod {
-            case let .GC(fn):
-                pushMethod("__gc", [UserdataBox<T>.arg()]) {
-                    let o: UserdataBox<T> = self.getUserdata(1)!
-                    fn(o.object, self)
-                    self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
-                    return .Values([])
-                }
-            case let .EQ(fn):
-                pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
-                    let a: UserdataBox<T> = self.getUserdata(1)!
-                    let b: UserdataBox<T> = self.getUserdata(2)!
-                    return .Values([fn(a.object, b.object)])
-                }
+        var metaMethods = MetaMethods<T>()
+        T.setMetaMethods(&metaMethods)
+        
+        if let fn = metaMethods.gc {
+            pushMethod("__gc", [UserdataBox<T>.arg()]) {
+                let o: UserdataBox<T> = self.getUserdata(1)!
+                fn(o.object, self)
+                self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+                return .Values([])
+            }
+        }
+        
+        if let fn = metaMethods.eq {
+            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
+                let a: UserdataBox<T> = self.getUserdata(1)!
+                let b: UserdataBox<T> = self.getUserdata(2)!
+                return .Values([fn(a.object, b.object)])
             }
         }
     }

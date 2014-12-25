@@ -48,10 +48,8 @@ final class Window: Lua.CustomType {
         ]
     }
     
-    class func metaMethods() -> [Lua.MetaMethod<Window>] {
-        return [
-            .EQ({ $0.win.id() == $1.win.id() }),
-        ]
+    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Window>) {
+        metaMethods.eq = { $0.win.id() == $1.win.id() }
     }
     
 }
