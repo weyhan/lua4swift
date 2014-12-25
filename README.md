@@ -1,6 +1,6 @@
-# diywm
+# DIY Window Manager
 
-*Do-It-Yourself Window Manager for OS X (pronounced "dime")*
+*DIY Window Manager for OS X*
 
-* Current version: diywm 0.1
+* Current version: 0.1
 * Requires: OS X 10.10 or higher
