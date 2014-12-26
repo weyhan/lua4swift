@@ -16,6 +16,10 @@ public class App: Object {
         self.init(AXUIElementCreateApplication(app.processIdentifier).takeRetainedValue())
     }
     
+    public convenience init(_ pid: pid_t) {
+        self.init(AXUIElementCreateApplication(pid).takeRetainedValue())
+    }
+    
     public class func allApps() -> [App] {
         return (NSWorkspace.sharedWorkspace().runningApplications as [NSRunningApplication]).map{ App($0) }
     }

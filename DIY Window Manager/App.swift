@@ -22,6 +22,11 @@ final class App: Lua.CustomType {
         return .Value(app.title())
     }
     
+    class func appWithPid(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        let pid = Int64(fromLua: vm, at: 1)!
+        return .Value(Lua.UserdataBox(App(Desktop.App(pid_t(pid)))))
+    }
+    
     class func allApps(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Values(Desktop.App.allApps().map{UserdataBox(App($0))})
     }
@@ -32,6 +37,7 @@ final class App: Lua.CustomType {
     
     class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
+            ("appWithPid", [Int64.arg()], App.appWithPid),
             ("allApps", [], App.allApps),
             ("focusedApp", [], App.focusedApp),
         ]
