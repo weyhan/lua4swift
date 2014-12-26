@@ -20,12 +20,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        println("now", L.stackSize())
 //        
 //        L.pushCustomType(Hotkey)
-        L.setGlobal("Hotkey")
+//        L.setGlobal("Hotkey")
         
         L.pushCustomType(Window)
         L.setGlobal("Window")
         
-        L.doString("print(Window.focusedWindow():topLeft().y)")
+        L.doString("w = Window.focusedWindow()")
+        L.doString("p = w:topLeft()")
+        L.doString("p.x = p.x + 10")
+        L.doString("w:setTopLeft(p)")
         
 //        L.doString("Hotkey.bind(3)")
 //        L.doString("print(34 + 2)")
