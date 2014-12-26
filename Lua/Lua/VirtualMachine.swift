@@ -86,7 +86,7 @@ public class VirtualMachine {
     public func pushString(s: String) { lua_pushstring(vm, (s as NSString).UTF8String) }
     
     public func pushFunction(fn: Function, upvalues: Int = 0) {
-        let f: @objc_block (COpaquePointer) -> Int32 = { _ in
+        let f: @objc_block (COpaquePointer) -> Int32 = { [unowned self] _ in
             switch fn() {
             case .Nothing:
                 return 0
@@ -124,7 +124,7 @@ public class VirtualMachine {
     
     public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
-        pushFunction {
+        pushFunction { [unowned self] in
             for (i, (nameFn, testFn)) in enumerate(types) {
                 if !testFn(self, i+1) {
                     return self.argError(nameFn, argPosition: i+1)
@@ -203,7 +203,7 @@ public class VirtualMachine {
         
         for (name, var kinds, fn) in t.instanceMethods() {
             kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
-            let f: Function = {
+            let f: Function = { [unowned self] in
                 let o: UserdataBox<T> = self.getUserdata(1)!
                 self.remove(1)
                 return fn(o.object)(self)
@@ -212,14 +212,14 @@ public class VirtualMachine {
         }
         
         for (name, kinds, fn) in t.classMethods() {
-            pushMethod(name, kinds, { fn(self) })
+            pushMethod(name, kinds, { [unowned self] in fn(self) })
         }
         
         var metaMethods = MetaMethods<T>()
         T.setMetaMethods(&metaMethods)
         
         let gc = metaMethods.gc
-        pushMethod("__gc", [UserdataBox<T>.arg()]) {
+        pushMethod("__gc", [UserdataBox<T>.arg()]) { [unowned self] in
             let o: UserdataBox<T> = self.getUserdata(1)!
             gc?(o.object, self)
             self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
@@ -227,7 +227,7 @@ public class VirtualMachine {
         }
         
         if let eq = metaMethods.eq {
-            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) {
+            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [unowned self] in
                 let a: UserdataBox<T> = self.getUserdata(1)!
                 let b: UserdataBox<T> = self.getUserdata(2)!
                 return .Values([eq(a.object, b.object)])
