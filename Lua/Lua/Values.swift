@@ -1,7 +1,7 @@
 import Foundation
 
 extension String: Value {
-    public func pushValue(L: VirtualMachine) { L.pushString(self) }
+    public func push(L: VirtualMachine) { L.pushString(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .String { return nil }
         var len: UInt = 0
@@ -17,7 +17,7 @@ extension String: Value {
 }
 
 extension Int64: Value {
-    public func pushValue(L: VirtualMachine) { L.pushInteger(self) }
+    public func push(L: VirtualMachine) { L.pushInteger(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Number { return nil }
         self = lua_tointegerx(L.vm, Int32(position), nil)
@@ -30,7 +30,7 @@ extension Int64: Value {
 }
 
 extension Double: Value {
-    public func pushValue(L: VirtualMachine) { L.pushDouble(self) }
+    public func push(L: VirtualMachine) { L.pushDouble(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Number { return nil }
         self = lua_tonumberx(L.vm, Int32(position), nil)
@@ -43,7 +43,7 @@ extension Double: Value {
 }
 
 extension Bool: Value {
-    public func pushValue(L: VirtualMachine) { L.pushBool(self) }
+    public func push(L: VirtualMachine) { L.pushBool(self) }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Bool { return nil }
         self = lua_toboolean(L.vm, Int32(position)) != 0
@@ -61,7 +61,7 @@ public struct FunctionBox: Value {
     public var fn: Function { return _fn! }
     public init(_ fn: Function) { _fn = fn }
     
-    public func pushValue(L: VirtualMachine) {
+    public func push(L: VirtualMachine) {
         if let fn = _fn { L.pushFunction(fn) }
     }
     public init?(fromLua L: VirtualMachine, at position: Int) {
@@ -75,7 +75,7 @@ public struct FunctionBox: Value {
 }
 
 public final class NilType: Value {
-    public func pushValue(L: VirtualMachine) { L.pushNil() }
+    public func push(L: VirtualMachine) { L.pushNil() }
     public init() {}
     public init?(fromLua L: VirtualMachine, at position: Int) {
         if L.kind(position) != .Nil { return nil }
@@ -90,8 +90,8 @@ public final class NilType: Value {
 public let Nil = NilType()
 
 extension NSPoint: Value {
-    public func pushValue(L: VirtualMachine) {
-        KeyedTable<String,Double>(["x":Double(self.x), "y":Double(self.y)]).pushValue(L)
+    public func push(L: VirtualMachine) {
+        KeyedTable<String,Double>(["x":Double(self.x), "y":Double(self.y)]).push(L)
     }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         let table = KeyedTable<String, Double>(fromLua: L, at: position)

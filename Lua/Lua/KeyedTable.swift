@@ -4,12 +4,12 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
     
     public var elements = [K:T]()
     
-    public func pushValue(L: VirtualMachine) {
+    public func push(L: VirtualMachine) {
         L.pushTable(keyCapacity: elements.count)
         let tablePosition = Int(lua_absindex(L.vm, -1)) // overkill? dunno.
         for (key, value) in elements {
-            key.pushValue(L)
-            value.pushValue(L)
+            key.push(L)
+            value.push(L)
             L.setTable(tablePosition)
         }
     }

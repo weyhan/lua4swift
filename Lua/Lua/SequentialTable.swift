@@ -4,12 +4,12 @@ public final class SequentialTable<T: Value>: Value {
     
     public var elements = [T]()
     
-    public func pushValue(L: VirtualMachine) {
+    public func push(L: VirtualMachine) {
         L.pushTable(keyCapacity: elements.count)
         let tablePosition = Int(lua_absindex(L.vm, -1)) // overkill? dunno.
         for (i, value) in enumerate(elements) {
-            Int64(i+1).pushValue(L)
-            value.pushValue(L)
+            Int64(i+1).push(L)
+            value.push(L)
             L.setTable(tablePosition)
         }
     }

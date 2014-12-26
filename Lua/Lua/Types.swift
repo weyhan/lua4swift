@@ -12,7 +12,7 @@ public typealias TypeChecker = (String, (VirtualMachine, Int) -> Bool)
 public typealias UserdataPointer = UnsafeMutablePointer<Void>
 
 public protocol Value {
-    func pushValue(L: VirtualMachine)
+    func push(L: VirtualMachine)
     init?(fromLua L: VirtualMachine, at position: Int)
     class func typeName() -> String
     class func isValid(L: VirtualMachine, at position: Int) -> Bool

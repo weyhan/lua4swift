@@ -37,7 +37,7 @@ public final class UserdataBox<T: CustomType>: Value {
     }
     
     // for the time being, you can't actually return one of these from a function if you got it as an arg :'(
-    public func pushValue(L: VirtualMachine) {
+    public func push(L: VirtualMachine) {
         // only create it if it doesn't exist yet
         if ptr == nil { ptr = L.pushUserdataBox(self) }
     }

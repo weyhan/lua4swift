@@ -87,7 +87,7 @@ public class VirtualMachine {
                 return 0
             case let .Value(value):
                 if let v = value {
-                    v.pushValue(self)
+                    v.push(self)
                 }
                 else {
                     self.pushNil()
@@ -95,12 +95,12 @@ public class VirtualMachine {
                 return 1
             case let .Values(values):
                 for value in values {
-                    value.pushValue(self)
+                    value.push(self)
                 }
                 return Int32(values.count)
             case let .Error(error):
                 println("pushing error: \(error)")
-                error.pushValue(self)
+                error.push(self)
                 lua_error(self.vm)
                 return 0 // uhh, we don't actually get here
             }
