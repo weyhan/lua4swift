@@ -14,26 +14,26 @@ final class Hotkey: Lua.CustomType {
         self.hotkey = hotkey
     }
     
-    func enable(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    func enable(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         hotkey.enable()
         return .Nothing
     }
     
-    func disable(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    func disable(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         hotkey.disable()
         return .Nothing
     }
     
-    class func bind(L: Lua.VirtualMachine) -> Lua.ReturnValue {
-        let key = String(fromLua: L, at: 1)!
-        let modStrings = Lua.SequentialTable<String>(fromLua: L, at: 2)!.elements
+    class func bind(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        let key = String(fromLua: vm, at: 1)!
+        let modStrings = Lua.SequentialTable<String>(fromLua: vm, at: 2)!.elements
         
-        L.pushFromStack(3)
-        let i = L.ref(Lua.RegistryIndex)
+        vm.pushFromStack(3)
+        let i = vm.ref(Lua.RegistryIndex)
         
         let downFn: Graphite.Hotkey.Callback = {
-            L.rawGet(tablePosition: Lua.RegistryIndex, index: i)
-            L.call(arguments: 0, returnValues: 0)
+            vm.rawGet(tablePosition: Lua.RegistryIndex, index: i)
+            vm.call(arguments: 0, returnValues: 0)
         }
         
         let hotkey = Graphite.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)

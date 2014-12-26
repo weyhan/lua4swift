@@ -6,7 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let L = Lua.VirtualMachine()
+        let vm = Lua.VirtualMachine()
         
 //        L.errorHandler = nil
 //        let errh = L.errorHandler
@@ -22,13 +22,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        L.pushCustomType(Hotkey)
 //        L.setGlobal("Hotkey")
         
-        L.pushCustomType(Window)
-        L.setGlobal("Window")
+        vm.pushCustomType(Window)
+        vm.setGlobal("Window")
         
-        L.doString("w = Window.focusedWindow()")
-        L.doString("p = w:topLeft()")
-        L.doString("p.x = p.x + 10")
-        L.doString("w:setTopLeft(p)")
+        vm.doString("w = Window.focusedWindow()")
+        vm.doString("p = w:topLeft()")
+        vm.doString("p.x = p.x + 10")
+        vm.doString("w:setTopLeft(p)")
         
 //        L.doString("Hotkey.bind(3)")
 //        L.doString("print(34 + 2)")

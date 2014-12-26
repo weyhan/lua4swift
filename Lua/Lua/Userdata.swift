@@ -30,25 +30,25 @@ public final class UserdataBox<T: CustomType>: Value {
         self._object = object
     }
     
-    public init?(fromLua L: VirtualMachine, at position: Int) {
-        let box: UserdataBox<T> = L.getUserdata(position)!
+    public init?(fromLua vm: VirtualMachine, at position: Int) {
+        let box: UserdataBox<T> = vm.getUserdata(position)!
         ptr = box.ptr
         _object = box.object
     }
     
     // for the time being, you can't actually return one of these from a function if you got it as an arg :'(
-    public func push(L: VirtualMachine) {
+    public func push(vm: VirtualMachine) {
         // only create it if it doesn't exist yet
-        if ptr == nil { ptr = L.pushUserdataBox(self) }
+        if ptr == nil { ptr = vm.pushUserdataBox(self) }
     }
     
     public class func typeName() -> String {
         return T.metatableName()
     }
     
-    public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
-        if L.kind(position) != .Userdata { return false }
-        if let _: UserdataBox<T> = L.getUserdata(position) { return true }
+    public class func isValid(vm: VirtualMachine, at position: Int) -> Bool {
+        if vm.kind(position) != .Userdata { return false }
+        if let _: UserdataBox<T> = vm.getUserdata(position) { return true }
         return false
     }
     

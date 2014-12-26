@@ -4,25 +4,25 @@ public final class SequentialTable<T: Value>: Value {
     
     public var elements = [T]()
     
-    public func push(L: VirtualMachine) {
-        L.pushTable(keyCapacity: elements.count)
-        let tablePosition = Int(lua_absindex(L.vm, -1)) // overkill? dunno.
+    public func push(vm: VirtualMachine) {
+        vm.pushTable(keyCapacity: elements.count)
+        let tablePosition = Int(lua_absindex(vm.vm, -1)) // overkill? dunno.
         for (i, value) in enumerate(elements) {
-            Int64(i+1).push(L)
-            value.push(L)
-            L.setTable(tablePosition)
+            Int64(i+1).push(vm)
+            value.push(vm)
+            vm.setTable(tablePosition)
         }
     }
     
-    public init?(fromLua L: VirtualMachine, var at position: Int) {
-        position = L.absolutePosition(position) // pretty sure this is necessary
+    public init?(fromLua vm: VirtualMachine, var at position: Int) {
+        position = vm.absolutePosition(position) // pretty sure this is necessary
         var bag = [Int64:T]()
         
-        L.pushNil()
-        while lua_next(L.vm, Int32(position)) != 0 {
-            let i = Int64(fromLua: L, at: -2)
-            let val = T(fromLua: L, at: -1)
-            L.pop(1)
+        vm.pushNil()
+        while lua_next(vm.vm, Int32(position)) != 0 {
+            let i = Int64(fromLua: vm, at: -2)
+            let val = T(fromLua: vm, at: -1)
+            vm.pop(1)
             
             // non-int key or non-T value
             if i == nil || val == nil { continue }
@@ -49,8 +49,8 @@ public final class SequentialTable<T: Value>: Value {
     
     public class func typeName() -> String { return "array(\(T.typeName()))" }
     public class func arg() -> TypeChecker { return (SequentialTable<T>.typeName(), SequentialTable<T>.isValid) }
-    public class func isValid(L: VirtualMachine, at position: Int) -> Bool {
-        return L.kind(position) == .Table && SequentialTable<T>(fromLua: L, at: position) != nil
+    public class func isValid(vm: VirtualMachine, at position: Int) -> Bool {
+        return vm.kind(position) == .Table && SequentialTable<T>(fromLua: vm, at: position) != nil
     }
     
 }

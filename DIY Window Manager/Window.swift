@@ -18,7 +18,7 @@ final class Window: Lua.CustomType {
         _win = win
     }
     
-    func title(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    func title(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Value(win.title())
     }
     
@@ -32,11 +32,11 @@ final class Window: Lua.CustomType {
         return .Nothing
     }
     
-    class func allWindows(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    class func allWindows(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Values(Desktop.Window.allWindows().map{UserdataBox(Window($0))})
     }
     
-    class func focusedWindow(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    class func focusedWindow(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Value(Lua.UserdataBox(Window(Desktop.Window.focusedWindow())))
     }
     

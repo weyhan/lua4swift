@@ -18,7 +18,7 @@ final class App: Lua.CustomType {
         _app = win
     }
     
-    func title(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    func title(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Value(app.title())
     }
     
@@ -27,11 +27,11 @@ final class App: Lua.CustomType {
         return .Value(Lua.UserdataBox(App(Desktop.App(pid_t(pid)))))
     }
     
-    class func allApps(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    class func allApps(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Values(Desktop.App.allApps().map{UserdataBox(App($0))})
     }
     
-    class func focusedApp(L: Lua.VirtualMachine) -> Lua.ReturnValue {
+    class func focusedApp(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Value(Lua.UserdataBox(App(Desktop.App.focusedApp())))
     }
     
