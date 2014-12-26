@@ -4,6 +4,8 @@ import Lua
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
+    let prefs = PreferencesController()
+    
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
         let vm = Lua.VirtualMachine()
@@ -21,6 +23,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        
 //        L.pushCustomType(Hotkey)
 //        L.setGlobal("Hotkey")
+        
+        prefs.showWindow(nil)
+        return;
         
         vm.pushCustomType(Window)
         vm.setGlobal("Window")
