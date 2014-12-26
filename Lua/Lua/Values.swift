@@ -61,10 +61,11 @@ public struct FunctionBox: Value {
     public var fn: Function { return _fn! }
     public init(_ fn: Function) { _fn = fn }
     
-    public func pushValue(L: VirtualMachine) { L.pushFunction(self.fn) }
+    public func pushValue(L: VirtualMachine) {
+        if let fn = _fn { L.pushFunction(fn) }
+    }
     public init?(fromLua L: VirtualMachine, at position: Int) {
         // can't ever convert functions to a usable object
-//        return nil
     }
     public static func typeName() -> String { return "function" }
     public static func arg() -> TypeChecker { return (FunctionBox.typeName(), FunctionBox.isValid) }
