@@ -24,7 +24,7 @@ public final class KeyedTable<K: Value, T: Value where K: Hashable>: Value { // 
             L.pop(1)
             
             // non-int key or non-T value
-            if key == nil || val == nil { return nil }
+            if key == nil || val == nil { continue }
             
             self.elements[key!] = val!
         }

@@ -25,7 +25,7 @@ public final class SequentialTable<T: Value>: Value {
             L.pop(1)
             
             // non-int key or non-T value
-            if i == nil || val == nil { return nil }
+            if i == nil || val == nil { continue }
             
             bag[i!] = val!
         }
