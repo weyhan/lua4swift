@@ -15,6 +15,11 @@ public class VirtualMachine {
         if openLibs { luaL_openlibs(vm) }
     }
     
+    deinit {
+        println("lua dead")
+        lua_close(vm)
+    }
+    
     // execute
     
     public func loadString(str: String) -> String? {

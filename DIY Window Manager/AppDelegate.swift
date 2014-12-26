@@ -24,8 +24,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        L.pushCustomType(Hotkey)
 //        L.setGlobal("Hotkey")
         
-        prefs.showWindow(nil)
-        return;
+//        prefs.showWindow(nil)
+//        return;
         
         vm.pushCustomType(Window)
         vm.setGlobal("Window")
@@ -33,12 +33,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.pushCustomType(App)
         vm.setGlobal("App")
         
-        vm.doString("App.focusedApp():forceQuit()")
+//        vm.doString("App.focusedApp():forceQuit()")
         
-        vm.doString("w = Window.focusedWindow()")
-        vm.doString("p = w:topLeft()")
-        vm.doString("p.x = p.x + 10")
-        vm.doString("w:setTopLeft(p)")
+//        vm.doString("w = Window.focusedWindow()")
+//        vm.doString("p = w:topLeft()")
+//        vm.doString("p.x = p.x + 10")
+//        vm.doString("w:setTopLeft(p)")
+        
+        return
         
 //        L.doString("Hotkey.bind(3)")
 //        L.doString("print(34 + 2)")

@@ -61,6 +61,7 @@ final class Hotkey: Lua.CustomType {
     class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Hotkey>) {
         metaMethods.eq = { $0.fn == $1.fn }
         metaMethods.gc = { this, L in
+            println("gone hotkey!")
             this.hotkey.disable()
             L.unref(Lua.RegistryIndex, this.fn)
         }
