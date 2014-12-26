@@ -200,6 +200,7 @@ public class VirtualMachine {
             kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
             let f: Function = {
                 let o: UserdataBox<T> = self.getUserdata(1)!
+                self.remove(1)
                 return fn(o.object)(self)
             }
             pushMethod(name, kinds, f)
