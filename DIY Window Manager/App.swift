@@ -22,6 +22,34 @@ final class App: Lua.CustomType {
         return .Value(app.title())
     }
     
+    func quit(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(app.terminate())
+    }
+    
+    func forceQuit(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(app.terminate(force: true))
+    }
+    
+    func hide(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(app.hide())
+    }
+    
+    func unhide(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(app.unhide())
+    }
+    
+    func isHidden(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(app.isHidden())
+    }
+    
+    func focusedWindow(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(UserdataBox(Window(app.focusedWindow())))
+    }
+    
+    func mainWindow(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        return .Value(UserdataBox(Window(app.mainWindow())))
+    }
+    
     class func appWithPid(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
         let pid = Int64(fromLua: vm, at: 1)!
         return .Value(Lua.UserdataBox(App(Desktop.App(pid_t(pid)))))
@@ -45,7 +73,14 @@ final class App: Lua.CustomType {
     
     class func instanceMethods() -> [(String, [Lua.TypeChecker], App -> Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
+            ("quit", [], App.quit),
+            ("forceQuit", [], App.forceQuit),
+            ("hide", [], App.hide),
+            ("unhide", [], App.unhide),
+            ("isHidden", [], App.isHidden),
             ("title", [], App.title),
+            ("mainWindow", [], App.mainWindow),
+            ("focusedWindow", [], App.focusedWindow),
         ]
     }
     
