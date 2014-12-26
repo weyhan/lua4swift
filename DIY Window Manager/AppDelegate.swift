@@ -25,6 +25,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.pushCustomType(Window)
         vm.setGlobal("Window")
         
+        vm.pushCustomType(App)
+        vm.setGlobal("App")
+        
+        vm.doString("App.focusedApp():forceQuit()")
+        
         vm.doString("w = Window.focusedWindow()")
         vm.doString("p = w:topLeft()")
         vm.doString("p.x = p.x + 10")
