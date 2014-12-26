@@ -26,6 +26,12 @@ final class Window: Lua.CustomType {
         return .Value(win.topLeft())
     }
     
+    func setTopLeft(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+        let point = NSPoint(fromLua: vm, at: 1)!
+        win.setTopLeft(point)
+        return .Nothing
+    }
+    
     class func allWindows(L: Lua.VirtualMachine) -> Lua.ReturnValue {
         return .Values(Desktop.Window.allWindows().map{UserdataBox(Window($0))})
     }
@@ -45,6 +51,7 @@ final class Window: Lua.CustomType {
         return [
             ("title", [], Window.title),
             ("topLeft", [], Window.topLeft),
+            ("setTopLeft", [NSPoint.arg()], Window.setTopLeft),
         ]
     }
     
