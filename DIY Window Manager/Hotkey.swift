@@ -31,9 +31,9 @@ final class Hotkey: Lua.CustomType {
         vm.pushFromStack(3)
         let i = vm.ref(Lua.RegistryIndex)
         
-        let downFn: Graphite.Hotkey.Callback = {
-            vm.rawGet(tablePosition: Lua.RegistryIndex, index: i)
-            vm.call(arguments: 0, returnValues: 0)
+        let downFn: Graphite.Hotkey.Callback = { [weak vm] in
+            vm?.rawGet(tablePosition: Lua.RegistryIndex, index: i)
+            vm?.call(arguments: 0, returnValues: 0)
         }
         
         let hotkey = Graphite.Hotkey(key: key, mods: modStrings, downFn: downFn, upFn: nil)

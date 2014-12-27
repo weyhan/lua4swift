@@ -86,27 +86,29 @@ public class VirtualMachine {
     public func pushString(s: String) { lua_pushstring(vm, (s as NSString).UTF8String) }
     
     public func pushFunction(fn: Function, upvalues: Int = 0) {
-        let f: @objc_block (COpaquePointer) -> Int32 = { [unowned self] _ in
+        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
+            if self == nil { return 0 }
+            
             switch fn() {
             case .Nothing:
                 return 0
             case let .Value(value):
                 if let v = value {
-                    v.push(self)
+                    v.push(self!)
                 }
                 else {
-                    self.pushNil()
+                    self!.pushNil()
                 }
                 return 1
             case let .Values(values):
                 for value in values {
-                    value.push(self)
+                    value.push(self!)
                 }
                 return Int32(values.count)
             case let .Error(error):
                 println("pushing error: \(error)")
-                error.push(self)
-                lua_error(self.vm)
+                error.push(self!)
+                lua_error(self!.vm)
                 return 0 // uhh, we don't actually get here
             }
         }
@@ -124,10 +126,11 @@ public class VirtualMachine {
     
     public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
         pushString(name)
-        pushFunction { [unowned self] in
+        pushFunction { [weak self] in
+            if self == nil { return .Nothing }
             for (i, (nameFn, testFn)) in enumerate(types) {
-                if !testFn(self, i+1) {
-                    return self.argError(nameFn, argPosition: i+1)
+                if !testFn(self!, i+1) {
+                    return self!.argError(nameFn, argPosition: i+1)
                 }
             }
             
@@ -203,33 +206,40 @@ public class VirtualMachine {
         
         for (name, var kinds, fn) in t.instanceMethods() {
             kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
-            let f: Function = { [unowned self] in
-                let o: UserdataBox<T> = self.getUserdata(1)!
-                self.remove(1)
-                return fn(o.object)(self)
+            let f: Function = { [weak self] in
+                if self == nil { return .Nothing }
+                let o: UserdataBox<T> = self!.getUserdata(1)!
+                self!.remove(1)
+                return fn(o.object)(self!)
             }
             pushMethod(name, kinds, f)
         }
         
         for (name, kinds, fn) in t.classMethods() {
-            pushMethod(name, kinds, { [unowned self] in fn(self) })
+            pushMethod(name, kinds, { [weak self] in
+                if self == nil { return .Nothing }
+                return fn(self!)
+            })
         }
         
         var metaMethods = MetaMethods<T>()
         T.setMetaMethods(&metaMethods)
         
         let gc = metaMethods.gc
-        pushMethod("__gc", [UserdataBox<T>.arg()]) { [unowned self] in
-            let o: UserdataBox<T> = self.getUserdata(1)!
-            gc?(o.object, self)
-            self.storedSwiftValues[self.getUserdataPointer(1)!] = nil
+        pushMethod("__gc", [UserdataBox<T>.arg()]) { [weak self] in
+            println("called!")
+//            if self == nil { return .Nothing }
+            let o: UserdataBox<T> = self!.getUserdata(1)!
+            gc?(o.object, self!)
+            self!.storedSwiftValues[self!.getUserdataPointer(1)!] = nil
             return .Values([])
         }
         
         if let eq = metaMethods.eq {
-            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [unowned self] in
-                let a: UserdataBox<T> = self.getUserdata(1)!
-                let b: UserdataBox<T> = self.getUserdata(2)!
+            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [weak self] in
+                if self == nil { return .Nothing }
+                let a: UserdataBox<T> = self!.getUserdata(1)!
+                let b: UserdataBox<T> = self!.getUserdata(2)!
                 return .Values([eq(a.object, b.object)])
             }
         }
