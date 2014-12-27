@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        let vm = Lua.VirtualMachine()
+//        let vm = Lua.VirtualMachine()
         
 //        L.errorHandler = nil
 //        let errh = L.errorHandler
@@ -21,17 +21,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        L.doString("Hotkey.bind(3)")
 //        println("now", L.stackSize())
         
-        vm.pushCustomType(Hotkey)
-        vm.setGlobal("Hotkey")
+//        vm.pushCustomType(Hotkey)
+//        vm.setGlobal("Hotkey")
         
-//        prefs.showWindow(nil)
+        prefs.showWindow(nil)
 //        return;
         
-        vm.pushCustomType(Window)
-        vm.setGlobal("Window")
-        
-        vm.pushCustomType(App)
-        vm.setGlobal("App")
+//        vm.pushCustomType(Window)
+//        vm.setGlobal("Window")
+//        
+//        vm.pushCustomType(App)
+//        vm.setGlobal("App")
         
 //        vm.doString("App.focusedApp():forceQuit()")
         
@@ -50,7 +50,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        L.doString("k:disable()")
 //        L.doString("k:enable()")
         
-        vm.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end):disable()")
+//        vm.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end):disable()")
         
 //        NSApplication.sharedApplication().terminate(nil)
         
