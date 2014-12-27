@@ -20,9 +20,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        println("before", L.stackSize())
 //        L.doString("Hotkey.bind(3)")
 //        println("now", L.stackSize())
-//        
-//        L.pushCustomType(Hotkey)
-//        L.setGlobal("Hotkey")
+        
+        vm.pushCustomType(Hotkey)
+        vm.setGlobal("Hotkey")
         
 //        prefs.showWindow(nil)
 //        return;
@@ -40,8 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        vm.doString("p.x = p.x + 10")
 //        vm.doString("w:setTopLeft(p)")
         
-        return
-        
 //        L.doString("Hotkey.bind(3)")
 //        L.doString("print(34 + 2)")
 //        L.doString("print(Hotkey)")
@@ -52,7 +50,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        L.doString("k:disable()")
 //        L.doString("k:enable()")
         
-//        L.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end)")
+        vm.doString("Hotkey.bind('s', {'cmd', 'shift'}, function() print(3) end):disable()")
         
 //        NSApplication.sharedApplication().terminate(nil)
         
