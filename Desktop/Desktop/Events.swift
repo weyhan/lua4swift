@@ -1,5 +1,50 @@
 import Foundation
 
+public class EventHandler {
+    
+    public enum Event {
+        case AppLaunched(App -> Void)
+        case AppTerminated(App -> Void)
+        
+        func name() -> String {
+            switch self {
+            case AppLaunched: return NSWorkspaceDidLaunchApplicationNotification
+            case AppTerminated: return NSWorkspaceDidTerminateApplicationNotification
+            }
+        }
+        
+//        func call(AnyObject) -> String {
+//            switch self {
+//            case let AppLaunched(fn):
+//            case let AppTerminated(fn):
+//            }
+//        }
+    }
+    
+    private let observer: NSObjectProtocol
+    
+    public init(event: Event) {
+        observer = NSWorkspace.sharedWorkspace().notificationCenter.addObserverForName(event.name(), object: nil, queue: NSOperationQueue.mainQueue()) { notification in
+            if let dict = notification.userInfo {
+                event.call(dict)
+//                if let app = dict[NSWorkspaceApplicationKey] as? NSRunningApplication {
+//                    
+//                    fn(App(app))
+//                }
+            }
+        }
+    }
+    
+    public func unregister() {
+        NSWorkspace.sharedWorkspace().notificationCenter.removeObserver(observer)
+    }
+    
+    deinit {
+        unregister()
+    }
+    
+}
+
 public class AppEventHandler {
     
     public enum Event {
@@ -15,7 +60,7 @@ public class AppEventHandler {
         case ApplicationActivated(App -> Void)
         case MainWindowChanged(Window? -> Void)
         
-        func name() -> String {
+        private func name() -> String {
             switch self {
             case WindowCreated:        return "AXWindowCreated"
             case ElementDestroyed:     return "AXUIElementDestroyed"
@@ -31,7 +76,7 @@ public class AppEventHandler {
             }
         }
         
-        func call(element: AXUIElement!) {
+        private func call(element: AXUIElement!) {
             switch self {
             case let WindowCreated(fn):        fn(Window(element))
             case let ElementDestroyed(fn):     fn(Window(element))

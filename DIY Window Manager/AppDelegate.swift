@@ -7,11 +7,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
-    var handler = Desktop.AppEventHandler(app: Desktop.App.focusedApp()!, event: .WindowCreated({ win in
+    let handler = Desktop.AppEventHandler(app: Desktop.App.focusedApp()!, event: .WindowCreated({ win in
         println("welp: WindowCreated!!! \(win.title())")
     }))
     
+    let h = Desktop.EventHandler() { app in
+        println(app.title())
+    }
+    
+    
     func applicationDidFinishLaunching(aNotification: NSNotification) {
+        
         
 //        let vm = Lua.VirtualMachine()
         

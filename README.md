@@ -10,5 +10,7 @@ Currently:
 - Crash
 - Eat your computer
 - Accidentally make you lose all your money somehow
+- Eat all your food
+- Make carnivorous dinosaurs come back alive at the worst possible time in the middle of a crowded city
 - Probably cause a singularity?
-- Accidentally fix the singularity when trying to use an invalid C pointer somewhere
+- Accidentally fix the singularity by trying to use an invalid C pointer
