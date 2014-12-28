@@ -1,12 +1,32 @@
 import Cocoa
 import Lua
+import Desktop
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
-    let prefs = PreferencesController()
+//    let prefs = PreferencesController()
+    
+    var obs: Desktop.AppObserver?
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
+        
+        if let app = Desktop.App.focusedApp() {
+            println("app is \(app.title())")
+            
+            if let ob = Desktop.AppObserver(app) {
+                obs = ob
+                println("ob is \(ob)")
+                
+                ob.observe(.WindowCreated({ win in
+                    println("WindowCreated \(win.title())")
+                }))
+                
+                ob.observe(.ApplicationActivated({ app in
+                    println("ApplicationActivated \(app.title())")
+                }))
+            }
+        }
         
 //        let vm = Lua.VirtualMachine()
         
@@ -24,7 +44,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        vm.pushCustomType(Hotkey)
 //        vm.setGlobal("Hotkey")
         
-        prefs.showWindow(nil)
+//        prefs.showWindow(nil)
 //        return;
         
 //        vm.pushCustomType(Window)
