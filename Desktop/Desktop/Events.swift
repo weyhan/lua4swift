@@ -63,14 +63,14 @@ public class AppObserver {
         if ob == nil { return nil }
         observer = ob!.takeRetainedValue()
         
-        AXObserverAddNotification(observer, self.app.element, self.event.name(), SDegutisVoidStarifyBlock(fn))
+        AXObserverAddNotification(observer, app.element, event.name(), SDegutisVoidStarifyBlock(fn))
         CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer).takeUnretainedValue(), kCFRunLoopDefaultMode)
     }
     
     public func unregister() {
         if observer == nil { return }
         CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer).takeUnretainedValue(), kCFRunLoopDefaultMode)
-        AXObserverRemoveNotification(observer, self.app.element, self.event.name())
+        AXObserverRemoveNotification(observer, app.element, event.name())
         observer = nil
     }
     

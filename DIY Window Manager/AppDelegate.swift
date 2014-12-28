@@ -15,9 +15,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             println("app is \(app.title())")
             
             let ob = Desktop.AppObserver(app: app, event: .WindowCreated({ win in
-                println("WindowCreated \(win.title())")
+                println("welp: WindowCreated!!! \(win.title())")
             }))
             obs = ob
+            println(obs)
             
 //            if let ob = Desktop.AppObserver(app) {
 //                obs = ob
