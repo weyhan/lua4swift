@@ -7,32 +7,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
-    var obs: Desktop.AppObserver?
+    var handler = Desktop.AppEventHandler(app: Desktop.App.focusedApp()!, event: .WindowCreated({ win in
+        println("welp: WindowCreated!!! \(win.title())")
+    }))
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
-        
-        if let app = Desktop.App.focusedApp() {
-            println("app is \(app.title())")
-            
-            let ob = Desktop.AppObserver(app: app, event: .WindowCreated({ win in
-                println("welp: WindowCreated!!! \(win.title())")
-            }))
-            obs = ob
-            println(obs)
-            
-//            if let ob = Desktop.AppObserver(app) {
-//                obs = ob
-//                println("ob is \(ob)")
-//                
-//                ob.observe(.WindowCreated({ win in
-//                    println("WindowCreated \(win.title())")
-//                }))
-//                
-//                ob.observe(.ApplicationActivated({ app in
-//                    println("ApplicationActivated \(app.title())")
-//                }))
-//            }
-        }
         
 //        let vm = Lua.VirtualMachine()
         

@@ -1,6 +1,6 @@
 import Foundation
 
-public class AppObserver {
+public class AppEventHandler {
     
     public enum Event {
         case WindowCreated(Window -> Void)
