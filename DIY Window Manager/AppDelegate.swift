@@ -11,9 +11,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         println("welp: WindowCreated!!! \(win.title())")
     }))
     
-    let h = Desktop.EventHandler() { app in
+    let h = Desktop.DesktopEventHandler(.AppHidden({ app in
         println(app.title())
-    }
+    }))
     
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {

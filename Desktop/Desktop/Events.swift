@@ -1,36 +1,44 @@
 import Foundation
 
-public class EventHandler {
+public class DesktopEventHandler {
     
     public enum Event {
         case AppLaunched(App -> Void)
         case AppTerminated(App -> Void)
+        case AppHidden(App -> Void)
+        case AppUnhidden(App -> Void)
         
-        func name() -> String {
+        private func name() -> String {
             switch self {
             case AppLaunched: return NSWorkspaceDidLaunchApplicationNotification
             case AppTerminated: return NSWorkspaceDidTerminateApplicationNotification
+            case AppHidden: return NSWorkspaceDidHideApplicationNotification
+            case AppUnhidden: return NSWorkspaceDidUnhideApplicationNotification
             }
         }
         
-//        func call(AnyObject) -> String {
-//            switch self {
-//            case let AppLaunched(fn):
-//            case let AppTerminated(fn):
-//            }
-//        }
+        private func call(fn: App -> Void, withUserInfo dict: AnyObject) {
+            if let app = dict[NSWorkspaceApplicationKey] as? NSRunningApplication {
+                fn(App(app))
+            }
+        }
+        
+        private func call(dict: AnyObject) {
+            switch self {
+            case let AppLaunched(fn): call(fn, withUserInfo: dict)
+            case let AppTerminated(fn): call(fn, withUserInfo: dict)
+            case let AppHidden(fn): call(fn, withUserInfo: dict)
+            case let AppUnhidden(fn): call(fn, withUserInfo: dict)
+            }
+        }
     }
     
     private let observer: NSObjectProtocol
     
-    public init(event: Event) {
+    public init(_ event: Event) {
         observer = NSWorkspace.sharedWorkspace().notificationCenter.addObserverForName(event.name(), object: nil, queue: NSOperationQueue.mainQueue()) { notification in
             if let dict = notification.userInfo {
                 event.call(dict)
-//                if let app = dict[NSWorkspaceApplicationKey] as? NSRunningApplication {
-//                    
-//                    fn(App(app))
-//                }
             }
         }
     }
