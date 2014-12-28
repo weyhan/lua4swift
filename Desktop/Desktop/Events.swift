@@ -7,6 +7,8 @@ public class DesktopEventHandler {
         case AppTerminated(App -> Void)
         case AppHidden(App -> Void)
         case AppUnhidden(App -> Void)
+        case AppFocused(App -> Void)
+        case AppUnfocused(App -> Void)
         
         private func name() -> String {
             switch self {
@@ -14,6 +16,8 @@ public class DesktopEventHandler {
             case AppTerminated: return NSWorkspaceDidTerminateApplicationNotification
             case AppHidden: return NSWorkspaceDidHideApplicationNotification
             case AppUnhidden: return NSWorkspaceDidUnhideApplicationNotification
+            case AppFocused: return NSWorkspaceDidActivateApplicationNotification
+            case AppUnfocused: return NSWorkspaceDidDeactivateApplicationNotification
             }
         }
         
@@ -29,6 +33,8 @@ public class DesktopEventHandler {
             case let AppTerminated(fn): call(fn, withUserInfo: dict)
             case let AppHidden(fn): call(fn, withUserInfo: dict)
             case let AppUnhidden(fn): call(fn, withUserInfo: dict)
+            case let AppFocused(fn): call(fn, withUserInfo: dict)
+            case let AppUnfocused(fn): call(fn, withUserInfo: dict)
             }
         }
     }
