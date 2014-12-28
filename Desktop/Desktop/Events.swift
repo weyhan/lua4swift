@@ -48,30 +48,34 @@ public class AppObserver {
         }
     }
     
-    let _carbonObserver: AXObserver?
-    var carbonObserver: AXObserver { return _carbonObserver! }
+    private var observer: AXObserver?
+    private let fn: AXUIElement! -> Void
+    public let app: App
+    public let event: Event
     
-    let app: App
-    
-    public init?(_ app: App) {
+    public init?(app: App, event: Event) {
         self.app = app
+        self.event = event
+        fn = { event.call($0) }
+        
         var ob: Unmanaged<AXObserver>?
         if AXObserverCreate(app.pid, SDegutisObserverCallbackTrampoline(), &ob) != AXError(kAXErrorSuccess) { return nil }
         if ob == nil { return nil }
-        _carbonObserver = ob!.takeRetainedValue()
+        observer = ob!.takeRetainedValue()
+        
+        AXObserverAddNotification(observer, self.app.element, self.event.name(), SDegutisVoidStarifyBlock(fn))
+        CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer).takeUnretainedValue(), kCFRunLoopDefaultMode)
     }
     
-    public func observe(event: Event) {
-        let fn: @objc_block (AXUIElement!) -> () = { element in
-            event.call(element)
-        }
-        a.append(fn)
-        AXObserverAddNotification(carbonObserver, self.app.element, event.name(), unsafeBitCast(fn, UnsafeMutablePointer<Void>.self))
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(carbonObserver).takeUnretainedValue(), kCFRunLoopDefaultMode)
+    public func unregister() {
+        if observer == nil { return }
+        CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer).takeUnretainedValue(), kCFRunLoopDefaultMode)
+        AXObserverRemoveNotification(observer, self.app.element, self.event.name())
+        observer = nil
+    }
+    
+    deinit {
+        unregister()
     }
     
 }
-
-private var a = [ElementCallback]()
-
-private typealias ElementCallback = AXUIElement! -> Void

@@ -9,3 +9,4 @@ extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
 // my stuff
 AXObserverCallback SDegutisObserverCallbackTrampoline(void);
+void* SDegutisVoidStarifyBlock(void(^block)(AXUIElementRef));

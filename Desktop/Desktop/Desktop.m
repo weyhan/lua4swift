@@ -3,10 +3,14 @@
 #import "Desktop.h"
 
 void SDegutisObserverCallback(AXObserverRef observer, AXUIElementRef element, CFStringRef notification, void *refcon) {
-    void(^thing)(AXUIElementRef) = (__bridge void (^)(AXUIElementRef))(refcon);
-    thing(element);
+    void(^block)(AXUIElementRef) = (__bridge void (^)(AXUIElementRef))(refcon);
+    block(element);
 }
 
 AXObserverCallback SDegutisObserverCallbackTrampoline(void) {
     return &SDegutisObserverCallback;
+}
+
+void* SDegutisVoidStarifyBlock(void(^block)(AXUIElementRef)) {
+    return (__bridge_retained void*)(block);
 }
