@@ -4,18 +4,17 @@ import Lua
 
 final class App: Lua.CustomType {
     
-    private let _app: Desktop.App?
-    var app: Desktop.App { return _app! }
+    let app: Desktop.App!
     
     class func metatableName() -> String { return "App" }
     
-    init(_ win: Desktop.App) {
-        _app = win
+    init(_ app: Desktop.App) {
+        self.app = app
     }
     
-    init?(_ win: Desktop.App?) {
-        if win == nil { return nil }
-        _app = win
+    init?(_ app: Desktop.App?) {
+        if app == nil { return nil }
+        self.app = app
     }
     
     func title(vm: Lua.VirtualMachine) -> Lua.ReturnValue {

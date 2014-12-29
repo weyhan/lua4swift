@@ -2,19 +2,35 @@ import Cocoa
 import Lua
 import Desktop
 
+class AppBookkeeper {
+    
+    let launchedHandler = Desktop.DesktopEventHandler(.AppLaunched({ app in
+        
+    }))
+    
+    let terminatedHandler = Desktop.DesktopEventHandler(.AppTerminated({ app in
+        
+    }))
+    
+    init() {
+    }
+    
+}
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
-    let handler = Desktop.AppEventHandler(app: Desktop.App.focusedApp()!, event: .WindowCreated({ win in
-        println("welp: WindowCreated!!! \(win.title())")
-    }))
+//    let handler = Desktop.AppEventHandler(app: Desktop.App.focusedApp()!, event: .WindowCreated({ win in
+//        println("welp: WindowCreated!!! \(win.title())")
+//    }))
+//    
+//    let h = Desktop.DesktopEventHandler(.AppFocused({ app in
+//        println(app.title())
+//    }))
     
-    let h = Desktop.DesktopEventHandler(.AppHidden({ app in
-        println(app.title())
-    }))
-    
+    let appBookkeeper = AppBookkeeper()
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
