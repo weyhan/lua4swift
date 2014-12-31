@@ -39,22 +39,30 @@ public class DesktopEventHandler {
         }
     }
     
-    private let observer: NSObjectProtocol
+    private var observer: NSObjectProtocol?
+    public let event: Event
     
     public init(_ event: Event) {
+        self.event = event
+    }
+    
+    public func enable() {
         observer = NSWorkspace.sharedWorkspace().notificationCenter.addObserverForName(event.name(), object: nil, queue: NSOperationQueue.mainQueue()) { notification in
             if let dict = notification.userInfo {
-                event.call(dict)
+                self.event.call(dict)
             }
         }
     }
     
-    public func unregister() {
-        NSWorkspace.sharedWorkspace().notificationCenter.removeObserver(observer)
+    public func disable() {
+        if let o = observer {
+            NSWorkspace.sharedWorkspace().notificationCenter.removeObserver(o)
+            observer = nil
+        }
     }
     
     deinit {
-        unregister()
+        disable()
     }
     
 }
@@ -116,17 +124,24 @@ public class AppEventHandler {
         self.app = app
         self.event = event
         fn = { event.call($0) }
+    }
+    
+    public func enable() -> String? {
+        if observer != nil { return "Already enabled." }
         
         var ob: Unmanaged<AXObserver>?
-        if AXObserverCreate(app.pid, SDegutisObserverCallbackTrampoline(), &ob) != AXError(kAXErrorSuccess) { return nil }
-        if ob == nil { return nil }
+        let result = AXObserverCreate(app.pid, SDegutisObserverCallbackTrampoline(), &ob)
+        if result != AXError(kAXErrorSuccess) { return "AXObserverCreate failed: code \(result)" }
+        if ob == nil { return "AXObserverCreate didn't do its job right" }
         observer = ob!.takeRetainedValue()
         
         AXObserverAddNotification(observer, app.element, event.name(), SDegutisVoidStarifyBlock(fn))
         CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer).takeUnretainedValue(), kCFRunLoopDefaultMode)
+        
+        return nil
     }
     
-    public func unregister() {
+    public func disable() {
         if observer == nil { return }
         CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer).takeUnretainedValue(), kCFRunLoopDefaultMode)
         AXObserverRemoveNotification(observer, app.element, event.name())
@@ -134,7 +149,7 @@ public class AppEventHandler {
     }
     
     deinit {
-        unregister()
+        disable()
     }
     
 }
