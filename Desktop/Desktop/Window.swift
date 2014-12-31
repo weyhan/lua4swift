@@ -20,6 +20,16 @@ public class Window: Object {
         return (element.getAttribute(NSAccessibilitySizeAttribute) as AXValue?)?.convertToStruct()
     }
     
+    public func app() -> App? {
+        var pid: pid_t = 0
+        if AXUIElementGetPid(self.element, &pid) == AXError(kAXErrorSuccess) {
+            return App(pid)
+        }
+        else {
+            return nil
+        }
+    }
+    
     public func frame() -> NSRect? {
         let p = topLeft()
         let s = size()

@@ -29,8 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.pushCustomType(Event)
         vm.setGlobal("Event")
         
-        vm.doString("e = Event.windowCreated(function(win) print(win) end)")
-        vm.doString("print(e)")
+        vm.doString("e = Event.windowCreated(function(win) end)")
         
 //        vm.pushCustomType(Hotkey)
 //        vm.setGlobal("Hotkey")

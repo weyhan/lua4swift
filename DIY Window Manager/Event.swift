@@ -8,7 +8,6 @@ private func listen(fn: Desktop.AppEventHandler.Event) -> () -> Void {
     for app in Desktop.App.allApps() {
         if let handler = Desktop.AppEventHandler(app: app, event: fn) {
             let result = handler.enable()
-            println("here5 \(result)")
             if result == nil {
                 handlers.append(handler)
             }
@@ -16,11 +15,11 @@ private func listen(fn: Desktop.AppEventHandler.Event) -> () -> Void {
     }
     
     let appLaunchedWatcher = Desktop.DesktopEventHandler(.AppLaunched({ app in
+        println("app launched: \(app.title())")
         if let handler = Desktop.AppEventHandler(app: app, event: fn) {
-            println("here3")
             let result = handler.enable()
-            println("here4 \(result)")
             if result == nil {
+                println("creating window watcher for: \(app.title())")
                 handlers.append(handler)
             }
         }
@@ -55,10 +54,11 @@ final class Event: Lua.CustomType {
     }
     
     class func windowCreated(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
-        let fn = vm.ref(1)
+        vm.pushFromStack(1)
+        let fn = vm.ref(Lua.RegistryIndex)
         
         let disable = listen(.WindowCreated({ win in
-            println("here7")
+            println("window created: \(win.title()), in app: \(win.app()?.title())")
             vm.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
             Lua.UserdataBox(Window(win)).push(vm)
             vm.call(arguments: 1, returnValues: 0)
