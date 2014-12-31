@@ -60,7 +60,7 @@ class Thing1 {
 
 class Thing2 {
     
-    var enable: (() -> ())?
+    let enable: (() -> ())?
     var disable: (() -> ())?
     
     init(_ fn: Desktop.AppEventHandler.Event) {
