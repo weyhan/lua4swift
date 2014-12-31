@@ -4,18 +4,17 @@ import Lua
 
 final class Window: Lua.CustomType {
     
-    private let _win: Desktop.Window?
-    var win: Desktop.Window { return _win! }
+    let win: Desktop.Window!
     
     class func metatableName() -> String { return "Window" }
     
     init(_ win: Desktop.Window) {
-        _win = win
+        self.win = win
     }
     
     init?(_ win: Desktop.Window?) {
         if win == nil { return nil }
-        _win = win
+        self.win = win
     }
     
     func title(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
