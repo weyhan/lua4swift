@@ -2,37 +2,51 @@ import Cocoa
 import Lua
 import Desktop
 
-class AppBookkeeper {
+
+func listen(fn: Desktop.AppEventHandler.Event) -> () -> Void {
+    var handlers = Array<Desktop.AppEventHandler>()
     
-    let launchedHandler = Desktop.DesktopEventHandler(.AppLaunched({ app in
-        
-    }))
-    
-    let terminatedHandler = Desktop.DesktopEventHandler(.AppTerminated({ app in
-        
-    }))
-    
-    init() {
+    for app in Desktop.App.allApps() {
+        if let handler = Desktop.AppEventHandler(app: app, event: fn) {
+            if handler.enable() == nil {
+                handlers.append(handler)
+            }
+        }
     }
     
+    let appLaunchedWatcher = Desktop.DesktopEventHandler(.AppLaunched({ app in
+        if let handler = Desktop.AppEventHandler(app: app, event: fn) {
+            if handler.enable() == nil {
+                handlers.append(handler)
+            }
+        }
+    }))
+    
+    let appTerminatedWatcher = Desktop.DesktopEventHandler(.AppTerminated({ app in
+        handlers = handlers.filter{$0.app != app}
+    }))
+    
+    appLaunchedWatcher.enable()
+    appTerminatedWatcher.enable()
+    
+    return {
+        appLaunchedWatcher.disable()
+        appTerminatedWatcher.disable()
+        for handler in handlers {
+            handler.disable()
+        }
+    }
 }
+
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
-//    let handler = Desktop.AppEventHandler(app: Desktop.App.focusedApp()!, event: .WindowCreated({ win in
-//        println("welp: WindowCreated!!! \(win.title())")
-//    }))
-//    
-//    let h = Desktop.DesktopEventHandler(.AppFocused({ app in
-//        println(app.title())
-//    }))
-    
-    let appBookkeeper = AppBookkeeper()
-    
     func applicationDidFinishLaunching(aNotification: NSNotification) {
+        
+        
         
         
 //        let vm = Lua.VirtualMachine()
