@@ -204,6 +204,10 @@ public class VirtualMachine {
         pushFromStack(-1)
         setField("__index", table: -2)
         
+        // lib.__name = the given metatable name // TODO: seems broken maybe?
+        pushString(t.metatableName())
+        setField("__name", table: -2)
+        
         for (name, var kinds, fn) in t.instanceMethods() {
             kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
             let f: Function = { [weak self] in
