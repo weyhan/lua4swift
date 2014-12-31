@@ -26,10 +26,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        L.doString("Hotkey.bind(3)")
 //        println("now", L.stackSize())
         
-        vm.pushCustomType(Event)
-        vm.setGlobal("Event")
-        
-        vm.doString("e = Event.windowCreated(function(win) end)")
+//        vm.pushCustomType(Event)
+//        vm.setGlobal("Event")
+//        
+//        vm.doString("e = Event.windowCreated(function(win) end)")
         
 //        vm.pushCustomType(Hotkey)
 //        vm.setGlobal("Hotkey")
