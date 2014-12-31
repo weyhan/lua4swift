@@ -10,35 +10,40 @@ class Thing1 {
     private var appLaunchedWatcher: Desktop.DesktopEventHandler?
     private var appTerminatedWatcher: Desktop.DesktopEventHandler?
     
-    init(fn: Desktop.AppEventHandler.Event) {
+    init(_ fn: Desktop.AppEventHandler.Event) {
         self.fn = fn
     }
     
-    func enable() {
-        for app in Desktop.App.allApps() {
-            if let handler = Desktop.AppEventHandler(app: app, event: fn) {
-                let result = handler.enable()
-                if result == nil {
-                    handlers.append(handler)
-                }
+    func watch(app: Desktop.App) {
+        if let handler = Desktop.AppEventHandler(app: app, event: fn) {
+            let result = handler.enable()
+            if result == nil {
+                println("creating window watcher for: \(app.title())")
+                handlers.append(handler)
             }
+        }
+    }
+    
+    func enable() {
+        if appLaunchedWatcher != nil { return }
+        
+        for app in Desktop.App.allApps() {
+            watch(app)
         }
         
         appLaunchedWatcher = Desktop.DesktopEventHandler(.AppLaunched({ [weak self] app in
-            if self == nil { return }
-            
             println("app launched: \(app.title())")
-            if let handler = Desktop.AppEventHandler(app: app, event: self!.fn) {
-                let result = handler.enable()
-                if result == nil {
-                    println("creating window watcher for: \(app.title())")
-                    self!.handlers.append(handler)
-                }
-            }
+            if self == nil { return }
+            self!.watch(app)
         }))
         
         appTerminatedWatcher = Desktop.DesktopEventHandler(.AppTerminated({ [weak self] app in
+            println("app died: \(app.title())") // TODO: title = nil
             if self == nil { return }
+            
+            for handler in self!.handlers.filter({$0.app == app}) {
+                handler.disable()
+            }
             
             self!.handlers = self!.handlers.filter{$0.app != app}
         }))
@@ -50,63 +55,16 @@ class Thing1 {
     func disable() {
         appLaunchedWatcher?.disable()
         appTerminatedWatcher?.disable()
+        appLaunchedWatcher = nil
+        appTerminatedWatcher = nil
+        
         for handler in handlers {
             handler.disable()
         }
+        handlers = []
     }
     
 }
-
-
-class Thing2 {
-    
-    let enable: (() -> ())?
-    var disable: (() -> ())?
-    
-    init(_ fn: Desktop.AppEventHandler.Event) {
-        var handlers = Array<Desktop.AppEventHandler>()
-        
-        self.enable = { [weak self] in
-            for app in Desktop.App.allApps() {
-                if let handler = Desktop.AppEventHandler(app: app, event: fn) {
-                    let result = handler.enable()
-                    if result == nil {
-                        handlers.append(handler)
-                    }
-                }
-            }
-            
-            let appLaunchedWatcher = Desktop.DesktopEventHandler(.AppLaunched({ app in
-                println("app launched: \(app.title())")
-                if let handler = Desktop.AppEventHandler(app: app, event: fn) {
-                    let result = handler.enable()
-                    if result == nil {
-                        println("creating window watcher for: \(app.title())")
-                        handlers.append(handler)
-                    }
-                }
-            }))
-            
-            let appTerminatedWatcher = Desktop.DesktopEventHandler(.AppTerminated({ app in
-                handlers = handlers.filter{$0.app != app}
-            }))
-            
-            appLaunchedWatcher.enable()
-            appTerminatedWatcher.enable()
-            
-            self?.disable = {
-                appLaunchedWatcher.disable()
-                appTerminatedWatcher.disable()
-                for handler in handlers {
-                    handler.disable()
-                }
-            }
-        }
-    }
-    
-    
-}
-
 
 
 final class Event: Lua.CustomType {
@@ -114,20 +72,20 @@ final class Event: Lua.CustomType {
     class func metatableName() -> String { return "Event" }
     
     let fn: Int
-    let f: Thing2
+    let f: Thing1
     
-    init(fn: Int, f: Thing2) {
+    init(fn: Int, f: Thing1) {
         self.fn = fn
         self.f = f
     }
     
     func enable(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
-        f.enable?()
+        f.enable()
         return .Nothing
     }
     
     func disable(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
-        f.disable?()
+        f.disable()
         return .Nothing
     }
     
@@ -135,14 +93,14 @@ final class Event: Lua.CustomType {
         vm.pushFromStack(1)
         let fn = vm.ref(Lua.RegistryIndex)
         
-        let f = Thing2(.WindowCreated({ win in
+        let f = Thing1(.WindowCreated({ win in
             println("window created: \(win.title()), in app: \(win.app()?.title())")
             vm.rawGet(tablePosition: Lua.RegistryIndex, index: fn)
             Lua.UserdataBox(Window(win)).push(vm)
             vm.call(arguments: 1, returnValues: 0)
         }))
         
-        f.enable?()
+        f.enable()
         
         return .Value(Lua.UserdataBox(Event(fn: fn, f: f)))
     }
@@ -155,6 +113,8 @@ final class Event: Lua.CustomType {
     
     class func instanceMethods() -> [(String, [Lua.TypeChecker], Event -> Lua.VirtualMachine -> Lua.ReturnValue)] {
         return [
+            ("enable", [], Event.enable),
+            ("disable", [], Event.disable),
         ]
     }
     
