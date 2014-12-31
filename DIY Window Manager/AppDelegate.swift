@@ -3,42 +3,6 @@ import Lua
 import Desktop
 
 
-func listen(fn: Desktop.AppEventHandler.Event) -> () -> Void {
-    var handlers = Array<Desktop.AppEventHandler>()
-    
-    for app in Desktop.App.allApps() {
-        if let handler = Desktop.AppEventHandler(app: app, event: fn) {
-            if handler.enable() == nil {
-                handlers.append(handler)
-            }
-        }
-    }
-    
-    let appLaunchedWatcher = Desktop.DesktopEventHandler(.AppLaunched({ app in
-        if let handler = Desktop.AppEventHandler(app: app, event: fn) {
-            if handler.enable() == nil {
-                handlers.append(handler)
-            }
-        }
-    }))
-    
-    let appTerminatedWatcher = Desktop.DesktopEventHandler(.AppTerminated({ app in
-        handlers = handlers.filter{$0.app != app}
-    }))
-    
-    appLaunchedWatcher.enable()
-    appTerminatedWatcher.enable()
-    
-    return {
-        appLaunchedWatcher.disable()
-        appTerminatedWatcher.disable()
-        for handler in handlers {
-            handler.disable()
-        }
-    }
-}
-
-
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
@@ -49,7 +13,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         
-//        let vm = Lua.VirtualMachine()
+        let vm = Lua.VirtualMachine()
         
 //        L.errorHandler = nil
 //        let errh = L.errorHandler
@@ -61,6 +25,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        println("before", L.stackSize())
 //        L.doString("Hotkey.bind(3)")
 //        println("now", L.stackSize())
+        
+        vm.pushCustomType(Event)
+        vm.setGlobal("Event")
+        
+        vm.doString("e = Event.windowCreated(function(win) print(win) end)")
+        vm.doString("print(e)")
         
 //        vm.pushCustomType(Hotkey)
 //        vm.setGlobal("Hotkey")
