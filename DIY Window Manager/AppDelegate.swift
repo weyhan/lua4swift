@@ -12,24 +12,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         
-        
-        let vm = Lua.VirtualMachine()
-        
-//        L.errorHandler = nil
-//        let errh = L.errorHandler
-//        L.errorHandler = { err in
-//            println("crap!")
-//            errh?(err)
-//        }
 //        
-//        println("before", L.stackSize())
-//        L.doString("Hotkey.bind(3)")
-//        println("now", L.stackSize())
-        
-        vm.pushCustomType(Event)
-        vm.setGlobal("Event")
-        
-        vm.doString("e = Event.windowCreated(function(win) end)")
+//        let vm = Lua.VirtualMachine()
+//        
+////        L.errorHandler = nil
+////        let errh = L.errorHandler
+////        L.errorHandler = { err in
+////            println("crap!")
+////            errh?(err)
+////        }
+////        
+////        println("before", L.stackSize())
+////        L.doString("Hotkey.bind(3)")
+////        println("now", L.stackSize())
+//        
+//        vm.pushCustomType(Event)
+//        vm.setGlobal("Event")
+//        
+//        vm.doString("e = Event.windowCreated(function(win) end)")
         
 //        vm.pushCustomType(Hotkey)
 //        vm.setGlobal("Hotkey")
