@@ -28,7 +28,8 @@ public class VirtualMachine {
     }
     
     func popError() -> String {
-        let err = String(fromLua: self, at: -1)!
+//        let err = String(fromLua: self, at: -1)!
+        let err = "TODO"
         pop(1)
         if let fn = errorHandler { fn(err) }
         return err
@@ -107,7 +108,7 @@ public class VirtualMachine {
                 return Int32(values.count)
             case let .Error(error):
                 println("pushing error: \(error)")
-                error.push(self!)
+//                error.push(self!) // TODO: uncomment
                 lua_error(self!.vm)
                 return 0 // uhh, we don't actually get here
             }
@@ -170,84 +171,84 @@ public class VirtualMachine {
     
     // custom types
     
-    func getUserdataPointer(position: Int) -> UserdataPointer? {
-        if kind(position) != .Userdata { return nil }
-        return lua_touserdata(vm, Int32(position))
-    }
-    
-    func pushUserdataBox<T: CustomType>(ud: UserdataBox<T>) -> UserdataPointer {
-        let ptr = lua_newuserdata(vm, 1)
-        setMetatable(T.metatableName())
-        storedSwiftValues[ptr] = ud
-        return ptr
-    }
-    
-    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
-        if let ptr = getUserdataPointer(position) {
-            return storedSwiftValues[ptr]! as? UserdataBox<T>
-        }
-        return nil
-    }
-    
-    public func pushCustomType<T: CustomType>(t: T.Type) {
-        pushTable()
-        
-        // registry[metatableName] = lib
-        pushFromStack(-1)
-        setField(T.metatableName(), table: RegistryIndex)
-        
-        // setmetatable(lib, lib)
-        pushFromStack(-1)
-        setMetatable(-2)
-        
-        // lib.__index == lib
-        pushFromStack(-1)
-        setField("__index", table: -2)
-        
-        // lib.__name = the given metatable name // TODO: seems broken maybe?
-        pushString(t.metatableName())
-        setField("__name", table: -2)
-        
-        for (name, var kinds, fn) in t.instanceMethods() {
-            kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
-            let f: Function = { [weak self] in
-                if self == nil { return .Nothing }
-                let o: UserdataBox<T> = self!.getUserdata(1)!
-                self!.remove(1)
-                return fn(o.object)(self!)
-            }
-            pushMethod(name, kinds, f)
-        }
-        
-        for (name, kinds, fn) in t.classMethods() {
-            pushMethod(name, kinds, { [weak self] in
-                if self == nil { return .Nothing }
-                return fn(self!)
-            })
-        }
-        
-        var metaMethods = MetaMethods<T>()
-        T.setMetaMethods(&metaMethods)
-        
-        let gc = metaMethods.gc
-        pushMethod("__gc", [UserdataBox<T>.arg()]) { [weak self] in
-            println("called!")
-//            if self == nil { return .Nothing }
-            let o: UserdataBox<T> = self!.getUserdata(1)!
-            gc?(o.object, self!)
-            self!.storedSwiftValues[self!.getUserdataPointer(1)!] = nil
-            return .Values([])
-        }
-        
-        if let eq = metaMethods.eq {
-            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [weak self] in
-                if self == nil { return .Nothing }
-                let a: UserdataBox<T> = self!.getUserdata(1)!
-                let b: UserdataBox<T> = self!.getUserdata(2)!
-                return .Values([eq(a.object, b.object)])
-            }
-        }
-    }
+//    func getUserdataPointer(position: Int) -> UserdataPointer? {
+//        if kind(position) != .Userdata { return nil }
+//        return lua_touserdata(vm, Int32(position))
+//    }
+//    
+//    func pushUserdataBox<T: CustomType>(ud: UserdataBox<T>) -> UserdataPointer {
+//        let ptr = lua_newuserdata(vm, 1)
+//        setMetatable(T.metatableName())
+//        storedSwiftValues[ptr] = ud
+//        return ptr
+//    }
+//    
+//    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
+//        if let ptr = getUserdataPointer(position) {
+//            return storedSwiftValues[ptr]! as? UserdataBox<T>
+//        }
+//        return nil
+//    }
+//    
+//    public func pushCustomType<T: CustomType>(t: T.Type) {
+//        pushTable()
+//        
+//        // registry[metatableName] = lib
+//        pushFromStack(-1)
+//        setField(T.metatableName(), table: RegistryIndex)
+//        
+//        // setmetatable(lib, lib)
+//        pushFromStack(-1)
+//        setMetatable(-2)
+//        
+//        // lib.__index == lib
+//        pushFromStack(-1)
+//        setField("__index", table: -2)
+//        
+//        // lib.__name = the given metatable name // TODO: seems broken maybe?
+//        pushString(t.metatableName())
+//        setField("__name", table: -2)
+//        
+//        for (name, var kinds, fn) in t.instanceMethods() {
+//            kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
+//            let f: Function = { [weak self] in
+//                if self == nil { return .Nothing }
+//                let o: UserdataBox<T> = self!.getUserdata(1)!
+//                self!.remove(1)
+//                return fn(o.object)(self!)
+//            }
+//            pushMethod(name, kinds, f)
+//        }
+//        
+//        for (name, kinds, fn) in t.classMethods() {
+//            pushMethod(name, kinds, { [weak self] in
+//                if self == nil { return .Nothing }
+//                return fn(self!)
+//            })
+//        }
+//        
+//        var metaMethods = MetaMethods<T>()
+//        T.setMetaMethods(&metaMethods)
+//        
+//        let gc = metaMethods.gc
+//        pushMethod("__gc", [UserdataBox<T>.arg()]) { [weak self] in
+//            println("called!")
+////            if self == nil { return .Nothing }
+//            let o: UserdataBox<T> = self!.getUserdata(1)!
+//            gc?(o.object, self!)
+//            self!.storedSwiftValues[self!.getUserdataPointer(1)!] = nil
+//            return .Values([])
+//        }
+//        
+//        if let eq = metaMethods.eq {
+//            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [weak self] in
+//                if self == nil { return .Nothing }
+//                let a: UserdataBox<T> = self!.getUserdata(1)!
+//                let b: UserdataBox<T> = self!.getUserdata(2)!
+//                return .Values([eq(a.object, b.object)])
+//            }
+//        }
+//    }
     
     // ref
     
