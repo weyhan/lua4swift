@@ -3,9 +3,9 @@
 * Current version: 0.1
 * Requires: OS X 10.10 or higher
 
-## What can it do?
+## Current status
 
-Currently:
+DIY Window Manager will almost definitely:
 
 - Crash
 - Eat your computer
@@ -15,7 +15,7 @@ Currently:
 - Probably cause a singularity?
 - Accidentally fix the singularity by trying to use an invalid C pointer
 
-## What's it do?
+## What does it do?
 
 This app gives you simple Lua APIs that let you interact with your
 system. The main classes are Window, App, Screen, Hotkey, and Event.
