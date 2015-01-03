@@ -27,7 +27,7 @@ public class VirtualMachine {
         lua_close(vm)
     }
     
-    public func value(pos: Int) -> Value? {
+    internal func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
         switch lua_type(vm, -1) {
