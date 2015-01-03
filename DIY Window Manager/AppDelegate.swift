@@ -28,22 +28,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
         
-        let f = vm.createFunction("return 3, foo + 2")
         
-        switch f {
-        case let .Error(err):
-            println("Error! \(err)")
-        case let .Value(f):
-            let values = f.call([])
-            switch values {
-            case let .Values(vals):
-                println(vals)
-            case let .Error(err):
-                println("Error! \(err)")
-            }
+        let fn = vm.createFunction {
+            return .Values([Number(3), Number(1)])
         }
         
-        let x: String = "foo"
+        let values = fn.call([])
+        switch values {
+        case let .Values(vals):
+            let a = vals[0] as Number
+            let b = vals[1] as Number
+            println(a.value, b.value)
+        case let .Error(err):
+            println("Error! \(err)")
+        }
+        
+        
+//        let f = vm.createFunction("return 3, foo + 2")
+//        
+//        switch f {
+//        case let .Error(err):
+//            println("Error! \(err)")
+//        case let .Value(f):
+//            let values = f.call([])
+//            switch values {
+//            case let .Values(vals):
+//                println(vals)
+//            case let .Error(err):
+//                println("Error! \(err)")
+//            }
+//        }
+//        
+//        let x: String = "foo"
         
         
         

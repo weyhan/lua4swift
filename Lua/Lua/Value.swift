@@ -27,14 +27,15 @@ public class StoredValue: Value {
 
 
 
-//public enum ReturnValue {
-//    case Value(Lua.Value?)
-//    case Values([Lua.Value])
-//    case Nothing // convenience for Values([])
-//    case Error(String)
-//}
-//
-//public typealias Function = () -> ReturnValue
+public enum ReturnValue {
+    case Value(Lua.Value?)
+    case Values([Lua.Value])
+    case Nothing // convenience for Values([])
+    case Error(String)
+}
+
+public typealias SwiftFunction = () -> ReturnValue
+
 //public typealias TypeChecker = (String, (VirtualMachine, Int) -> Bool)
 //public typealias UserdataPointer = UnsafeMutablePointer<Void>
 //

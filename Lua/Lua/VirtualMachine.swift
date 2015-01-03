@@ -100,47 +100,43 @@ public class VirtualMachine {
         return err
     }
     
-//    public func doString(str: String) -> String? {
-//        if let err = loadString(str) { return err }
-//        return call(arguments: 0, returnValues: Int(LUA_MULTRET))
-//    }
+    public func createFunction(fn: SwiftFunction, upvalues: Int = 0) -> Function {
+        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
+            if self == nil { return 0 }
+            
+            switch fn() {
+            case .Nothing:
+                return 0
+            case let .Value(value):
+                if let v = value {
+                    v.push(self!)
+                }
+                else {
+                    Nil().push(self!)
+                }
+                return 1
+            case let .Values(values):
+                for value in values {
+                    value.push(self!)
+                }
+                return Int32(values.count)
+            case let .Error(error):
+                println("pushing error: \(error)")
+                //                error.push(self!) // TODO: uncomment
+                lua_error(self!.vm)
+                return 0 // uhh, we don't actually get here
+            }
+        }
+        let block: AnyObject = unsafeBitCast(f, AnyObject.self)
+        let imp = imp_implementationWithBlock(block)
+        let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
+        lua_pushcclosure(vm, fp, Int32(upvalues))
+        return Function(self)
+    }
     
 //    public func setMetatable(position: Int) { lua_setmetatable(vm, Int32(position)) }
 //    public func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
 //    
-//    
-//    public func pushFunction(fn: Function, upvalues: Int = 0) {
-//        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
-//            if self == nil { return 0 }
-//            
-//            switch fn() {
-//            case .Nothing:
-//                return 0
-//            case let .Value(value):
-//                if let v = value {
-//                    v.push(self!)
-//                }
-//                else {
-//                    self!.pushNil()
-//                }
-//                return 1
-//            case let .Values(values):
-//                for value in values {
-//                    value.push(self!)
-//                }
-//                return Int32(values.count)
-//            case let .Error(error):
-//                println("pushing error: \(error)")
-////                error.push(self!) // TODO: uncomment
-//                lua_error(self!.vm)
-//                return 0 // uhh, we don't actually get here
-//            }
-//        }
-//        let block: AnyObject = unsafeBitCast(f, AnyObject.self)
-//        let imp = imp_implementationWithBlock(block)
-//        let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
-//        lua_pushcclosure(vm, fp, Int32(upvalues))
-//    }
 //    
 //    func argError(expectedType: String, argPosition: Int) -> ReturnValue {
 //        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
