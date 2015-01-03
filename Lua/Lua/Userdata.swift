@@ -17,7 +17,7 @@ public class LightUserdata: StoredValue {}
 
 
 
-public typealias TypeChecker = (String, (VirtualMachine, Int) -> Bool)
+public typealias TypeChecker = Value.Type //(String, (VirtualMachine, Int) -> Bool)
 public typealias UserdataPointer = UnsafeMutablePointer<Void>
 
 public protocol CustomType {

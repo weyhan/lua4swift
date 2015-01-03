@@ -47,7 +47,7 @@ final class Hotkey: Lua.CustomType {
     
     class func classMethods() -> [(String, [Lua.TypeChecker], (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
         return [
-//            ("bind", [String.arg(), Lua.SequentialTable<String>.arg(), Lua.FunctionBox.arg()], Hotkey.bind),
+            ("bind", [String.self, Lua.Table.self, Lua.Function.self], Hotkey.bind),
         ]
     }
     
