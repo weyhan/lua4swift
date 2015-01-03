@@ -45,29 +45,40 @@ public class StoredValue: Value {
     
 }
 
-public class StoredNumber: StoredValue {
+public class FreeNumber: Value {
     
-    
+    public let num: Double
+    public init(_ n: Double) { num = n }
+    public func push(vm: VirtualMachine) {
+        lua_pushnumber(vm.vm, num)
+    }
     
 }
 
 public class FreeString: Value {
     
     public let str: String
-    
-    public init(_ s: String) {
-        str = s
-    }
-    
+    public init(_ s: String) { str = s }
     public func push(vm: VirtualMachine) {
         lua_pushstring(vm.vm, (str as NSString).UTF8String)
     }
     
 }
 
+public class StoredNumber: StoredValue {
+    
+    public func double() -> Double {
+        push(vm)
+        let d = lua_tonumberx(vm.vm, -1, nil)
+        vm.pop()
+        return d
+    }
+    
+}
+
 public class StoredString: StoredValue {
     
-    func string() -> String {
+    public func string() -> String {
         push(vm)
         var len: UInt = 0
         let str = lua_tolstring(vm.vm, -1, &len)
@@ -118,8 +129,17 @@ public class StoredTable: StoredValue {
         let v = vm.value(-1)
         
         vm.pop()
-        
         return v!
+    }
+    
+    public func set(#key: Value, value: Value) {
+        push(vm)
+        
+        key.push(vm)
+        value.push(vm)
+        lua_settable(vm.vm, -3)
+        
+        vm.pop()
     }
     
 }

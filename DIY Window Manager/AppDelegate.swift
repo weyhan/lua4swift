@@ -17,9 +17,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let t = vm.globalTable()
         
-        let p = t.get(FreeString("print"))
+        t.set(key: FreeString("foo"), value: FreeNumber(32))
         
-        debugPrintln(p)
+        let p = t.get(FreeString("print"))
+        let d = t.get(FreeString("foo")) as StoredNumber
+        
+        debugPrintln(d.double())
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
