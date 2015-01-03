@@ -4,30 +4,39 @@ public protocol Value {
     func push(vm: VirtualMachine)
 }
 
-public class StoredValue: Value {
+public class StoredValue: Value, Equatable {
     
-    private let refPosition: Int
+    private let registryLocation: Int
     internal weak var vm: VirtualMachine?
     
     internal init(_ vm: VirtualMachine) {
         self.vm = vm
         vm.pushFromStack(-1)
-        refPosition = vm.ref(RegistryIndex)
+        registryLocation = vm.ref(RegistryIndex)
     }
     
     deinit {
-        vm?.unref(RegistryIndex, refPosition)
+        vm?.unref(RegistryIndex, registryLocation)
     }
     
     public func push(vm: VirtualMachine) {
-        vm.rawGet(tablePosition: RegistryIndex, index: refPosition)
+        vm.rawGet(tablePosition: RegistryIndex, index: registryLocation)
     }
     
 }
 
-//public typealias TypeChecker = (String, (VirtualMachine, Int) -> Bool)
-//public typealias UserdataPointer = UnsafeMutablePointer<Void>
-//
+public func ==(lhs: StoredValue, rhs: StoredValue) -> Bool {
+    if lhs.vm == nil { return false }
+    if lhs.vm!.vm != rhs.vm!.vm { return false }
+    
+    lhs.push(lhs.vm!)
+    lhs.push(rhs.vm!)
+    let result = lua_compare(lhs.vm!.vm, -2, -1, LUA_OPEQ) == 1
+    lhs.vm!.pop(2)
+    
+    return result
+}
+
 //public protocol Value {
 //    func push(vm: VirtualMachine)
 //    init?(fromLua vm: VirtualMachine, at position: Int)
