@@ -90,8 +90,13 @@ public enum FunctionResults {
 public class Function: StoredValue {
     
     public func call(args: [Value]) -> [Value] {
+        let globals = vm.globalTable()
+        let debugTable = globals.get(ByteString("debug")) as Table
+        let tracebackFunction = debugTable.get(ByteString("traceback"))
+        
         let size = vm.stackSize()
         
+        tracebackFunction.push(vm)
         push(vm)
         for arg in args {
             arg.push(vm)

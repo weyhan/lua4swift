@@ -14,20 +14,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         let vm = Lua.VirtualMachine()
-        
         let t = vm.globalTable()
-        
-        let debug = t.get(ByteString("debug")) as Table
-        let traceback = debug.get(ByteString("traceback"))
-        debugPrintln(traceback)
         
         t.set(key: ByteString("bar"), value: ByteString("foo"))
         t.set(key: t.get(ByteString("bar")), value: Number(32))
-        
-//        let p = t.get(ByteString("print"))
         let d = t.get(ByteString("foo")) as Number
         
-        debugPrintln(d.value)
+        let p = t.get(ByteString("print")) as Function
+        let values = p.call([d])
+        debugPrintln(values)
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
