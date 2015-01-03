@@ -206,19 +206,21 @@ public class VirtualMachine {
     
     public func value(pos: Int) -> Value? {
         moveToStackTop(pos)
+        var v: Value?
         switch kind(pos) {
-        case .String: return FreeString(self)
-        case .Number: return FreeNumber(self)
-        case .Bool: return FreeBoolean(self)
-        case .Function: return StoredFunction(self)
-        case .Table: return StoredTable(self)
-        case .Userdata: return StoredUserdata(self)
-        case .LightUserdata: return StoredLightUserdata(self)
-        case .Thread: return StoredThread(self)
-        case .Nil: return Nil()
-        case .None: return nil
+        case .String: v = FreeString(self)
+        case .Number: v = FreeNumber(self)
+        case .Bool: v = FreeBoolean(self)
+        case .Function: v = StoredFunction(self)
+        case .Table: v = StoredTable(self)
+        case .Userdata: v = StoredUserdata(self)
+        case .LightUserdata: v = StoredLightUserdata(self)
+        case .Thread: v = StoredThread(self)
+        case .Nil: v = Nil()
+        case .None: break
         }
         pop()
+        return v
     }
     
     public func createFunction(body: String) -> MaybeFunction {
