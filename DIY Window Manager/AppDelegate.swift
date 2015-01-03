@@ -18,30 +18,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let t = vm.globalTable()
         
         t["bar"] = "foo"
-        t[t["bar"]] = Number(32)
-        let d = t["foo"] as Number
+        t[t["bar"]] = 32
+        let d = t["foo"] as Double
         
         let p = t["print"] as Function
-        let values = p.call([d])
-        debugPrintln(values)
+        let values2 = p.call([d])
+        debugPrintln(values2)
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
         
         
         let fn = vm.createFunction {
-            return .Values([Number(3), Number(1)])
+            return .Values([3, 1])
         }
         
-//        let values = fn.call([])
-//        switch values {
-//        case let .Values(vals):
-//            let a = vals[0] as Number
-//            let b = vals[1] as Number
-//            println(a.value, b.value)
-//        case let .Error(err):
-//            println("Error! \(err)")
-//        }
+        let values = fn.call([])
+        switch values {
+        case let .Values(vals):
+            let a = vals[0] as Double
+            let b = vals[1] as Double
+            println(a, b)
+        case let .Error(err):
+            println("Error! \(err)")
+        }
         
         
 //        let f = vm.createFunction("return 3, foo + 2")

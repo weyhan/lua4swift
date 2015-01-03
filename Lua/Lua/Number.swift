@@ -1,19 +1,25 @@
 import Foundation
 
-public class Number: Value {
-    
-    public let value: Double
-    
-    public init(_ n: Double) {
-        value = n
-    }
+extension Double: Value {
     
     internal init(_ vm: VirtualMachine) {
-        value = lua_tonumberx(vm.vm, -1, nil)
+        self = lua_tonumberx(vm.vm, -1, nil)
     }
     
     public func push(vm: VirtualMachine) {
-        lua_pushnumber(vm.vm, value)
+        lua_pushnumber(vm.vm, self)
+    }
+    
+}
+
+extension Int64: Value {
+    
+    internal init(_ vm: VirtualMachine) {
+        self = lua_tointegerx(vm.vm, -1, nil)
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushinteger(vm.vm, self)
     }
     
 }

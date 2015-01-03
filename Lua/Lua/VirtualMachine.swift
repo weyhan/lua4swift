@@ -61,7 +61,7 @@ public class VirtualMachine {
         var v: Value?
         switch kind(pos) {
         case .String: v = String(self)
-        case .Number: v = Number(self)
+        case .Number: v = Double(self)
         case .Bool: v = Boolean(self)
         case .Function: v = Function(self)
         case .Table: v = Table(self)
