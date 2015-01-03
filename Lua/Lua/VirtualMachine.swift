@@ -11,16 +11,16 @@ public protocol Value {
 }
 
 private enum Kind {
-    case String
-    case Number
+    case None
+    case Nil
     case Bool
+    case Number
+    case String
     case Function
     case Table
     case Userdata
     case LightUserdata
     case Thread
-    case Nil
-    case None
 }
 
 public class StoredValue: Value {
