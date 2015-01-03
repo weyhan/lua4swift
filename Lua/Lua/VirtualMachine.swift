@@ -89,7 +89,7 @@ public enum FunctionResults {
 
 public class Function: StoredValue {
     
-    public func call(args: [Value]) -> [Value] {
+    public func call(args: [Value]) -> FunctionResults {
         let globals = vm.globalTable()
         let debugTable = globals[ByteString("debug")] as Table
         let tracebackFunction = debugTable[ByteString("traceback")]
@@ -102,7 +102,19 @@ public class Function: StoredValue {
             arg.push(vm)
         }
         
-        return []
+        var err: String?
+        if lua_pcallk(vm.vm, Int32(args.count), LUA_MULTRET, Int32(size+1), 0, nil) != LUA_OK {
+            err = vm.popError()
+        }
+        
+        vm.pop() // message handler
+        
+        if let e = err {
+            return .Error(e)
+        }
+        else {
+            return .Values([])
+        }
     }
     
 }
