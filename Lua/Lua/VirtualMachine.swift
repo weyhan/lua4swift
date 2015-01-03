@@ -3,7 +3,31 @@ import Cocoa
 
 //public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 
+public enum ValueResult<T: Lua.Value> {
+    case Value(T)
+    case Error(String)
+}
+
 public class Value {
+    
+    let position: Int
+    
+    init(_ vm: VirtualMachine, _ pos: Int) {
+        // TODO: add to registry
+        position = pos
+    }
+    
+    deinit {
+        // TODO: remove from registry
+    }
+    
+}
+
+public class Number: Value {
+    
+}
+
+public class LuaString: Value {
     
 }
 
@@ -32,9 +56,26 @@ public class VirtualMachine {
         lua_close(vm)
     }
     
-    public func newFunction(str: String) -> Function {
-        return Function()
+    public func number(n: Int64) -> ValueResult<Number> {
+        lua_pushinteger(vm, n)
+        return .Value(Number(self, -1))
     }
+    
+    public func string(str: String) -> ValueResult<LuaString> {
+        lua_pushstring(vm, (str as NSString).UTF8String)
+        return .Value(LuaString(self, -1))
+    }
+    
+    public func function(body: String) -> ValueResult<Function> {
+        if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
+            return .Value(Function(self, -1))
+        }
+        else {
+            return .Error("TODO")
+        }
+    }
+    
+    
     
 //    // execute
 //    
