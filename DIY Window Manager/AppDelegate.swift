@@ -15,7 +15,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let vm = Lua.VirtualMachine()
         
-        
+        let f = vm.newFunction("return 3, 2")
+        let values = f.call([])
+        println(values)
         
 //        L.errorHandler = nil
 //        let errh = L.errorHandler

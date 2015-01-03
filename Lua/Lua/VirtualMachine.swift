@@ -3,6 +3,18 @@ import Cocoa
 
 //public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 
+public class Value {
+    
+}
+
+public class Function: Value {
+    
+    public func call(args: [Value]) -> [Value] {
+        return []
+    }
+    
+}
+
 // basics
 public class VirtualMachine {
     
@@ -18,6 +30,10 @@ public class VirtualMachine {
     deinit {
         println("lua dead")
         lua_close(vm)
+    }
+    
+    public func newFunction(str: String) -> Function {
+        return Function()
     }
     
 //    // execute
