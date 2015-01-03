@@ -2,6 +2,7 @@ import Foundation
 import Cocoa
 
 private let RegistryIndex = Int(SDegutisLuaRegistryIndex)
+private let GlobalsTable = Int(LUA_RIDX_GLOBALS)
 
 public typealias ErrorHandler = (String) -> Void
 
@@ -12,9 +13,9 @@ public class Value {
     
     private init(_ vm: VirtualMachine, _ pos: Int) {
         self.vm = vm
-        vm.pushFromStack(pos)
-        vm.remove(vm.absolutePosition(pos))
+        if pos != -1 { vm.pushFromStack(pos) }
         refPosition = vm.ref(RegistryIndex)
+        if pos != -1 { vm.remove(pos) }
     }
     
     deinit {
@@ -33,7 +34,7 @@ public class Number: Value {
     
 }
 
-public class LuaString: Value {
+public class ByteString: Value {
     
     func string() -> String {
         push()
@@ -55,6 +56,8 @@ public enum FunctionResults {
 public class Function: Value {
     
     public func call(args: [Value]) -> [Value] {
+        let size = vm.stackSize()
+        
         push()
         for arg in args {
             arg.push()
@@ -65,9 +68,53 @@ public class Function: Value {
     
 }
 
+public class Boolean: Value {
+}
+
+public class Userdata: Value {
+}
+
+public class LightUserdata: Value {
+}
+
+public class Table: Value {
+    
+    public func get(key: Value) -> Value {
+        push()
+        
+        key.push()
+        lua_gettable(vm.vm, -2)
+        let v = vm.value(-1)
+        
+        vm.pop()
+        
+        return v!
+    }
+    
+}
+
+public class Thread: Value {
+}
+
+public class Nil: Value {
+}
+
 public enum MaybeFunction {
     case Value(Function)
     case Error(String)
+}
+
+private enum Kind {
+    case String
+    case Number
+    case Bool
+    case Function
+    case Table
+    case Userdata
+    case LightUserdata
+    case Thread
+    case Nil
+    case None
 }
 
 // basics
@@ -87,14 +134,49 @@ public class VirtualMachine {
         lua_close(vm)
     }
     
+    private func kind(position: Int) -> Kind {
+        switch lua_type(vm, Int32(position)) {
+        case LUA_TNIL: return .Nil
+        case LUA_TBOOLEAN: return .Bool
+        case LUA_TNUMBER: return .Number
+        case LUA_TSTRING: return .String
+        case LUA_TFUNCTION: return .Function
+        case LUA_TTABLE: return .Table
+        case LUA_TUSERDATA: return .Userdata
+        case LUA_TLIGHTUSERDATA: return .LightUserdata
+        case LUA_TTHREAD: return .Thread
+        default: return .None
+        }
+    }
+    
+    public func globalTable() -> Table {
+        rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
+        return value(-1) as Table
+    }
+    
+    public func value(pos: Int) -> Value? {
+        switch kind(pos) {
+        case .String: return ByteString(self, pos)
+        case .Number: return Number(self, pos)
+        case .Bool: return Boolean(self, pos)
+        case .Function: return Function(self, pos)
+        case .Table: return Table(self, pos)
+        case .Userdata: return Userdata(self, pos)
+        case .LightUserdata: return LightUserdata(self, pos)
+        case .Thread: return Thread(self, pos)
+        case .Nil: return Nil(self, pos)
+        case .None: return nil
+        }
+    }
+    
     public func number(n: Int64) -> Number {
         lua_pushinteger(vm, n)
         return Number(self, -1)
     }
     
-    public func string(str: String) -> LuaString {
+    public func string(str: String) -> ByteString {
         lua_pushstring(vm, (str as NSString).UTF8String)
-        return LuaString(self, -1)
+        return ByteString(self, -1)
     }
     
     public func function(body: String) -> MaybeFunction {
@@ -102,28 +184,16 @@ public class VirtualMachine {
             return .Value(Function(self, -1))
         }
         else {
-            return .Error("TODO")
+            return .Error(popError())
         }
     }
     
     func popError() -> String {
-        let err = LuaString(self, -1).string()
+        let err = ByteString(self, -1).string()
         if let fn = errorHandler { fn(err) }
         return err
     }
     
-//    // execute
-//    
-//    public func loadString(str: String) -> String? {
-//        if luaL_loadstring(vm, (str as NSString).UTF8String) == LUA_OK { return nil }
-//        return popError()
-//    }
-//    
-//
-//    public func stackSize() -> Int {
-//        return Int(lua_gettop(vm))
-//    }
-//    
 //    public func doString(str: String) -> String? {
 //        if let err = loadString(str) { return err }
 //        return call(arguments: 0, returnValues: Int(LUA_MULTRET))
@@ -327,7 +397,7 @@ public class VirtualMachine {
     
     private func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
     private func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
-    private func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
+//    private func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
     private func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
     
     private func pushFromStack(position: Int) {
@@ -345,6 +415,10 @@ public class VirtualMachine {
     private func remove(position: Int) {
         rotate(position, n: -1)
         pop(1)
+    }
+    
+    private func stackSize() -> Int {
+        return Int(lua_gettop(vm))
     }
     
 }

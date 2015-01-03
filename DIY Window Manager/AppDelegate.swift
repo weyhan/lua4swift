@@ -15,20 +15,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let vm = Lua.VirtualMachine()
         
-        let n = vm.number(3)
-        let s = vm.string("hi")
+        let t = vm.globalTable()
         
-        let f = vm.function("return 3, 2")
+        let p = t.get(vm.string("print"))
         
-        switch f {
-        case let .Error(err):
-            println("Error! \(err)")
-        case let .Value(f):
-            let values = f.call([])
-            println(values)
-        }
+        debugPrintln(p)
         
-        let x: String = "foo"
+//        let n = vm.number(3)
+//        let s = vm.string("hi")
+//        
+//        let f = vm.function("return 3, 2")
+//        
+//        switch f {
+//        case let .Error(err):
+//            println("Error! \(err)")
+//        case let .Value(f):
+//            let values = f.call([])
+//            println(values)
+//        }
+//        
+//        let x: String = "foo"
+        
+        
+        
+        
+        
         
 //        L.errorHandler = nil
 //        let errh = L.errorHandler
