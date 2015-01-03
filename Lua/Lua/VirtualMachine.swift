@@ -1,42 +1,73 @@
 import Foundation
 import Cocoa
 
-//public let RegistryIndex = Int(SDegutisLuaRegistryIndex)
+private let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 
-public enum ValueResult<T: Lua.Value> {
-    case Value(T)
-    case Error(String)
-}
+public typealias ErrorHandler = (String) -> Void
 
 public class Value {
     
-    let position: Int
+    private let refPosition: Int
+    private let vm: VirtualMachine
     
-    init(_ vm: VirtualMachine, _ pos: Int) {
-        // TODO: add to registry
-        position = pos
+    private init(_ vm: VirtualMachine, _ pos: Int) {
+        self.vm = vm
+        vm.pushFromStack(pos)
+        vm.remove(vm.absolutePosition(pos))
+        refPosition = vm.ref(RegistryIndex)
     }
     
     deinit {
-        // TODO: remove from registry
+        vm.unref(RegistryIndex, refPosition)
+    }
+    
+    private func push() {
+        vm.rawGet(tablePosition: RegistryIndex, index: refPosition)
     }
     
 }
 
 public class Number: Value {
     
+    
+    
 }
 
 public class LuaString: Value {
     
+    func string() -> String {
+        push()
+        var len: UInt = 0
+        let str = lua_tolstring(vm.vm, -1, &len)
+        let data = NSData(bytes: str, length: Int(len))
+        let s = NSString(data: data, encoding: NSUTF8StringEncoding)!
+        vm.pop()
+        return s
+    }
+    
+}
+
+public enum FunctionResults {
+    case Values([Value])
+    case Error(String)
 }
 
 public class Function: Value {
     
     public func call(args: [Value]) -> [Value] {
+        push()
+        for arg in args {
+            arg.push()
+        }
+        
         return []
     }
     
+}
+
+public enum MaybeFunction {
+    case Value(Function)
+    case Error(String)
 }
 
 // basics
@@ -44,8 +75,8 @@ public class VirtualMachine {
     
     let vm = luaL_newstate()
 //    var storedSwiftValues = [UserdataPointer : Any]()
-//    
-//    public var errorHandler: ErrorHandler? = { println("error: \($0)") }
+    
+    public var errorHandler: ErrorHandler? = { println("error: \($0)") }
     
     public init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(vm) }
@@ -56,17 +87,17 @@ public class VirtualMachine {
         lua_close(vm)
     }
     
-    public func number(n: Int64) -> ValueResult<Number> {
+    public func number(n: Int64) -> Number {
         lua_pushinteger(vm, n)
-        return .Value(Number(self, -1))
+        return Number(self, -1)
     }
     
-    public func string(str: String) -> ValueResult<LuaString> {
+    public func string(str: String) -> LuaString {
         lua_pushstring(vm, (str as NSString).UTF8String)
-        return .Value(LuaString(self, -1))
+        return LuaString(self, -1)
     }
     
-    public func function(body: String) -> ValueResult<Function> {
+    public func function(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
             return .Value(Function(self, -1))
         }
@@ -75,7 +106,11 @@ public class VirtualMachine {
         }
     }
     
-    
+    func popError() -> String {
+        let err = LuaString(self, -1).string()
+        if let fn = errorHandler { fn(err) }
+        return err
+    }
     
 //    // execute
 //    
@@ -84,14 +119,7 @@ public class VirtualMachine {
 //        return popError()
 //    }
 //    
-//    func popError() -> String {
-////        let err = String(fromLua: self, at: -1)!
-//        let err = "TODO"
-//        pop(1)
-//        if let fn = errorHandler { fn(err) }
-//        return err
-//    }
-//    
+//
 //    public func stackSize() -> Int {
 //        return Int(lua_gettop(vm))
 //    }
@@ -196,11 +224,7 @@ public class VirtualMachine {
 //        }
 //        setTable(tablePosition - 2)
 //    }
-//    
-//    public func pushFromStack(position: Int) {
-//        lua_pushvalue(vm, Int32(position))
-//    }
-//    
+    
 //    public func pushGlobal(name: String) {
 //        lua_getglobal(vm, (name as NSString).UTF8String)
 //    }
@@ -208,20 +232,7 @@ public class VirtualMachine {
 //    public func pushField(name: String, fromTable: Int = -1) {
 //        lua_getfield(vm, Int32(fromTable), (name as NSString).UTF8String)
 //    }
-//    
-//    public func pop(n: Int) {
-//        lua_settop(vm, -Int32(n)-1)
-//    }
-//    
-//    public func rotate(position: Int, n: Int) {
-//        lua_rotate(vm, Int32(position), Int32(n))
-//    }
-//    
-//    public func remove(position: Int) {
-//        rotate(position, n: -1)
-//        pop(1)
-//    }
-//    
+    
 //    public func insert(position: Int) {
 //        rotate(position, n: 1)
 //    }
@@ -308,20 +319,32 @@ public class VirtualMachine {
 ////    }
 //    
 //    // ref
-//    
-//    public func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
-//    public func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
-//    
-//    // uhh, misc?
-//    
+    
+    
 //    public func isTruthy(position: Int) -> Bool {
 //        return lua_toboolean(vm, Int32(position)) != 0
 //    }
-//    
-//    public func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
-//    
-//    // raw
-//    
-//    public func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
+    
+    private func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
+    private func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
+    private func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
+    private func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
+    
+    private func pushFromStack(position: Int) {
+        lua_pushvalue(vm, Int32(position))
+    }
+    
+    private func pop(_ n: Int = 1) {
+        lua_settop(vm, -Int32(n)-1)
+    }
+    
+    private func rotate(position: Int, n: Int) {
+        lua_rotate(vm, Int32(position), Int32(n))
+    }
+    
+    private func remove(position: Int) {
+        rotate(position, n: -1)
+        pop(1)
+    }
     
 }
