@@ -6,7 +6,24 @@ private let GlobalsTable = Int(LUA_RIDX_GLOBALS)
 
 public typealias ErrorHandler = (String) -> Void
 
-public class Value {
+public protocol Value {
+    func push(vm: VirtualMachine)
+}
+
+private enum Kind {
+    case String
+    case Number
+    case Bool
+    case Function
+    case Table
+    case Userdata
+    case LightUserdata
+    case Thread
+    case Nil
+    case None
+}
+
+public class StoredValue: Value {
     
     private let refPosition: Int
     private let vm: VirtualMachine
@@ -22,22 +39,36 @@ public class Value {
         vm.unref(RegistryIndex, refPosition)
     }
     
-    private func push() {
+    public func push(vm: VirtualMachine) {
         vm.rawGet(tablePosition: RegistryIndex, index: refPosition)
     }
     
 }
 
-public class Number: Value {
+public class StoredNumber: StoredValue {
     
     
     
 }
 
-public class ByteString: Value {
+public class FreeString: Value {
+    
+    public let str: String
+    
+    public init(_ s: String) {
+        str = s
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushstring(vm.vm, (str as NSString).UTF8String)
+    }
+    
+}
+
+public class StoredString: StoredValue {
     
     func string() -> String {
-        push()
+        push(vm)
         var len: UInt = 0
         let str = lua_tolstring(vm.vm, -1, &len)
         let data = NSData(bytes: str, length: Int(len))
@@ -53,14 +84,14 @@ public enum FunctionResults {
     case Error(String)
 }
 
-public class Function: Value {
+public class StoredFunction: StoredValue {
     
     public func call(args: [Value]) -> [Value] {
         let size = vm.stackSize()
         
-        push()
+        push(vm)
         for arg in args {
-            arg.push()
+            arg.push(vm)
         }
         
         return []
@@ -68,21 +99,21 @@ public class Function: Value {
     
 }
 
-public class Boolean: Value {
+public class StoredBoolean: StoredValue {
 }
 
-public class Userdata: Value {
+public class StoredUserdata: StoredValue {
 }
 
-public class LightUserdata: Value {
+public class StoredLightUserdata: StoredValue {
 }
 
-public class Table: Value {
+public class StoredTable: StoredValue {
     
     public func get(key: Value) -> Value {
-        push()
+        push(vm)
         
-        key.push()
+        key.push(vm)
         lua_gettable(vm.vm, -2)
         let v = vm.value(-1)
         
@@ -93,28 +124,15 @@ public class Table: Value {
     
 }
 
-public class Thread: Value {
+public class StoredThread: StoredValue {
 }
 
-public class Nil: Value {
+public class Nil: StoredValue {
 }
 
 public enum MaybeFunction {
-    case Value(Function)
+    case Value(StoredFunction)
     case Error(String)
-}
-
-private enum Kind {
-    case String
-    case Number
-    case Bool
-    case Function
-    case Table
-    case Userdata
-    case LightUserdata
-    case Thread
-    case Nil
-    case None
 }
 
 // basics
@@ -149,39 +167,39 @@ public class VirtualMachine {
         }
     }
     
-    public func globalTable() -> Table {
+    public func globalTable() -> StoredTable {
         rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
-        return value(-1) as Table
+        return value(-1) as StoredTable
     }
     
-    public func value(pos: Int) -> Value? {
+    public func value(pos: Int) -> StoredValue? {
         switch kind(pos) {
-        case .String: return ByteString(self, pos)
-        case .Number: return Number(self, pos)
-        case .Bool: return Boolean(self, pos)
-        case .Function: return Function(self, pos)
-        case .Table: return Table(self, pos)
-        case .Userdata: return Userdata(self, pos)
-        case .LightUserdata: return LightUserdata(self, pos)
-        case .Thread: return Thread(self, pos)
+        case .String: return StoredString(self, pos)
+        case .Number: return StoredNumber(self, pos)
+        case .Bool: return StoredBoolean(self, pos)
+        case .Function: return StoredFunction(self, pos)
+        case .Table: return StoredTable(self, pos)
+        case .Userdata: return StoredUserdata(self, pos)
+        case .LightUserdata: return StoredLightUserdata(self, pos)
+        case .Thread: return StoredThread(self, pos)
         case .Nil: return Nil(self, pos)
         case .None: return nil
         }
     }
     
-    public func number(n: Int64) -> Number {
+    public func number(n: Int64) -> StoredNumber {
         lua_pushinteger(vm, n)
-        return Number(self, -1)
+        return StoredNumber(self, -1)
     }
     
-    public func string(str: String) -> ByteString {
+    public func string(str: String) -> StoredString {
         lua_pushstring(vm, (str as NSString).UTF8String)
-        return ByteString(self, -1)
+        return StoredString(self, -1)
     }
     
     public func function(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
-            return .Value(Function(self, -1))
+            return .Value(StoredFunction(self, -1))
         }
         else {
             return .Error(popError())
@@ -189,7 +207,7 @@ public class VirtualMachine {
     }
     
     func popError() -> String {
-        let err = ByteString(self, -1).string()
+        let err = StoredString(self, -1).string()
         if let fn = errorHandler { fn(err) }
         return err
     }

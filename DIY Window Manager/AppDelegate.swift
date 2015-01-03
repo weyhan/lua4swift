@@ -17,7 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let t = vm.globalTable()
         
-        let p = t.get(vm.string("print"))
+        let p = t.get(FreeString("print"))
         
         debugPrintln(p)
         
