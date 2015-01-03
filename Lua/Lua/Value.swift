@@ -36,11 +36,3 @@ public func ==(lhs: StoredValue, rhs: StoredValue) -> Bool {
     
     return result
 }
-
-//public protocol Value {
-//    func push(vm: VirtualMachine)
-//    init?(fromLua vm: VirtualMachine, at position: Int)
-//    class func typeName() -> String
-//    class func isValid(vm: VirtualMachine, at position: Int) -> Bool
-//    class func arg() -> TypeChecker
-//}

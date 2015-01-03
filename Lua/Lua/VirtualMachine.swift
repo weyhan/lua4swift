@@ -13,8 +13,8 @@ public typealias ErrorHandler = (String) -> Void
 
 public class VirtualMachine {
     
-    let vm = luaL_newstate()
-//    var storedSwiftValues = [UserdataPointer : Any]()
+    internal let vm = luaL_newstate()
+    internal var storedSwiftValues = [UserdataPointer : Userdata]()
     
     public var errorHandler: ErrorHandler? = { println("error: \($0)") }
     
@@ -71,6 +71,16 @@ public class VirtualMachine {
         return err
     }
     
+    public func createUserdata<T: CustomType>(o: T) -> Userdata {
+        // Note: we just alloc 1 byte cuz malloc prolly needs > 0 but we dun use it
+        
+        let ptr = lua_newuserdata(vm, 1) // also pushes ptr onto stack
+        let ud = Userdata(self) // this pops ptr off stack
+        setMetatable(T.metatableName())
+        storedSwiftValues[ptr] = ud
+        return ud
+    }
+    
     public func createFunction(fn: SwiftFunction, upvalues: Int = 0) -> Function {
         let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
             if self == nil { return 0 }
@@ -113,8 +123,8 @@ public class VirtualMachine {
     }
     
 //    public func setMetatable(position: Int) { lua_setmetatable(vm, Int32(position)) }
-//    public func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
-//    
+    public func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
+//
 //    
 //    func argError(expectedType: String, argPosition: Int) -> ReturnValue {
 //        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
