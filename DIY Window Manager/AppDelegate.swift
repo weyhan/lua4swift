@@ -15,13 +15,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let vm = Lua.VirtualMachine()
         
-        let t = vm.globalTable()
+        let globals = vm.globalTable()
         
-        t["bar"] = "foo"
-        t[t["bar"]] = 32
-        let d = t["foo"] as Double
+        globals["bar"] = "foo"
+        globals["q"] = true
+        globals[globals["bar"]] = 32
+        let d = globals["foo"] as Double
         
-        let p = t["print"] as Function
+        println(globals["q"])
+        
+        let p = globals["print"] as Function
         let values2 = p.call([d])
         debugPrintln(values2)
         
