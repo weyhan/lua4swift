@@ -9,8 +9,8 @@ public class Function: StoredValue {
     
     public func call(args: [Value]) -> FunctionResults {
         let globals = vm!.globalTable()
-        let debugTable = globals[ByteString("debug")] as Table
-        let messageHandler = debugTable[ByteString("traceback")]
+        let debugTable = globals["debug"] as Table
+        let messageHandler = debugTable["traceback"]
         
         let originalStackTop = vm!.stackSize()
         
@@ -27,7 +27,7 @@ public class Function: StoredValue {
             var values = [Value]()
             let numReturnValues = vm!.stackSize() - originalStackTop
             
-            for i in 1...numReturnValues {
+            for _ in 0..<numReturnValues {
                 let v = vm!.value(originalStackTop+1)
                 values.append(v!)
             }
@@ -41,3 +41,12 @@ public class Function: StoredValue {
     }
     
 }
+
+public enum SwiftReturnValue {
+    case Value(Lua.Value?)
+    case Values([Lua.Value])
+    case Nothing // convenience for Values([])
+    case Error(String)
+}
+
+public typealias SwiftFunction = () -> SwiftReturnValue

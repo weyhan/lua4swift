@@ -60,7 +60,7 @@ public class VirtualMachine {
         moveToStackTop(pos)
         var v: Value?
         switch kind(pos) {
-        case .String: v = ByteString(self)
+        case .String: v = String(self)
         case .Number: v = Number(self)
         case .Bool: v = Boolean(self)
         case .Function: v = Function(self)
@@ -95,7 +95,7 @@ public class VirtualMachine {
     }
     
     internal func popError() -> String {
-        let err = ByteString(self).value
+        let err = String(self)
         if let fn = errorHandler { fn(err) }
         return err
     }
@@ -251,13 +251,7 @@ public class VirtualMachine {
 ////            }
 ////        }
 ////    }
-//    
-//    // ref
     
-    
-//    public func isTruthy(position: Int) -> Bool {
-//        return lua_toboolean(vm, Int32(position)) != 0
-//    }
     
     internal func moveToStackTop(var position: Int) {
         if position == -1 || position == stackSize() { return }

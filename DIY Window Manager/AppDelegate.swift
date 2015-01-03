@@ -15,15 +15,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let vm = Lua.VirtualMachine()
         
-//        let t = vm.globalTable()
-//        
-//        t[ByteString("bar")] = ByteString("foo")
-//        t[t[ByteString("bar")]] = Number(32)
-//        let d = t[ByteString("foo")] as Number
-//        
-//        let p = t[ByteString("print")] as Function
-//        let values = p.call([d])
-//        debugPrintln(values)
+        let t = vm.globalTable()
+        
+        t["bar"] = "foo"
+        t[t["bar"]] = Number(32)
+        let d = t["foo"] as Number
+        
+        let p = t["print"] as Function
+        let values = p.call([d])
+        debugPrintln(values)
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
@@ -33,15 +33,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return .Values([Number(3), Number(1)])
         }
         
-        let values = fn.call([])
-        switch values {
-        case let .Values(vals):
-            let a = vals[0] as Number
-            let b = vals[1] as Number
-            println(a.value, b.value)
-        case let .Error(err):
-            println("Error! \(err)")
-        }
+//        let values = fn.call([])
+//        switch values {
+//        case let .Values(vals):
+//            let a = vals[0] as Number
+//            let b = vals[1] as Number
+//            println(a.value, b.value)
+//        case let .Error(err):
+//            println("Error! \(err)")
+//        }
         
         
 //        let f = vm.createFunction("return 3, foo + 2")

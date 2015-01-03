@@ -189,10 +189,10 @@
 		944A33031A475A6400BF8675 /* Lua */ = {
 			isa = PBXGroup;
 			children = (
-				94C67DE51A58718200B18BC2 /* Types */,
 				944A339C1A475AA800BF8675 /* VirtualMachine.swift */,
 				94C68C981A475D7400C54B88 /* KeyedTable.swift */,
 				94C68C9A1A475D8500C54B88 /* SequentialTable.swift */,
+				94C67DE51A58718200B18BC2 /* Types */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
 				944A33241A475A9C00BF8675 /* LuaSource */,
