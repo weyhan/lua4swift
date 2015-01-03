@@ -4,19 +4,6 @@ import Cocoa
 internal let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 private let GlobalsTable = Int(LUA_RIDX_GLOBALS)
 
-private enum Kind {
-    case None
-    case Nil
-    case Bool
-    case Number
-    case String
-    case Function
-    case Table
-    case Userdata
-    case LightUserdata
-    case Thread
-}
-
 public enum MaybeFunction {
     case Value(Function)
     case Error(String)
@@ -41,35 +28,20 @@ public class VirtualMachine {
         lua_close(vm)
     }
     
-    private func kind(position: Int) -> Kind {
-        switch lua_type(vm, Int32(position)) {
-        case LUA_TNIL: return .Nil
-        case LUA_TBOOLEAN: return .Bool
-        case LUA_TNUMBER: return .Number
-        case LUA_TSTRING: return .String
-        case LUA_TFUNCTION: return .Function
-        case LUA_TTABLE: return .Table
-        case LUA_TUSERDATA: return .Userdata
-        case LUA_TLIGHTUSERDATA: return .LightUserdata
-        case LUA_TTHREAD: return .Thread
-        default: return .None
-        }
-    }
-    
     public func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
-        switch kind(pos) {
-        case .String: v = String(self)
-        case .Number: v = Double(self)
-        case .Bool: v = Bool(self)
-        case .Function: v = Function(self)
-        case .Table: v = Table(self)
-        case .Userdata: v = Userdata(self)
-        case .LightUserdata: v = LightUserdata(self)
-        case .Thread: v = Thread(self)
-        case .Nil: v = Nil()
-        case .None: break
+        switch lua_type(vm, Int32(pos)) {
+        case LUA_TSTRING: v = String(self)
+        case LUA_TNUMBER: v = Double(self)
+        case LUA_TBOOLEAN: v = Bool(self)
+        case LUA_TFUNCTION: v = Function(self)
+        case LUA_TTABLE: v = Table(self)
+        case LUA_TUSERDATA: v = Userdata(self)
+        case LUA_TLIGHTUSERDATA: v = LightUserdata(self)
+        case LUA_TTHREAD: v = Thread(self)
+        case LUA_TNIL: v = Nil()
+        default: break
         }
         pop()
         return v
