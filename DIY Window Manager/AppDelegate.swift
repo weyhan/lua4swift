@@ -14,30 +14,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         let vm = Lua.VirtualMachine()
-        let t = vm.globalTable()
-        
-        t[ByteString("bar")] = ByteString("foo")
-        t[t[ByteString("bar")]] = Number(32)
-        let d = t[ByteString("foo")] as Number
-        
-        let p = t[ByteString("print")] as Function
-        let values = p.call([d])
-        debugPrintln(values)
+//        let t = vm.globalTable()
+//        
+//        t[ByteString("bar")] = ByteString("foo")
+//        t[t[ByteString("bar")]] = Number(32)
+//        let d = t[ByteString("foo")] as Number
+//        
+//        let p = t[ByteString("print")] as Function
+//        let values = p.call([d])
+//        debugPrintln(values)
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
-//        
-//        let f = vm.function("return 3, 2")
-//        
-//        switch f {
-//        case let .Error(err):
-//            println("Error! \(err)")
-//        case let .Value(f):
-//            let values = f.call([])
-//            println(values)
-//        }
-//        
-//        let x: String = "foo"
+        
+        let f = vm.createFunction("return 3, 2")
+        
+        switch f {
+        case let .Error(err):
+            println("Error! \(err)")
+        case let .Value(f):
+            let values = f.call([])
+            switch values {
+            case let .Values(vals):
+                println(vals)
+            case let .Error(err):
+                println("Error! \(err)")
+            }
+        }
+        
+        let x: String = "foo"
         
         
         
