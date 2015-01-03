@@ -10,16 +10,16 @@ public class VirtualMachine {
 //    var storedSwiftValues = [UserdataPointer : Any]()
 //    
 //    public var errorHandler: ErrorHandler? = { println("error: \($0)") }
-//    
-//    public init(openLibs: Bool = true) {
-//        if openLibs { luaL_openlibs(vm) }
-//    }
-//    
-//    deinit {
-//        println("lua dead")
-//        lua_close(vm)
-//    }
-//    
+    
+    public init(openLibs: Bool = true) {
+        if openLibs { luaL_openlibs(vm) }
+    }
+    
+    deinit {
+        println("lua dead")
+        lua_close(vm)
+    }
+    
 //    // execute
 //    
 //    public func loadString(str: String) -> String? {
