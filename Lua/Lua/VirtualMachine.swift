@@ -51,6 +51,11 @@ public class VirtualMachine {
         return value(-1) as Table
     }
     
+    public func registryTable() -> Table {
+        pushFromStack(RegistryIndex)
+        return value(-1) as Table
+    }
+    
     public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
             return .Value(Function(self))
@@ -122,10 +127,6 @@ public class VirtualMachine {
         return function
     }
     
-//    public func setMetatable(position: Int) { lua_setmetatable(vm, Int32(position)) }
-    public func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
-//
-//    
 //    func argError(expectedType: String, argPosition: Int) -> ReturnValue {
 //        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
 //        return .Nothing
@@ -145,14 +146,6 @@ public class VirtualMachine {
 //            return fn()
 //        }
 //        setTable(tablePosition - 2)
-//    }
-    
-//    public func pushGlobal(name: String) {
-//        lua_getglobal(vm, (name as NSString).UTF8String)
-//    }
-//    
-//    public func pushField(name: String, fromTable: Int = -1) {
-//        lua_getfield(vm, Int32(fromTable), (name as NSString).UTF8String)
 //    }
     
 //    public func insert(position: Int) {
@@ -179,67 +172,70 @@ public class VirtualMachine {
 ////        }
 ////        return nil
 ////    }
-////    
-////    public func pushCustomType<T: CustomType>(t: T.Type) {
-////        pushTable()
-////        
-////        // registry[metatableName] = lib
-////        pushFromStack(-1)
-////        setField(T.metatableName(), table: RegistryIndex)
-////        
-////        // setmetatable(lib, lib)
-////        pushFromStack(-1)
-////        setMetatable(-2)
-////        
-////        // lib.__index == lib
-////        pushFromStack(-1)
-////        setField("__index", table: -2)
-////        
-////        // lib.__name = the given metatable name // TODO: seems broken maybe?
-////        pushString(t.metatableName())
-////        setField("__name", table: -2)
-////        
-////        for (name, var kinds, fn) in t.instanceMethods() {
-////            kinds.insert(UserdataBox<T>.arg(), atIndex: 0)
-////            let f: Function = { [weak self] in
-////                if self == nil { return .Nothing }
-////                let o: UserdataBox<T> = self!.getUserdata(1)!
-////                self!.remove(1)
-////                return fn(o.object)(self!)
-////            }
-////            pushMethod(name, kinds, f)
-////        }
-////        
-////        for (name, kinds, fn) in t.classMethods() {
-////            pushMethod(name, kinds, { [weak self] in
-////                if self == nil { return .Nothing }
-////                return fn(self!)
-////            })
-////        }
-////        
-////        var metaMethods = MetaMethods<T>()
-////        T.setMetaMethods(&metaMethods)
-////        
-////        let gc = metaMethods.gc
-////        pushMethod("__gc", [UserdataBox<T>.arg()]) { [weak self] in
-////            println("called!")
-//////            if self == nil { return .Nothing }
-////            let o: UserdataBox<T> = self!.getUserdata(1)!
-////            gc?(o.object, self!)
-////            self!.storedSwiftValues[self!.getUserdataPointer(1)!] = nil
-////            return .Values([])
-////        }
-////        
-////        if let eq = metaMethods.eq {
-////            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [weak self] in
-////                if self == nil { return .Nothing }
-////                let a: UserdataBox<T> = self!.getUserdata(1)!
-////                let b: UserdataBox<T> = self!.getUserdata(2)!
-////                return .Values([eq(a.object, b.object)])
-////            }
-////        }
-////    }
     
+    public func pushCustomType<T: CustomType>(t: T.Type) -> Table {
+        
+        let lib = createTable()
+        
+        let registry = registryTable()
+        registry[T.metatableName()] = lib
+        
+        setMetatable(lib, metaTable: lib)
+        
+        lib["__index"] = lib
+        lib["__name"] = T.metatableName()  // TODO: seems broken maybe?
+        
+        for (name, var kinds, fn) in t.instanceMethods() {
+            kinds.insert(Userdata.self, atIndex: 0)
+            let f: SwiftFunction = { [weak self] (var args: [Value]) in
+                if self == nil { return .Nothing }
+                
+                let this = args[0] as Userdata
+                
+                
+                
+                
+                let o: UserdataBox<T> = self!.getUserdata(1)!
+                self!.remove(1)
+                return fn(o.object)(self!)
+            }
+//            pushMethod(name, kinds, f)
+        }
+        
+//        for (name, kinds, fn) in t.classMethods() {
+//            pushMethod(name, kinds, { [weak self] in
+//                if self == nil { return .Nothing }
+//                return fn(self!)
+//            })
+//        }
+//        
+//        var metaMethods = MetaMethods<T>()
+//        T.setMetaMethods(&metaMethods)
+//        
+//        let gc = metaMethods.gc
+//        pushMethod("__gc", [UserdataBox<T>.arg()]) { [weak self] in
+//            println("called!")
+//            // if self == nil { return .Nothing }
+//            let o: UserdataBox<T> = self!.getUserdata(1)!
+//            gc?(o.object, self!)
+//            self!.storedSwiftValues[self!.getUserdataPointer(1)!] = nil
+//            return .Values([])
+//        }
+//        
+//        if let eq = metaMethods.eq {
+//            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [weak self] in
+//                if self == nil { return .Nothing }
+//                let a: UserdataBox<T> = self!.getUserdata(1)!
+//                let b: UserdataBox<T> = self!.getUserdata(2)!
+//                return .Values([eq(a.object, b.object)])
+//            }
+//        }
+        
+        return lib
+        
+    }
+    
+    // stack
     
     internal func moveToStackTop(var position: Int) {
         if position == -1 || position == stackSize() { return }
@@ -248,6 +244,14 @@ public class VirtualMachine {
         remove(position)
     }
     
+    internal func setMetatable(thing: Value, metaTable: Value) {
+        thing.push(self)
+        metaTable.push(self)
+        lua_setmetatable(vm, -2)
+        pop() // thing
+    }
+    
+    internal func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
     internal func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
     internal func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
     internal func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }

@@ -1,8 +1,13 @@
 import Foundation
 
+public typealias UserdataPointer = UnsafeMutablePointer<Void>
+
 public class Userdata: StoredValue {
     
-    // TODO
+    public func toType<T>() {
+        let ptr: UserdataPointer = lua_touserdata(vm!.vm, -1)
+        let ud = vm!.storedSwiftValues[ptr]
+    }
     
 }
 
@@ -18,7 +23,6 @@ public class LightUserdata: StoredValue {}
 
 
 public typealias TypeChecker = Value.Type //(String, (VirtualMachine, Int) -> Bool)
-public typealias UserdataPointer = UnsafeMutablePointer<Void>
 
 public protocol CustomType {
     
