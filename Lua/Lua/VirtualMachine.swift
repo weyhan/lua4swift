@@ -28,9 +28,8 @@ public class StoredValue: Value {
     private let refPosition: Int
     private let vm: VirtualMachine
     
-    private init(_ vm: VirtualMachine, _ pos: Int) {
+    private init(_ vm: VirtualMachine) {
         self.vm = vm
-        vm.moveToStackTop(pos)
         refPosition = vm.ref(RegistryIndex)
     }
     
@@ -52,10 +51,8 @@ public class FreeNumber: Value {
         value = n
     }
     
-    private init(_ vm: VirtualMachine, _ pos: Int) {
-        vm.moveToStackTop(pos)
+    private init(_ vm: VirtualMachine) {
         value = lua_tonumberx(vm.vm, -1, nil)
-        vm.pop()
     }
     
     public func push(vm: VirtualMachine) {
@@ -72,15 +69,11 @@ public class FreeString: Value {
         value = s
     }
     
-    private init(_ vm: VirtualMachine, _ pos: Int) {
-        vm.moveToStackTop(pos)
-        
+    private init(_ vm: VirtualMachine) {
         var len: UInt = 0
         let str = lua_tolstring(vm.vm, -1, &len)
         let data = NSData(bytes: str, length: Int(len))
         self.value = NSString(data: data, encoding: NSUTF8StringEncoding)!
-        
-        vm.pop()
     }
     
     public func push(vm: VirtualMachine) {
@@ -117,10 +110,8 @@ public class FreeBoolean: Value {
         value = b
     }
     
-    private init(_ vm: VirtualMachine, _ pos: Int) {
-        vm.moveToStackTop(pos)
+    private init(_ vm: VirtualMachine) {
         value = lua_toboolean(vm.vm, -1) == 1 ? true : false
-        vm.pop()
     }
     
     public func push(vm: VirtualMachine) {
@@ -163,7 +154,12 @@ public class StoredTable: StoredValue {
 public class StoredThread: StoredValue {
 }
 
-public class Nil: StoredValue {
+public class Nil: Value {
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushnil(vm.vm)
+    }
+    
 }
 
 public enum MaybeFunction {
@@ -209,23 +205,25 @@ public class VirtualMachine {
     }
     
     public func value(pos: Int) -> Value? {
+        moveToStackTop(pos)
         switch kind(pos) {
-        case .String: return FreeString(self, pos)
-        case .Number: return FreeNumber(self, pos)
-        case .Bool: return FreeBoolean(self, pos)
-        case .Function: return StoredFunction(self, pos)
-        case .Table: return StoredTable(self, pos)
-        case .Userdata: return StoredUserdata(self, pos)
-        case .LightUserdata: return StoredLightUserdata(self, pos)
-        case .Thread: return StoredThread(self, pos)
-        case .Nil: return Nil(self, pos)
+        case .String: return FreeString(self)
+        case .Number: return FreeNumber(self)
+        case .Bool: return FreeBoolean(self)
+        case .Function: return StoredFunction(self)
+        case .Table: return StoredTable(self)
+        case .Userdata: return StoredUserdata(self)
+        case .LightUserdata: return StoredLightUserdata(self)
+        case .Thread: return StoredThread(self)
+        case .Nil: return Nil()
         case .None: return nil
         }
+        pop()
     }
     
     public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
-            return .Value(StoredFunction(self, -1))
+            return .Value(StoredFunction(self))
         }
         else {
             return .Error(popError())
@@ -233,7 +231,7 @@ public class VirtualMachine {
     }
     
     func popError() -> String {
-        let err = FreeString(self, -1).value
+        let err = FreeString(self).value
         if let fn = errorHandler { fn(err) }
         return err
     }
