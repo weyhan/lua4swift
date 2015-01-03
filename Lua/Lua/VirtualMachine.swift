@@ -186,8 +186,7 @@ public class Table: StoredValue {
     
 }
 
-public class StoredThread: StoredValue {
-}
+public class StoredThread: StoredValue {}
 
 public class Nil: Value {
     
@@ -267,6 +266,11 @@ public class VirtualMachine {
         }
     }
     
+    public func createTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) -> Table {
+        lua_createtable(vm, Int32(sequenceCapacity), Int32(keyCapacity))
+        return Table(self)
+    }
+    
     func popError() -> String {
         let err = ByteString(self).value
         if let fn = errorHandler { fn(err) }
@@ -277,42 +281,10 @@ public class VirtualMachine {
 //        if let err = loadString(str) { return err }
 //        return call(arguments: 0, returnValues: Int(LUA_MULTRET))
 //    }
-//    
-//    public func call(arguments: Int = 0, returnValues: Int = 0) -> String? {
-//        var messageHandler = -1 // top of stack
-//        messageHandler -= arguments // before all arguments
-//        messageHandler -= 1 // before function
-//        
-//        pushGlobal("debug")
-//        pushField("traceback")
-//        remove(-2) // pop debug
-//        insert(messageHandler) // push before fn
-//        
-//        var err: String?
-//        
-//        if lua_pcallk(vm, Int32(arguments), Int32(returnValues), Int32(messageHandler), 0, nil) != LUA_OK {
-//            err = popError()
-//        }
-//        
-//        pop(1) // message handler
-//        
-//        return err
-//    }
-//    
-//    // set
-//    
-//    public func setGlobal(name: String) { lua_setglobal(vm, (name as NSString).UTF8String) }
-//    public func setField(name: String, table: Int) { lua_setfield(vm, Int32(table), (name as NSString).UTF8String) }
-//    public func setTable(tablePosition: Int) { lua_settable(vm, Int32(tablePosition)) }
+    
 //    public func setMetatable(position: Int) { lua_setmetatable(vm, Int32(position)) }
 //    public func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
 //    
-//    
-//    // push
-//    
-//    public func pushTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) {
-//        lua_createtable(vm, Int32(sequenceCapacity), Int32(keyCapacity))
-//    }
 //    
 //    public func pushNil()             { lua_pushnil(vm) }
 //    public func pushBool(value: Bool) { lua_pushboolean(vm, value ? 1 : 0) }
