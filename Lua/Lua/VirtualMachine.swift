@@ -46,35 +46,30 @@ public class StoredValue: Value {
 
 public class FreeNumber: Value {
     
-//    public func number(n: Int64) -> StoredNumber {
-//        lua_pushinteger(vm, n)
-//        return StoredNumber(self, -1)
-//    }
-    
-    public let number: Double
+    public let value: Double
     
     public init(_ n: Double) {
-        number = n
+        value = n
     }
     
     private init(_ vm: VirtualMachine, _ pos: Int) {
         vm.moveToStackTop(pos)
-        number = lua_tonumberx(vm.vm, -1, nil)
+        value = lua_tonumberx(vm.vm, -1, nil)
         vm.pop()
     }
     
     public func push(vm: VirtualMachine) {
-        lua_pushnumber(vm.vm, number)
+        lua_pushnumber(vm.vm, value)
     }
     
 }
 
 public class FreeString: Value {
     
-    public let string: String = ""
+    public let value: String
     
     public init(_ s: String) {
-        string = s
+        value = s
     }
     
     private init(_ vm: VirtualMachine, _ pos: Int) {
@@ -83,13 +78,13 @@ public class FreeString: Value {
         var len: UInt = 0
         let str = lua_tolstring(vm.vm, -1, &len)
         let data = NSData(bytes: str, length: Int(len))
-        self.string = NSString(data: data, encoding: NSUTF8StringEncoding)!
+        self.value = NSString(data: data, encoding: NSUTF8StringEncoding)!
         
         vm.pop()
     }
     
     public func push(vm: VirtualMachine) {
-        lua_pushstring(vm.vm, (string as NSString).UTF8String)
+        lua_pushstring(vm.vm, (value as NSString).UTF8String)
     }
     
 }
@@ -114,7 +109,24 @@ public class StoredFunction: StoredValue {
     
 }
 
-public class StoredBoolean: StoredValue {
+public class FreeBoolean: Value {
+    
+    public let value: Bool
+    
+    public init(_ b: Bool) {
+        value = b
+    }
+    
+    private init(_ vm: VirtualMachine, _ pos: Int) {
+        vm.moveToStackTop(pos)
+        value = lua_toboolean(vm.vm, -1) == 1 ? true : false
+        vm.pop()
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushboolean(vm.vm, value ? 1 : 0)
+    }
+    
 }
 
 public class StoredUserdata: StoredValue {
@@ -200,7 +212,7 @@ public class VirtualMachine {
         switch kind(pos) {
         case .String: return FreeString(self, pos)
         case .Number: return FreeNumber(self, pos)
-        case .Bool: return StoredBoolean(self, pos)
+        case .Bool: return FreeBoolean(self, pos)
         case .Function: return StoredFunction(self, pos)
         case .Table: return StoredTable(self, pos)
         case .Userdata: return StoredUserdata(self, pos)
@@ -221,7 +233,7 @@ public class VirtualMachine {
     }
     
     func popError() -> String {
-        let err = FreeString(self, -1).string
+        let err = FreeString(self, -1).value
         if let fn = errorHandler { fn(err) }
         return err
     }
