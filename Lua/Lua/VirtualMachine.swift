@@ -30,9 +30,8 @@ public class StoredValue: Value {
     
     private init(_ vm: VirtualMachine, _ pos: Int) {
         self.vm = vm
-        if pos != -1 { vm.pushFromStack(pos) }
+        vm.moveToStackTop(pos)
         refPosition = vm.ref(RegistryIndex)
-        if pos != -1 { vm.remove(pos) }
     }
     
     deinit {
@@ -47,45 +46,50 @@ public class StoredValue: Value {
 
 public class FreeNumber: Value {
     
-    public let num: Double
-    public init(_ n: Double) { num = n }
+//    public func number(n: Int64) -> StoredNumber {
+//        lua_pushinteger(vm, n)
+//        return StoredNumber(self, -1)
+//    }
+    
+    public let number: Double
+    
+    public init(_ n: Double) {
+        number = n
+    }
+    
+    private init(_ vm: VirtualMachine, _ pos: Int) {
+        vm.moveToStackTop(pos)
+        number = lua_tonumberx(vm.vm, -1, nil)
+        vm.pop()
+    }
+    
     public func push(vm: VirtualMachine) {
-        lua_pushnumber(vm.vm, num)
+        lua_pushnumber(vm.vm, number)
     }
     
 }
 
 public class FreeString: Value {
     
-    public let str: String
-    public init(_ s: String) { str = s }
-    public func push(vm: VirtualMachine) {
-        lua_pushstring(vm.vm, (str as NSString).UTF8String)
+    public let string: String = ""
+    
+    public init(_ s: String) {
+        string = s
     }
     
-}
-
-public class StoredNumber: StoredValue {
-    
-    public func double() -> Double {
-        push(vm)
-        let d = lua_tonumberx(vm.vm, -1, nil)
-        vm.pop()
-        return d
-    }
-    
-}
-
-public class StoredString: StoredValue {
-    
-    public func string() -> String {
-        push(vm)
+    private init(_ vm: VirtualMachine, _ pos: Int) {
+        vm.moveToStackTop(pos)
+        
         var len: UInt = 0
         let str = lua_tolstring(vm.vm, -1, &len)
         let data = NSData(bytes: str, length: Int(len))
-        let s = NSString(data: data, encoding: NSUTF8StringEncoding)!
+        self.string = NSString(data: data, encoding: NSUTF8StringEncoding)!
+        
         vm.pop()
-        return s
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushstring(vm.vm, (string as NSString).UTF8String)
     }
     
 }
@@ -192,10 +196,10 @@ public class VirtualMachine {
         return value(-1) as StoredTable
     }
     
-    public func value(pos: Int) -> StoredValue? {
+    public func value(pos: Int) -> Value? {
         switch kind(pos) {
-        case .String: return StoredString(self, pos)
-        case .Number: return StoredNumber(self, pos)
+        case .String: return FreeString(self, pos)
+        case .Number: return FreeNumber(self, pos)
         case .Bool: return StoredBoolean(self, pos)
         case .Function: return StoredFunction(self, pos)
         case .Table: return StoredTable(self, pos)
@@ -207,17 +211,7 @@ public class VirtualMachine {
         }
     }
     
-    public func number(n: Int64) -> StoredNumber {
-        lua_pushinteger(vm, n)
-        return StoredNumber(self, -1)
-    }
-    
-    public func string(str: String) -> StoredString {
-        lua_pushstring(vm, (str as NSString).UTF8String)
-        return StoredString(self, -1)
-    }
-    
-    public func function(body: String) -> MaybeFunction {
+    public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
             return .Value(StoredFunction(self, -1))
         }
@@ -227,7 +221,7 @@ public class VirtualMachine {
     }
     
     func popError() -> String {
-        let err = StoredString(self, -1).string()
+        let err = FreeString(self, -1).string
         if let fn = errorHandler { fn(err) }
         return err
     }
@@ -433,9 +427,16 @@ public class VirtualMachine {
 //        return lua_toboolean(vm, Int32(position)) != 0
 //    }
     
+    private func moveToStackTop(var position: Int) {
+        if position == -1 { return }
+        position = absolutePosition(position)
+        pushFromStack(position)
+        remove(position)
+    }
+    
     private func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
     private func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
-//    private func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
+    private func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
     private func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
     
     private func pushFromStack(position: Int) {

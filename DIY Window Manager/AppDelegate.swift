@@ -20,9 +20,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         t.set(key: FreeString("foo"), value: FreeNumber(32))
         
         let p = t.get(FreeString("print"))
-        let d = t.get(FreeString("foo")) as StoredNumber
+        let d = t.get(FreeString("foo")) as FreeNumber
         
-        debugPrintln(d.double())
+        debugPrintln(d.number)
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
