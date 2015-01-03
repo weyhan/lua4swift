@@ -1,14 +1,8 @@
 import Foundation
 import Cocoa
 
-private let RegistryIndex = Int(SDegutisLuaRegistryIndex)
+internal let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 private let GlobalsTable = Int(LUA_RIDX_GLOBALS)
-
-public typealias ErrorHandler = (String) -> Void
-
-public protocol Value {
-    func push(vm: VirtualMachine)
-}
 
 private enum Kind {
     case None
@@ -21,179 +15,6 @@ private enum Kind {
     case Userdata
     case LightUserdata
     case Thread
-}
-
-public class StoredValue: Value {
-    
-    private let refPosition: Int
-    private let vm: VirtualMachine
-    
-    private init(_ vm: VirtualMachine) {
-        self.vm = vm
-        refPosition = vm.ref(RegistryIndex)
-    }
-    
-    deinit {
-        vm.unref(RegistryIndex, refPosition)
-    }
-    
-    public func push(vm: VirtualMachine) {
-        vm.rawGet(tablePosition: RegistryIndex, index: refPosition)
-    }
-    
-}
-
-public class Number: Value {
-    
-    public let value: Double
-    
-    public init(_ n: Double) {
-        value = n
-    }
-    
-    private init(_ vm: VirtualMachine) {
-        value = lua_tonumberx(vm.vm, -1, nil)
-    }
-    
-    public func push(vm: VirtualMachine) {
-        lua_pushnumber(vm.vm, value)
-    }
-    
-}
-
-public class ByteString: Value {
-    
-    public let value: String
-    
-    public init(_ s: String) {
-        value = s
-    }
-    
-    private init(_ vm: VirtualMachine) {
-        var len: UInt = 0
-        let str = lua_tolstring(vm.vm, -1, &len)
-        let data = NSData(bytes: str, length: Int(len))
-        self.value = NSString(data: data, encoding: NSUTF8StringEncoding)!
-    }
-    
-    public func push(vm: VirtualMachine) {
-        lua_pushstring(vm.vm, (value as NSString).UTF8String)
-    }
-    
-}
-
-public enum FunctionResults {
-    case Values([Value])
-    case Error(String)
-}
-
-public class Function: StoredValue {
-    
-    public func call(args: [Value]) -> FunctionResults {
-        let globals = vm.globalTable()
-        let debugTable = globals[ByteString("debug")] as Table
-        let messageHandler = debugTable[ByteString("traceback")]
-        
-        let originalStackTop = vm.stackSize()
-        
-        messageHandler.push(vm)
-        let messageHandlerPosition = originalStackTop + 1
-        
-        push(vm)
-        for arg in args {
-            arg.push(vm)
-        }
-        
-        // stack contains: [traceback, fn, *args]
-        
-        var err: String?
-        if lua_pcallk(vm.vm, Int32(args.count), LUA_MULTRET, Int32(messageHandlerPosition), 0, nil) != LUA_OK {
-            err = vm.popError()
-        }
-        
-        vm.remove(messageHandlerPosition)
-        
-        // stack now contains either [] or [*results]
-        
-        if let error = err {
-            return .Error(error)
-        }
-        else {
-            var values = [Value]()
-            
-            let numReturnValues = vm.stackSize() - originalStackTop
-            
-            for i in 1...numReturnValues {
-                let v = vm.value(originalStackTop+1)
-                debugPrintln(v)
-                values.append(v!)
-            }
-            
-            return .Values(values)
-        }
-    }
-    
-}
-
-public class Boolean: Value {
-    
-    public let value: Bool
-    
-    public init(_ b: Bool) {
-        value = b
-    }
-    
-    private init(_ vm: VirtualMachine) {
-        value = lua_toboolean(vm.vm, -1) == 1 ? true : false
-    }
-    
-    public func push(vm: VirtualMachine) {
-        lua_pushboolean(vm.vm, value ? 1 : 0)
-    }
-    
-}
-
-public class Userdata: StoredValue {
-}
-
-public class LightUserdata: StoredValue {
-}
-
-public class Table: StoredValue {
-    
-    public subscript(key: Value) -> Value {
-        get {
-            push(vm)
-            
-            key.push(vm)
-            lua_gettable(vm.vm, -2)
-            let v = vm.value(-1)
-            
-            vm.pop()
-            return v!
-        }
-        
-        set {
-            push(vm)
-            
-            key.push(vm)
-            newValue.push(vm)
-            lua_settable(vm.vm, -3)
-            
-            vm.pop()
-        }
-    }
-    
-}
-
-public class StoredThread: StoredValue {}
-
-public class Nil: Value {
-    
-    public func push(vm: VirtualMachine) {
-        lua_pushnil(vm.vm)
-    }
-    
 }
 
 public enum MaybeFunction {
@@ -285,12 +106,6 @@ public class VirtualMachine {
 //    public func setMetatable(position: Int) { lua_setmetatable(vm, Int32(position)) }
 //    public func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
 //    
-//    
-//    public func pushNil()             { lua_pushnil(vm) }
-//    public func pushBool(value: Bool) { lua_pushboolean(vm, value ? 1 : 0) }
-//    public func pushDouble(n: Double) { lua_pushnumber(vm, n) }
-//    public func pushInteger(n: Int64) { lua_pushinteger(vm, n) }
-//    public func pushString(s: String) { lua_pushstring(vm, (s as NSString).UTF8String) }
 //    
 //    public func pushFunction(fn: Function, upvalues: Int = 0) {
 //        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
@@ -446,36 +261,36 @@ public class VirtualMachine {
 //        return lua_toboolean(vm, Int32(position)) != 0
 //    }
     
-    private func moveToStackTop(var position: Int) {
+    internal func moveToStackTop(var position: Int) {
         if position == -1 { return }
         position = absolutePosition(position)
         pushFromStack(position)
         remove(position)
     }
     
-    private func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
-    private func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
-    private func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
-    private func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
+    internal func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
+    internal func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
+    internal func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
+    internal func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
     
-    private func pushFromStack(position: Int) {
+    internal func pushFromStack(position: Int) {
         lua_pushvalue(vm, Int32(position))
     }
     
-    private func pop(_ n: Int = 1) {
+    internal func pop(_ n: Int = 1) {
         lua_settop(vm, -Int32(n)-1)
     }
     
-    private func rotate(position: Int, n: Int) {
+    internal func rotate(position: Int, n: Int) {
         lua_rotate(vm, Int32(position), Int32(n))
     }
     
-    private func remove(position: Int) {
+    internal func remove(position: Int) {
         rotate(position, n: -1)
         pop(1)
     }
     
-    private func stackSize() -> Int {
+    internal func stackSize() -> Int {
         return Int(lua_gettop(vm))
     }
     

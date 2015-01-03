@@ -1,5 +1,14 @@
-//import Foundation
-//
+import Foundation
+
+public typealias ErrorHandler = (String) -> Void
+
+public protocol Value {
+    func push(vm: VirtualMachine)
+}
+
+
+
+
 //public enum ReturnValue {
 //    case Value(Lua.Value?)
 //    case Values([Lua.Value])

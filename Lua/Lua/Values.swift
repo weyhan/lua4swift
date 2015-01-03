@@ -1,111 +1,173 @@
-//import Foundation
-//
-//extension String: Value {
-//    public func push(vm: VirtualMachine) { vm.pushString(self) }
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        if vm.kind(position) != .String { return nil }
-//        var len: UInt = 0
-//        let str = lua_tolstring(vm.vm, Int32(position), &len)
-//        let data = NSData(bytes: str, length: Int(len))
-//        self = NSString(data: data, encoding: NSUTF8StringEncoding)!
-//    }
-//    public static func typeName() -> String { return "string" }
-//    public static func arg() -> TypeChecker { return (String.typeName(), String.isValid) }
-//    public static func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        return vm.kind(position) == .String
-//    }
-//}
-//
-//extension Int64: Value {
-//    public func push(vm: VirtualMachine) { vm.pushInteger(self) }
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        if vm.kind(position) != .Number { return nil }
-//        self = lua_tointegerx(vm.vm, Int32(position), nil)
-//    }
-//    public static func typeName() -> String { return "integer" }
-//    public static func arg() -> TypeChecker { return (Int64.typeName(), Int64.isValid) }
-//    public static func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        return vm.kind(position) == .Number
-//    }
-//}
-//
-//extension Double: Value {
-//    public func push(vm: VirtualMachine) { vm.pushDouble(self) }
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        if vm.kind(position) != .Number { return nil }
-//        self = lua_tonumberx(vm.vm, Int32(position), nil)
-//    }
-//    public static func typeName() -> String { return "double" }
-//    public static func arg() -> TypeChecker { return (Double.typeName(), Double.isValid) }
-//    public static func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        return vm.kind(position) == .Number
-//    }
-//}
-//
-//extension Bool: Value {
-//    public func push(vm: VirtualMachine) { vm.pushBool(self) }
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        if vm.kind(position) != .Bool { return nil }
-//        self = lua_toboolean(vm.vm, Int32(position)) != 0
-//    }
-//    public static func typeName() -> String { return "boolean" }
-//    public static func arg() -> TypeChecker { return (Bool.typeName(), Bool.isValid) }
-//    public static func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        return vm.kind(position) == .Bool
-//    }
-//}
-//
-//// meant for putting functions into Lua only; can't take them out
-//public struct FunctionBox: Value {
-//    private let _fn: Function?
-//    public var fn: Function { return _fn! }
-//    public init(_ fn: Function) { _fn = fn }
-//    
-//    public func push(vm: VirtualMachine) {
-//        if let fn = _fn { vm.pushFunction(fn) }
-//    }
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        // can't ever convert functions to a usable object
-//    }
-//    public static func typeName() -> String { return "function" }
-//    public static func arg() -> TypeChecker { return (FunctionBox.typeName(), FunctionBox.isValid) }
-//    public static func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        return vm.kind(position) == .Function
-//    }
-//}
-//
-//public final class NilType: Value {
-//    public func push(vm: VirtualMachine) { vm.pushNil() }
-//    public init() {}
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        if vm.kind(position) != .Nil { return nil }
-//    }
-//    public class func typeName() -> String { return "nil" }
-//    public class func arg() -> TypeChecker { return (NilType.typeName(), NilType.isValid) }
-//    public class func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        return vm.kind(position) == .Nil
-//    }
-//}
-//
-//public let Nil = NilType()
-//
-//extension NSPoint: Value {
-//    public func push(vm: VirtualMachine) {
-//        KeyedTable<String,Double>(["x":Double(self.x), "y":Double(self.y)]).push(vm)
-//    }
-//    public init?(fromLua vm: VirtualMachine, at position: Int) {
-//        let table = KeyedTable<String, Double>(fromLua: vm, at: position)
-//        if table == nil { return nil }
-//        let x = table!["x"] ?? 0
-//        let y = table!["y"] ?? 0
-//        self = NSPoint(x: x, y: y)
-//    }
-//    public static func typeName() -> String { return "point" }
-//    public static func arg() -> TypeChecker { return (NSPoint.typeName(), NSPoint.isValid) }
-//    public static func isValid(vm: VirtualMachine, at position: Int) -> Bool {
-//        if vm.kind(position) != .Table { return false }
-//        let dict = KeyedTable<String,Double>(fromLua: vm, at: position)
-//        if dict == nil { return false }
-//        return dict!["x"] != nil && dict!["y"] != nil
-//    }
-//}
+import Foundation
+
+public class StoredValue: Value {
+    
+    private let refPosition: Int
+    private let vm: VirtualMachine
+    
+    internal init(_ vm: VirtualMachine) {
+        self.vm = vm
+        refPosition = vm.ref(RegistryIndex)
+    }
+    
+    deinit {
+        vm.unref(RegistryIndex, refPosition)
+    }
+    
+    public func push(vm: VirtualMachine) {
+        vm.rawGet(tablePosition: RegistryIndex, index: refPosition)
+    }
+    
+}
+
+public class Number: Value {
+    
+    public let value: Double
+    
+    public init(_ n: Double) {
+        value = n
+    }
+    
+    internal init(_ vm: VirtualMachine) {
+        value = lua_tonumberx(vm.vm, -1, nil)
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushnumber(vm.vm, value)
+    }
+    
+}
+
+public class ByteString: Value {
+    
+    public let value: String
+    
+    public init(_ s: String) {
+        value = s
+    }
+    
+    internal init(_ vm: VirtualMachine) {
+        var len: UInt = 0
+        let str = lua_tolstring(vm.vm, -1, &len)
+        let data = NSData(bytes: str, length: Int(len))
+        self.value = NSString(data: data, encoding: NSUTF8StringEncoding)!
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushstring(vm.vm, (value as NSString).UTF8String)
+    }
+    
+}
+
+public enum FunctionResults {
+    case Values([Value])
+    case Error(String)
+}
+
+public class Function: StoredValue {
+    
+    public func call(args: [Value]) -> FunctionResults {
+        let globals = vm.globalTable()
+        let debugTable = globals[ByteString("debug")] as Table
+        let messageHandler = debugTable[ByteString("traceback")]
+        
+        let originalStackTop = vm.stackSize()
+        
+        messageHandler.push(vm)
+        let messageHandlerPosition = originalStackTop + 1
+        
+        push(vm)
+        for arg in args {
+            arg.push(vm)
+        }
+        
+        // stack contains: [traceback, fn, *args]
+        
+        var err: String?
+        if lua_pcallk(vm.vm, Int32(args.count), LUA_MULTRET, Int32(messageHandlerPosition), 0, nil) != LUA_OK {
+            err = vm.popError()
+        }
+        
+        vm.remove(messageHandlerPosition)
+        
+        // stack now contains either [] or [*results]
+        
+        if let error = err {
+            return .Error(error)
+        }
+        else {
+            var values = [Value]()
+            
+            let numReturnValues = vm.stackSize() - originalStackTop
+            
+            for i in 1...numReturnValues {
+                let v = vm.value(originalStackTop+1)
+                debugPrintln(v)
+                values.append(v!)
+            }
+            
+            return .Values(values)
+        }
+    }
+    
+}
+
+public class Boolean: Value {
+    
+    public let value: Bool
+    
+    public init(_ b: Bool) {
+        value = b
+    }
+    
+    internal init(_ vm: VirtualMachine) {
+        value = lua_toboolean(vm.vm, -1) == 1 ? true : false
+    }
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushboolean(vm.vm, value ? 1 : 0)
+    }
+    
+}
+
+public class Userdata: StoredValue {
+}
+
+public class LightUserdata: StoredValue {}
+
+public class Table: StoredValue {
+    
+    public subscript(key: Value) -> Value {
+        get {
+            push(vm)
+            
+            key.push(vm)
+            lua_gettable(vm.vm, -2)
+            let v = vm.value(-1)
+            
+            vm.pop()
+            return v!
+        }
+        
+        set {
+            push(vm)
+            
+            key.push(vm)
+            newValue.push(vm)
+            lua_settable(vm.vm, -3)
+            
+            vm.pop()
+        }
+    }
+    
+}
+
+public class StoredThread: StoredValue {}
+
+public class Nil: Value {
+    
+    public func push(vm: VirtualMachine) {
+        lua_pushnil(vm.vm)
+    }
+    
+}
