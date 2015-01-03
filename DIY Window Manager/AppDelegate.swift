@@ -35,18 +35,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        let s = vm.string("hi")
         
         
-        let fn = vm.createFunction {
+        let fn = vm.createFunction { args in
+            
+            let a = args[0] as String
+            let b = args[1] as Bool
+            let c = args[2] as Bool
+            let d = args[3] as Double
+            
+            println(a)
+            println(b)
+            println(c)
+            println(d)
+            
+            println(args)
             return .Values([3, "hi"])
         }
         
-        let values = fn.call([])
+        let values = fn.call(["sup", false, true, 25])
         switch values {
         case let .Values(vals):
-            println(vals)
-//            let a = vals[0] as Double
-//            let b = vals[1] as String
-//            println(a)
-//            println(b)
+            let a = vals[0] as Double
+            let b = vals[1] as String
+            println(a)
+            println(b)
         case let .Error(err):
             println("Error! \(err)")
         }

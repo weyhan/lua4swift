@@ -75,7 +75,12 @@ public class VirtualMachine {
         let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
             if self == nil { return 0 }
             
-            switch fn() {
+            var args = [Value]()
+            for _ in 0 ..< self!.stackSize() {
+                args.append(self!.value(1)!)
+            }
+            
+            switch fn(args) {
             case .Nothing:
                 return 0
             case let .Value(value):
@@ -93,7 +98,7 @@ public class VirtualMachine {
                 return Int32(values.count)
             case let .Error(error):
                 println("pushing error: \(error)")
-                //                error.push(self!) // TODO: uncomment
+                error.push(self!)
                 lua_error(self!.vm)
                 return 0 // uhh, we don't actually get here
             }

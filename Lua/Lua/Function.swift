@@ -49,4 +49,4 @@ public enum SwiftReturnValue {
     case Error(String)
 }
 
-public typealias SwiftFunction = () -> SwiftReturnValue
+public typealias SwiftFunction = ([Value]) -> SwiftReturnValue
