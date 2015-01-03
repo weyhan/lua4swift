@@ -43,7 +43,7 @@ public class StoredValue: Value {
     
 }
 
-public class FreeNumber: Value {
+public class Number: Value {
     
     public let value: Double
     
@@ -61,7 +61,7 @@ public class FreeNumber: Value {
     
 }
 
-public class FreeString: Value {
+public class ByteString: Value {
     
     public let value: String
     
@@ -87,7 +87,7 @@ public enum FunctionResults {
     case Error(String)
 }
 
-public class StoredFunction: StoredValue {
+public class Function: StoredValue {
     
     public func call(args: [Value]) -> [Value] {
         let size = vm.stackSize()
@@ -102,7 +102,7 @@ public class StoredFunction: StoredValue {
     
 }
 
-public class FreeBoolean: Value {
+public class Boolean: Value {
     
     public let value: Bool
     
@@ -120,13 +120,13 @@ public class FreeBoolean: Value {
     
 }
 
-public class StoredUserdata: StoredValue {
+public class Userdata: StoredValue {
 }
 
-public class StoredLightUserdata: StoredValue {
+public class LightUserdata: StoredValue {
 }
 
-public class StoredTable: StoredValue {
+public class Table: StoredValue {
     
     public func get(key: Value) -> Value {
         push(vm)
@@ -163,7 +163,7 @@ public class Nil: Value {
 }
 
 public enum MaybeFunction {
-    case Value(StoredFunction)
+    case Value(Function)
     case Error(String)
 }
 
@@ -199,22 +199,22 @@ public class VirtualMachine {
         }
     }
     
-    public func globalTable() -> StoredTable {
+    public func globalTable() -> Table {
         rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
-        return value(-1) as StoredTable
+        return value(-1) as Table
     }
     
     public func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
         switch kind(pos) {
-        case .String: v = FreeString(self)
-        case .Number: v = FreeNumber(self)
-        case .Bool: v = FreeBoolean(self)
-        case .Function: v = StoredFunction(self)
-        case .Table: v = StoredTable(self)
-        case .Userdata: v = StoredUserdata(self)
-        case .LightUserdata: v = StoredLightUserdata(self)
+        case .String: v = ByteString(self)
+        case .Number: v = Number(self)
+        case .Bool: v = Boolean(self)
+        case .Function: v = Function(self)
+        case .Table: v = Table(self)
+        case .Userdata: v = Userdata(self)
+        case .LightUserdata: v = LightUserdata(self)
         case .Thread: v = StoredThread(self)
         case .Nil: v = Nil()
         case .None: break
@@ -225,7 +225,7 @@ public class VirtualMachine {
     
     public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
-            return .Value(StoredFunction(self))
+            return .Value(Function(self))
         }
         else {
             return .Error(popError())
@@ -233,7 +233,7 @@ public class VirtualMachine {
     }
     
     func popError() -> String {
-        let err = FreeString(self).value
+        let err = ByteString(self).value
         if let fn = errorHandler { fn(err) }
         return err
     }

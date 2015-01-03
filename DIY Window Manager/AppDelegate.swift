@@ -17,17 +17,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let t = vm.globalTable()
         
-        let debug = t.get(FreeString("debug")) as StoredTable
-        let traceback = debug.get(FreeString("traceback"))
+        let debug = t.get(ByteString("debug")) as Table
+        let traceback = debug.get(ByteString("traceback"))
         debugPrintln(traceback)
         
-//        pushField("traceback")
+        t.set(key: ByteString("bar"), value: ByteString("foo"))
+        t.set(key: t.get(ByteString("bar")), value: Number(32))
         
-        t.set(key: FreeString("bar"), value: FreeString("foo"))
-        t.set(key: t.get(FreeString("bar")), value: FreeNumber(32))
-        
-//        let p = t.get(FreeString("print"))
-        let d = t.get(FreeString("foo")) as FreeNumber
+//        let p = t.get(ByteString("print"))
+        let d = t.get(ByteString("foo")) as Number
         
         debugPrintln(d.value)
         
