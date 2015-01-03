@@ -9,21 +9,27 @@ public class Userdata: StoredValue {
 public class LightUserdata: StoredValue {}
 
 
-//public protocol CustomType {
-//    
-//    class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]
-//    class func instanceMethods() -> [(String, [TypeChecker], Self -> VirtualMachine -> ReturnValue)]
-//    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Self>)
-//    class func metatableName() -> String
-//    
-//}
-//
-//public struct MetaMethods<T> {
-//    init() {}
-//    public var gc: ((T, VirtualMachine) -> Void)?
-//    public var eq: ((T, T) -> Bool)?
-//}
-//
+
+
+
+public typealias TypeChecker = (String, (VirtualMachine, Int) -> Bool)
+public typealias UserdataPointer = UnsafeMutablePointer<Void>
+
+public protocol CustomType {
+    
+    class func classMethods() -> [(String, [TypeChecker], (VirtualMachine, [Value]) -> SwiftReturnValue)]
+    class func instanceMethods() -> [(String, [TypeChecker], Self -> (VirtualMachine, [Value]) -> SwiftReturnValue)]
+    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Self>)
+    class func metatableName() -> String
+    
+}
+
+public struct MetaMethods<T> {
+    init() {}
+    public var gc: ((T, VirtualMachine) -> Void)?
+    public var eq: ((T, T) -> Bool)?
+}
+
 //public final class UserdataBox<T: CustomType>: Value {
 //    
 //    var ptr: UserdataPointer?

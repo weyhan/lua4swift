@@ -1,30 +1,30 @@
-//import Foundation
-//import Graphite
-//import Lua
-//
-//final class Hotkey: Lua.CustomType {
-//    
-//    let fn: Int
-//    let hotkey: Graphite.Hotkey
-//    
-//    class func metatableName() -> String { return "Hotkey" }
-//    
-//    init(fn: Int, hotkey: Graphite.Hotkey) {
-//        self.fn = fn
-//        self.hotkey = hotkey
-//    }
-//    
-//    func enable(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
-//        hotkey.enable()
-//        return .Nothing
-//    }
-//    
-//    func disable(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
-//        hotkey.disable()
-//        return .Nothing
-//    }
-//    
-//    class func bind(vm: Lua.VirtualMachine) -> Lua.ReturnValue {
+import Foundation
+import Graphite
+import Lua
+
+final class Hotkey: Lua.CustomType {
+    
+    let fn: Lua.Function
+    let hotkey: Graphite.Hotkey
+    
+    class func metatableName() -> String { return "Hotkey" }
+    
+    init(fn: Lua.Function, hotkey: Graphite.Hotkey) {
+        self.fn = fn
+        self.hotkey = hotkey
+    }
+    
+    func enable(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
+        hotkey.enable()
+        return .Nothing
+    }
+    
+    func disable(vm: Lua.VirtualMachine, args: [Lua.Value]) -> SwiftReturnValue {
+        hotkey.disable()
+        return .Nothing
+    }
+    
+//    class func bind(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.ReturnValue {
 //        let key = String(fromLua: vm, at: 1)!
 //        let modStrings = Lua.SequentialTable<String>(fromLua: vm, at: 2)!.elements
 //        
@@ -44,27 +44,26 @@
 //            return .Value(Lua.UserdataBox(Hotkey(fn: i, hotkey: hotkey)))
 //        }
 //    }
-//    
-//    class func classMethods() -> [(String, [Lua.TypeChecker], Lua.VirtualMachine -> Lua.ReturnValue)] {
-//        return [
+    
+    class func classMethods() -> [(String, [Lua.TypeChecker], (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
+        return [
 //            ("bind", [String.arg(), Lua.SequentialTable<String>.arg(), Lua.FunctionBox.arg()], Hotkey.bind),
-//        ]
-//    }
-//    
-//    class func instanceMethods() -> [(String, [Lua.TypeChecker], Hotkey -> Lua.VirtualMachine -> Lua.ReturnValue)] {
-//        return [
-//            ("enable", [], Hotkey.enable),
+        ]
+    }
+    
+    class func instanceMethods() -> [(String, [Lua.TypeChecker], Hotkey -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
+        return [
+            ("enable", [], Hotkey.enable),
 //            ("disable", [], Hotkey.disable),
-//        ]
-//    }
-//    
-//    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Hotkey>) {
-//        metaMethods.eq = { $0.fn == $1.fn }
-//        metaMethods.gc = { this, L in
-//            println("gone hotkey!")
-//            this.hotkey.disable()
-//            L.unref(Lua.RegistryIndex, this.fn)
-//        }
-//    }
-//    
-//}
+        ]
+    }
+    
+    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Hotkey>) {
+        metaMethods.eq = { $0.fn == $1.fn }
+        metaMethods.gc = { this, L in
+            println("gone hotkey!")
+            this.hotkey.disable()
+        }
+    }
+    
+}
