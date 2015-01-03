@@ -17,6 +17,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let t = vm.globalTable()
         
+        let debug = t.get(FreeString("debug")) as StoredTable
+        let traceback = debug.get(FreeString("traceback"))
+        debugPrintln(traceback)
+        
+//        pushField("traceback")
+        
         t.set(key: FreeString("bar"), value: FreeString("foo"))
         t.set(key: t.get(FreeString("bar")), value: FreeNumber(32))
         
