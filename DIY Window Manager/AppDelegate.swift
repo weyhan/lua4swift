@@ -16,11 +16,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let vm = Lua.VirtualMachine()
         let t = vm.globalTable()
         
-        t.set(key: ByteString("bar"), value: ByteString("foo"))
-        t.set(key: t.get(ByteString("bar")), value: Number(32))
-        let d = t.get(ByteString("foo")) as Number
+        t[ByteString("bar")] = ByteString("foo")
+        t[t[ByteString("bar")]] = Number(32)
+        let d = t[ByteString("foo")] as Number
         
-        let p = t.get(ByteString("print")) as Function
+        let p = t[ByteString("print")] as Function
         let values = p.call([d])
         debugPrintln(values)
         

@@ -91,8 +91,8 @@ public class Function: StoredValue {
     
     public func call(args: [Value]) -> [Value] {
         let globals = vm.globalTable()
-        let debugTable = globals.get(ByteString("debug")) as Table
-        let tracebackFunction = debugTable.get(ByteString("traceback"))
+        let debugTable = globals[ByteString("debug")] as Table
+        let tracebackFunction = debugTable[ByteString("traceback")]
         
         let size = vm.stackSize()
         
@@ -133,25 +133,27 @@ public class LightUserdata: StoredValue {
 
 public class Table: StoredValue {
     
-    public func get(key: Value) -> Value {
-        push(vm)
+    public subscript(key: Value) -> Value {
+        get {
+            push(vm)
+            
+            key.push(vm)
+            lua_gettable(vm.vm, -2)
+            let v = vm.value(-1)
+            
+            vm.pop()
+            return v!
+        }
         
-        key.push(vm)
-        lua_gettable(vm.vm, -2)
-        let v = vm.value(-1)
-        
-        vm.pop()
-        return v!
-    }
-    
-    public func set(#key: Value, value: Value) {
-        push(vm)
-        
-        key.push(vm)
-        value.push(vm)
-        lua_settable(vm.vm, -3)
-        
-        vm.pop()
+        set {
+            push(vm)
+            
+            key.push(vm)
+            newValue.push(vm)
+            lua_settable(vm.vm, -3)
+            
+            vm.pop()
+        }
     }
     
 }
