@@ -1,11 +1,28 @@
 import Foundation
 
-public typealias ErrorHandler = (String) -> Void
-
 public protocol Value {
     func push(vm: VirtualMachine)
 }
 
+public class StoredValue: Value {
+    
+    private let refPosition: Int
+    internal let vm: VirtualMachine
+    
+    internal init(_ vm: VirtualMachine) {
+        self.vm = vm
+        refPosition = vm.ref(RegistryIndex)
+    }
+    
+    deinit {
+        vm.unref(RegistryIndex, refPosition)
+    }
+    
+    public func push(vm: VirtualMachine) {
+        vm.rawGet(tablePosition: RegistryIndex, index: refPosition)
+    }
+    
+}
 
 
 

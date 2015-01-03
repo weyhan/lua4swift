@@ -1,5 +1,14 @@
-//import Foundation
-//
+import Foundation
+
+public class Userdata: StoredValue {
+    
+    // TODO
+    
+}
+
+public class LightUserdata: StoredValue {}
+
+
 //public protocol CustomType {
 //    
 //    class func classMethods() -> [(String, [TypeChecker], VirtualMachine -> ReturnValue)]

@@ -22,6 +22,8 @@ public enum MaybeFunction {
     case Error(String)
 }
 
+public typealias ErrorHandler = (String) -> Void
+
 // basics
 public class VirtualMachine {
     
@@ -35,7 +37,7 @@ public class VirtualMachine {
     }
     
     deinit {
-        println("lua dead")
+        println("lua state is dead.")
         lua_close(vm)
     }
     
@@ -70,7 +72,7 @@ public class VirtualMachine {
         case .Table: v = Table(self)
         case .Userdata: v = Userdata(self)
         case .LightUserdata: v = LightUserdata(self)
-        case .Thread: v = StoredThread(self)
+        case .Thread: v = Thread(self)
         case .Nil: v = Nil()
         case .None: break
         }
@@ -92,7 +94,7 @@ public class VirtualMachine {
         return Table(self)
     }
     
-    func popError() -> String {
+    internal func popError() -> String {
         let err = ByteString(self).value
         if let fn = errorHandler { fn(err) }
         return err
@@ -262,7 +264,7 @@ public class VirtualMachine {
 //    }
     
     internal func moveToStackTop(var position: Int) {
-        if position == -1 { return }
+        if position == -1 || position == stackSize() { return }
         position = absolutePosition(position)
         pushFromStack(position)
         remove(position)
