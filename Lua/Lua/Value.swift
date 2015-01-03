@@ -7,15 +7,16 @@ public protocol Value {
 public class StoredValue: Value {
     
     private let refPosition: Int
-    internal let vm: VirtualMachine
+    internal weak var vm: VirtualMachine?
     
     internal init(_ vm: VirtualMachine) {
         self.vm = vm
+        vm.pushFromStack(-1)
         refPosition = vm.ref(RegistryIndex)
     }
     
     deinit {
-        vm.unref(RegistryIndex, refPosition)
+        vm?.unref(RegistryIndex, refPosition)
     }
     
     public func push(vm: VirtualMachine) {

@@ -8,46 +8,35 @@ public enum FunctionResults {
 public class Function: StoredValue {
     
     public func call(args: [Value]) -> FunctionResults {
-        let globals = vm.globalTable()
+        let globals = vm!.globalTable()
         let debugTable = globals[ByteString("debug")] as Table
         let messageHandler = debugTable[ByteString("traceback")]
         
-        let originalStackTop = vm.stackSize()
+        let originalStackTop = vm!.stackSize()
         
-        messageHandler.push(vm)
-        let messageHandlerPosition = originalStackTop + 1
-        
-        push(vm)
+        messageHandler.push(vm!)
+        push(vm!)
         for arg in args {
-            arg.push(vm)
+            arg.push(vm!)
         }
         
-        // stack contains: [traceback, fn, *args]
+        let result = lua_pcallk(vm!.vm, Int32(args.count), LUA_MULTRET, Int32(originalStackTop + 1), 0, nil)
+        vm!.remove(originalStackTop + 1)
         
-        var err: String?
-        if lua_pcallk(vm.vm, Int32(args.count), LUA_MULTRET, Int32(messageHandlerPosition), 0, nil) != LUA_OK {
-            err = vm.popError()
-        }
-        
-        vm.remove(messageHandlerPosition)
-        
-        // stack now contains either [] or [*results]
-        
-        if let error = err {
-            return .Error(error)
-        }
-        else {
+        if result == LUA_OK {
             var values = [Value]()
-            
-            let numReturnValues = vm.stackSize() - originalStackTop
+            let numReturnValues = vm!.stackSize() - originalStackTop
             
             for i in 1...numReturnValues {
-                let v = vm.value(originalStackTop+1)
-                debugPrintln(v)
+                let v = vm!.value(originalStackTop+1)
                 values.append(v!)
             }
             
             return .Values(values)
+        }
+        else {
+            let err = vm!.popError()
+            return .Error(err)
         }
     }
     

@@ -4,24 +4,24 @@ public class Table: StoredValue {
     
     public subscript(key: Value) -> Value {
         get {
-            push(vm)
+            push(vm!)
             
-            key.push(vm)
-            lua_gettable(vm.vm, -2)
-            let v = vm.value(-1)
+            key.push(vm!)
+            lua_gettable(vm!.vm, -2)
+            let v = vm!.value(-1)
             
-            vm.pop()
+            vm!.pop()
             return v!
         }
         
         set {
-            push(vm)
+            push(vm!)
             
-            key.push(vm)
-            newValue.push(vm)
-            lua_settable(vm.vm, -3)
+            key.push(vm!)
+            newValue.push(vm!)
+            lua_settable(vm!.vm, -3)
             
-            vm.pop()
+            vm!.pop()
         }
     }
     

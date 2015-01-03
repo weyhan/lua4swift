@@ -56,11 +56,6 @@ public class VirtualMachine {
         }
     }
     
-    public func globalTable() -> Table {
-        rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
-        return value(-1) as Table
-    }
-    
     public func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
@@ -78,6 +73,11 @@ public class VirtualMachine {
         }
         pop()
         return v
+    }
+    
+    public func globalTable() -> Table {
+        rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
+        return value(-1) as Table
     }
     
     public func createFunction(body: String) -> MaybeFunction {
@@ -292,7 +292,7 @@ public class VirtualMachine {
         pop(1)
     }
     
-    internal func stackSize() -> Int {
+    public func stackSize() -> Int {
         return Int(lua_gettop(vm))
     }
     

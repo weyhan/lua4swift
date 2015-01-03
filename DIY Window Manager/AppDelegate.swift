@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         let vm = Lua.VirtualMachine()
+        
 //        let t = vm.globalTable()
 //        
 //        t[ByteString("bar")] = ByteString("foo")
@@ -27,7 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
         
-        let f = vm.createFunction("return 3, 2")
+        let f = vm.createFunction("return 3, foo + 2")
         
         switch f {
         case let .Error(err):
