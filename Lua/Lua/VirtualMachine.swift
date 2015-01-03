@@ -11,7 +11,6 @@ public enum MaybeFunction {
 
 public typealias ErrorHandler = (String) -> Void
 
-// basics
 public class VirtualMachine {
     
     let vm = luaL_newstate()
@@ -103,7 +102,9 @@ public class VirtualMachine {
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
         lua_pushcclosure(vm, fp, Int32(upvalues))
-        return Function(self)
+        let function = Function(self)
+        pop()
+        return function
     }
     
 //    public func setMetatable(position: Int) { lua_setmetatable(vm, Int32(position)) }
@@ -254,7 +255,7 @@ public class VirtualMachine {
         pop(1)
     }
     
-    public func stackSize() -> Int {
+    internal func stackSize() -> Int {
         return Int(lua_gettop(vm))
     }
     

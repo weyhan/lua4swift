@@ -15,33 +15,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let vm = Lua.VirtualMachine()
         
-        let globals = vm.globalTable()
-        
-        globals["bar"] = "foo"
-        globals["q"] = true
-        globals[globals["bar"]] = 32
-        let d = globals["foo"] as Double
-        
-        println(globals["q"])
-        
-        let p = globals["print"] as Function
-        let values2 = p.call([d])
-        debugPrintln(values2)
+//        let globals = vm.globalTable()
+//        
+//        globals["b"] = "a"
+//        globals[globals["b"]] = 32
+//        let d = globals["a"] as Double
+//        println(d + 5) // prints 37
+//        
+//        globals["q"] = false
+//        println(globals["q"])
+//        return
+//        
+//        
+//        let p = globals["print"] as Function
+//        let values2 = p.call([d])
+//        debugPrintln(values2)
         
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
         
         
         let fn = vm.createFunction {
-            return .Values([3, 1])
+            return .Values([3, "hi"])
         }
         
         let values = fn.call([])
         switch values {
         case let .Values(vals):
-            let a = vals[0] as Double
-            let b = vals[1] as Double
-            println(a, b)
+            println(vals)
+//            let a = vals[0] as Double
+//            let b = vals[1] as String
+//            println(a)
+//            println(b)
         case let .Error(err):
             println("Error! \(err)")
         }
