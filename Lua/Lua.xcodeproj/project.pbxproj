@@ -76,8 +76,6 @@
 		94C67DED1A5871D200B18BC2 /* Boolean.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C67DEC1A5871D200B18BC2 /* Boolean.swift */; };
 		94C67DEF1A5871F600B18BC2 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C67DEE1A5871F600B18BC2 /* Table.swift */; };
 		94C67DF11A58720900B18BC2 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C67DF01A58720900B18BC2 /* Thread.swift */; };
-		94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C981A475D7400C54B88 /* KeyedTable.swift */; };
-		94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9A1A475D8500C54B88 /* SequentialTable.swift */; };
 		94C68C9D1A475DAE00C54B88 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9C1A475DAE00C54B88 /* Value.swift */; };
 		94C68CA01A475E2E00C54B88 /* Nil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C68C9F1A475E2E00C54B88 /* Nil.swift */; };
 /* End PBXBuildFile section */
@@ -153,8 +151,6 @@
 		94C67DEC1A5871D200B18BC2 /* Boolean.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boolean.swift; sourceTree = "<group>"; };
 		94C67DEE1A5871F600B18BC2 /* Table.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Table.swift; sourceTree = "<group>"; };
 		94C67DF01A58720900B18BC2 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
-		94C68C981A475D7400C54B88 /* KeyedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedTable.swift; sourceTree = "<group>"; };
-		94C68C9A1A475D8500C54B88 /* SequentialTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequentialTable.swift; sourceTree = "<group>"; };
 		94C68C9C1A475DAE00C54B88 /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
 		94C68C9F1A475E2E00C54B88 /* Nil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Nil.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -190,8 +186,6 @@
 			isa = PBXGroup;
 			children = (
 				944A339C1A475AA800BF8675 /* VirtualMachine.swift */,
-				94C68C981A475D7400C54B88 /* KeyedTable.swift */,
-				94C68C9A1A475D8500C54B88 /* SequentialTable.swift */,
 				94C67DE51A58718200B18BC2 /* Types */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
@@ -393,7 +387,6 @@
 				944A33881A475A9C00BF8675 /* lstring.c in Sources */,
 				94C67DE71A58719900B18BC2 /* Number.swift in Sources */,
 				944A338E1A475A9C00BF8675 /* ltm.c in Sources */,
-				94C68C991A475D7400C54B88 /* KeyedTable.swift in Sources */,
 				94C67DE91A5871A800B18BC2 /* String.swift in Sources */,
 				944A33751A475A9C00BF8675 /* linit.c in Sources */,
 				94C67DEF1A5871F600B18BC2 /* Table.swift in Sources */,
@@ -416,7 +409,6 @@
 				94C68CA01A475E2E00C54B88 /* Nil.swift in Sources */,
 				944A337D1A475A9C00BF8675 /* loadlib.c in Sources */,
 				944A33991A475A9C00BF8675 /* lzio.c in Sources */,
-				94C68C9B1A475D8500C54B88 /* SequentialTable.swift in Sources */,
 				94C67DEB1A5871B700B18BC2 /* Function.swift in Sources */,
 				94C67DF11A58720900B18BC2 /* Thread.swift in Sources */,
 				944A33621A475A9C00BF8675 /* lauxlib.c in Sources */,
