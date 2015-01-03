@@ -28,14 +28,7 @@ public class Function: StoredValue {
             let numReturnValues = vm!.stackSize() - originalStackTop
             
             for i in 0..<numReturnValues {
-                
-//                let v = vm!.value(originalStackTop+1)! // TODO: this should work instead? what gives?
-                
-                vm!.pushFromStack(originalStackTop+1)
-                let v = vm!.value(-1)!
-                vm!.remove(originalStackTop+1)
-                
-                debugPrintln(v)
+                let v = vm!.value(originalStackTop+1)!
                 values.append(v)
             }
             

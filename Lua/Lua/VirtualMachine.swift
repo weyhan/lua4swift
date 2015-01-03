@@ -30,7 +30,7 @@ public class VirtualMachine {
     public func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
-        switch lua_type(vm, Int32(pos)) {
+        switch lua_type(vm, -1) {
         case LUA_TSTRING: v = String(self)
         case LUA_TNUMBER: v = Double(self)
         case LUA_TBOOLEAN: v = Bool(self)
