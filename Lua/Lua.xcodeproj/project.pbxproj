@@ -186,7 +186,15 @@
 			isa = PBXGroup;
 			children = (
 				944A339C1A475AA800BF8675 /* VirtualMachine.swift */,
-				94C67DE51A58718200B18BC2 /* Types */,
+				94C68C9C1A475DAE00C54B88 /* Value.swift */,
+				94C67DE61A58719900B18BC2 /* Number.swift */,
+				94C67DE81A5871A800B18BC2 /* String.swift */,
+				94C68C9F1A475E2E00C54B88 /* Nil.swift */,
+				94C67DEE1A5871F600B18BC2 /* Table.swift */,
+				94C67DF01A58720900B18BC2 /* Thread.swift */,
+				94C67DEA1A5871B700B18BC2 /* Function.swift */,
+				94C67DEC1A5871D200B18BC2 /* Boolean.swift */,
+				9453AD291A48DE5D00503603 /* Userdata.swift */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
 				944A33241A475A9C00BF8675 /* LuaSource */,
@@ -258,22 +266,6 @@
 				944A335F1A475A9C00BF8675 /* lzio.h */,
 			);
 			path = LuaSource;
-			sourceTree = "<group>";
-		};
-		94C67DE51A58718200B18BC2 /* Types */ = {
-			isa = PBXGroup;
-			children = (
-				94C68C9C1A475DAE00C54B88 /* Value.swift */,
-				94C67DE61A58719900B18BC2 /* Number.swift */,
-				94C67DE81A5871A800B18BC2 /* String.swift */,
-				94C68C9F1A475E2E00C54B88 /* Nil.swift */,
-				94C67DEE1A5871F600B18BC2 /* Table.swift */,
-				94C67DF01A58720900B18BC2 /* Thread.swift */,
-				94C67DEA1A5871B700B18BC2 /* Function.swift */,
-				94C67DEC1A5871D200B18BC2 /* Boolean.swift */,
-				9453AD291A48DE5D00503603 /* Userdata.swift */,
-			);
-			name = Types;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
