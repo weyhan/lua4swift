@@ -7,7 +7,7 @@ public protocol Value {
 
 public class StoredValue: Value, Equatable {
     
-    private let registryLocation: Int
+    internal let registryLocation: Int
     internal weak var vm: VirtualMachine!
     
     internal init(_ vm: VirtualMachine) {

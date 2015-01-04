@@ -74,6 +74,17 @@ public class Table: StoredValue {
         return array
     }
     
+    func storeReference(v: Value) -> Int {
+        if vm == nil { return 0 } // ugh; maybe vm shouldn't be weak after all
+        
+        v.push(vm)
+        return vm.ref(registryLocation)
+    }
+    
+    func removeReference(ref: Int) {
+        vm.unref(registryLocation, ref)
+    }
+    
 }
 
 
