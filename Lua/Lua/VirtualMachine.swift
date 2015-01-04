@@ -55,6 +55,7 @@ public class VirtualMachine {
         }
     }
     
+    // pops the value off the stack completely and returns it
     internal func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
@@ -86,7 +87,7 @@ public class VirtualMachine {
     
     public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
-            return .Value(Function(self))
+            return .Value(value(-1) as Function)
         }
         else {
             return .Error(popError())
@@ -95,13 +96,11 @@ public class VirtualMachine {
     
     public func createTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) -> Table {
         lua_createtable(vm, Int32(sequenceCapacity), Int32(keyCapacity))
-        let t = Table(self)
-        pop()
-        return t
+        return value(-1) as Table
     }
     
     internal func popError() -> String {
-        let err = String(self)
+        let err = value(-1) as String
         if let fn = errorHandler { fn(err) }
         return err
     }
@@ -109,8 +108,8 @@ public class VirtualMachine {
     public func createUserdata<T: CustomType>(o: T) -> Userdata {
         // Note: we just alloc 1 byte cuz malloc prolly needs > 0 but we dun use it
         
-        let ptr = lua_newuserdata(vm, 1) // also pushes ptr onto stack
-        let ud = Userdata(self) // this pops ptr off stack
+        let ptr = lua_newuserdata(vm, 1) // this pushes ptr onto stack and returns it too
+        let ud = value(-1) as Userdata // this pops ptr off stack
         setMetatable(T.metatableName())
         storedSwiftValues[ptr] = ud
         return ud
@@ -152,9 +151,7 @@ public class VirtualMachine {
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
         lua_pushcclosure(vm, fp, Int32(upvalues))
-        let function = Function(self)
-        pop()
-        return function
+        return value(-1) as Function
     }
     
     func argError(expectedType: String, argPosition: Int) -> SwiftReturnValue {
@@ -170,14 +167,6 @@ public class VirtualMachine {
         }
         return nil
     }
-    
-//    public func checkTypes(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
-//        for (i, (nameFn, testFn)) in enumerate(types) {
-//            if !testFn(self!, i+1) {
-//                return self!.argError(nameFn, argPosition: i+1)
-//            }
-//        }
-//    }
     
     public func createCustomType<T: CustomType>(t: T.Type) -> Table {
         
