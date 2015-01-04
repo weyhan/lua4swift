@@ -28,10 +28,8 @@ final class Hotkey: Lua.CustomType {
         if let err = vm.checkTypes(args, [.String, .Table, .Function]) { return .Error(err) }
         
         let key = args[0] as String
-        let mods = args[1] as Lua.Table // TODO: should be a sequence of Strings
+        let modStrings: [String] = (args[1] as Lua.Table).asSequence()
         let downFn = args[2] as Lua.Function
-        
-        let modStrings = ["cmd", "shift"] // TODO: lol
         
         let downSwiftFn: Graphite.Hotkey.Callback = { [weak vm] in
             switch downFn.call([]) {

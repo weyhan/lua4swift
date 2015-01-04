@@ -31,6 +31,41 @@ public class Table: StoredValue {
     
     override public func kind() -> Kind { return .Table }
     
+    public func asSequence<T: Value>() -> [T] {
+        if vm == nil { return [] }
+        
+        var array: [T] = []
+        var bag = [Int64:T]()
+        
+        push(vm!) // table
+        
+        Nil().push(vm!)
+        while lua_next(vm!.vm, -2) != 0 {
+            let i = vm!.value(-2) as? Double
+            let val = vm!.value(-1) as? T
+            vm!.pop()
+            
+            // non-int key or non-T value
+            if i == nil || val == nil { continue }
+            
+            bag[Int64(i!)] = val!
+        }
+        
+        if bag.count != 0 {
+            // ensure table has no holes and keys start at 1
+            let sortedKeys = sorted(bag.keys, <)
+            if [Int64](1...sortedKeys.last!) != sortedKeys { return [] }
+            
+            for i in sortedKeys {
+                array.append(bag[i]!)
+            }
+        }
+        
+        vm!.pop() // table
+        
+        return array
+    }
+    
 }
 
 
