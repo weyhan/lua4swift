@@ -10,34 +10,34 @@ public class Function: StoredValue {
     public func call(args: [Value]) -> FunctionResults {
         if vm == nil { return .Error("Lua state no longer exists") }
         
-        let globals = vm!.globalTable
+        let globals = vm.globalTable
         let debugTable = globals["debug"] as Table
         let messageHandler = debugTable["traceback"]
         
-        let originalStackTop = vm!.stackSize()
+        let originalStackTop = vm.stackSize()
         
-        messageHandler.push(vm!)
-        push(vm!)
+        messageHandler.push(vm)
+        push(vm)
         for arg in args {
-            arg.push(vm!)
+            arg.push(vm)
         }
         
-        let result = lua_pcallk(vm!.vm, Int32(args.count), LUA_MULTRET, Int32(originalStackTop + 1), 0, nil)
-        vm!.remove(originalStackTop + 1)
+        let result = lua_pcallk(vm.vm, Int32(args.count), LUA_MULTRET, Int32(originalStackTop + 1), 0, nil)
+        vm.remove(originalStackTop + 1)
         
         if result == LUA_OK {
             var values = [Value]()
-            let numReturnValues = vm!.stackSize() - originalStackTop
+            let numReturnValues = vm.stackSize() - originalStackTop
             
             for i in 0..<numReturnValues {
-                let v = vm!.value(originalStackTop+1)!
+                let v = vm.value(originalStackTop+1)!
                 values.append(v)
             }
             
             return .Values(values)
         }
         else {
-            let err = vm!.popError()
+            let err = vm.popError()
             return .Error(err)
         }
     }

@@ -7,13 +7,13 @@ public class Userdata: StoredValue {
     internal func toUserdataPointer() -> UserdataPointer {
         if vm == nil { return nil }
         
-        return lua_touserdata(vm!.vm, -1)
+        return lua_touserdata(vm.vm, -1)
     }
     
     public func toCustomType<T: CustomType>() -> T? {
         if vm == nil { return nil }
         
-        let any = vm!.storedSwiftValues[toUserdataPointer()]
+        let any = vm.storedSwiftValues[toUserdataPointer()]
         return any as? T
     }
     

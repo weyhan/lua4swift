@@ -6,41 +6,41 @@ public class Table: StoredValue {
         get {
             if vm == nil { return Nil() }
             
-            push(vm!)
+            push(vm)
             
-            key.push(vm!)
-            lua_gettable(vm!.vm, -2)
-            let v = vm!.value(-1)
+            key.push(vm)
+            lua_gettable(vm.vm, -2)
+            let v = vm.value(-1)
             
-            vm!.pop()
+            vm.pop()
             return v!
         }
         
         set {
             if vm == nil { return }
             
-            push(vm!)
+            push(vm)
             
-            key.push(vm!)
-            newValue.push(vm!)
-            lua_settable(vm!.vm, -3)
+            key.push(vm)
+            newValue.push(vm)
+            lua_settable(vm.vm, -3)
             
-            vm!.pop()
+            vm.pop()
         }
     }
     
     public func values() -> [(Value, Value)] {
         if vm == nil { return [] }
         var v = [(Value, Value)]()
-        push(vm!) // table
-        lua_pushnil(vm!.vm)
-        while lua_next(vm!.vm, -2) != 0 {
-            let val = vm!.value(-1)! // .value() does destructive pop,
-            let key = vm!.value(-1)! // so we reverse the order and use -1
+        push(vm) // table
+        lua_pushnil(vm.vm)
+        while lua_next(vm.vm, -2) != 0 {
+            let val = vm.value(-1)! // .value() does destructive pop,
+            let key = vm.value(-1)! // so we reverse the order and use -1
             v.append((key, val))
-            key.push(vm!)
+            key.push(vm)
         }
-        vm!.pop() // table
+        vm.pop() // table
         return v
     }
     

@@ -8,7 +8,7 @@ public protocol Value {
 public class StoredValue: Value, Equatable {
     
     private let registryLocation: Int
-    internal weak var vm: VirtualMachine?
+    internal weak var vm: VirtualMachine!
     
     internal init(_ vm: VirtualMachine) {
         self.vm = vm
@@ -32,12 +32,12 @@ public class StoredValue: Value, Equatable {
 
 public func ==(lhs: StoredValue, rhs: StoredValue) -> Bool {
     if lhs.vm == nil { return false }
-    if lhs.vm!.vm != rhs.vm!.vm { return false }
+    if lhs.vm.vm != rhs.vm.vm { return false }
     
-    lhs.push(lhs.vm!)
-    lhs.push(rhs.vm!)
-    let result = lua_compare(lhs.vm!.vm, -2, -1, LUA_OPEQ) == 1
-    lhs.vm!.pop(2)
+    lhs.push(lhs.vm)
+    lhs.push(rhs.vm)
+    let result = lua_compare(lhs.vm.vm, -2, -1, LUA_OPEQ) == 1
+    lhs.vm.pop(2)
     
     return result
 }
