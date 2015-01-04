@@ -10,7 +10,7 @@ public class Function: StoredValue {
     public func call(args: [Value]) -> FunctionResults {
         if vm == nil { return .Error("Lua state no longer exists") }
         
-        let globals = vm!.globalTable()
+        let globals = vm!.globalTable
         let debugTable = globals["debug"] as Table
         let messageHandler = debugTable["traceback"]
         

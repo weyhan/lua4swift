@@ -92,12 +92,12 @@ public class VirtualMachine {
         return v
     }
     
-    public func globalTable() -> Table {
+    public var globalTable: Table {
         rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
         return value(-1) as Table
     }
     
-    public func registryTable() -> Table {
+    public var registryTable: Table {
         pushFromStack(RegistryIndex)
         return value(-1) as Table
     }
@@ -188,7 +188,7 @@ public class VirtualMachine {
     public func createCustomType<T: CustomType>(t: T.Type) -> Table {
         let lib = createTable()
         
-        let registry = registryTable()
+        let registry = registryTable
         registry[T.metatableName()] = lib
         
         setMetatable(lib, metaTable: lib)
