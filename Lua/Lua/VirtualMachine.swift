@@ -56,7 +56,7 @@ public class VirtualMachine {
     }
     
     // pops the value off the stack completely and returns it
-    internal func value(pos: Int) -> Value? {
+    internal func popValue(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
         switch kind(-1) {
@@ -94,17 +94,17 @@ public class VirtualMachine {
     
     public var globalTable: Table {
         rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
-        return value(-1) as Table
+        return popValue(-1) as Table
     }
     
     public var registryTable: Table {
         pushFromStack(RegistryIndex)
-        return value(-1) as Table
+        return popValue(-1) as Table
     }
     
     public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
-            return .Value(value(-1) as Function)
+            return .Value(popValue(-1) as Function)
         }
         else {
             return .Error(popError())
@@ -113,11 +113,11 @@ public class VirtualMachine {
     
     public func createTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) -> Table {
         lua_createtable(vm, Int32(sequenceCapacity), Int32(keyCapacity))
-        return value(-1) as Table
+        return popValue(-1) as Table
     }
     
     internal func popError() -> String {
-        let err = value(-1) as String
+        let err = popValue(-1) as String
         if let fn = errorHandler { fn(err) }
         return err
     }
@@ -126,7 +126,7 @@ public class VirtualMachine {
         // Note: we just alloc 1 byte cuz malloc prolly needs > 0 but we dun use it
         
         let ptr = lua_newuserdata(vm, 1) // this pushes ptr onto stack and returns it too
-        let ud = value(-1) as Userdata // this pops ptr off stack
+        let ud = popValue(-1) as Userdata // this pops ptr off stack
         setMetatable(T.metatableName())
         storedSwiftValues[ptr] = ud
         return ud
@@ -138,7 +138,7 @@ public class VirtualMachine {
             
             var args = [Value]()
             for _ in 0 ..< self!.stackSize() {
-                args.append(self!.value(1)!)
+                args.append(self!.popValue(1)!)
             }
             
             switch fn(args) {
@@ -168,7 +168,7 @@ public class VirtualMachine {
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
         lua_pushcclosure(vm, fp, Int32(upvalues))
-        return value(-1) as Function
+        return popValue(-1) as Function
     }
     
     func argError(expectedType: String, argPosition: Int) -> SwiftReturnValue {

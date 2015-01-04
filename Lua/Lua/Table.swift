@@ -10,7 +10,7 @@ public class Table: StoredValue {
             
             key.push(vm)
             lua_gettable(vm.vm, -2)
-            let v = vm.value(-1)
+            let v = vm.popValue(-1)
             
             vm.pop()
             return v!
@@ -35,8 +35,8 @@ public class Table: StoredValue {
         push(vm) // table
         lua_pushnil(vm.vm)
         while lua_next(vm.vm, -2) != 0 {
-            let val = vm.value(-1)! // .value() does destructive pop,
-            let key = vm.value(-1)! // so we reverse the order and use -1
+            let val = vm.popValue(-1)!
+            let key = vm.popValue(-1)!
             v.append((key, val))
             key.push(vm)
         }
