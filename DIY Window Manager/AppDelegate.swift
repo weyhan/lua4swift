@@ -8,7 +8,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
-    let vm = Lua.VirtualMachine()
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
@@ -16,6 +15,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         
+        let vm = Lua.VirtualMachine()
         
         let globals = vm.globalTable()
         globals["Hotkey"] = vm.createCustomType(Hotkey)

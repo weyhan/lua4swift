@@ -34,7 +34,12 @@ final class Hotkey: Lua.CustomType {
         let modStrings = ["cmd", "shift"] // TODO: lol
         
         let downSwiftFn: Graphite.Hotkey.Callback = { [weak vm] in
-            downFn.call([])
+            switch downFn.call([]) {
+            case let .Error(e):
+                println(e)
+            case let .Values(v):
+                println(v)
+            }
             return
         }
         
