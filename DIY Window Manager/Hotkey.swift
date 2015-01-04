@@ -25,6 +25,8 @@ final class Hotkey: Lua.CustomType {
     }
     
     class func bind(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
+        if let err = vm.checkTypes(args, [.String, .Table, .Function]) { return .Error(err) }
+        
         let key = args[0] as String
         let mods = args[1] as Lua.Table // TODO: should be a sequence of Strings
         let downFn = args[2] as Lua.Function
@@ -48,7 +50,6 @@ final class Hotkey: Lua.CustomType {
     class func classMethods() -> [(String, (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
         return [
             ("bind", Hotkey.bind),
-//            ("bind", [String.arg, Lua.Table.arg, Lua.Function.arg], Hotkey.bind),
         ]
     }
     

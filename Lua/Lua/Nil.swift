@@ -6,6 +6,8 @@ public class Nil: Value, Equatable {
         lua_pushnil(vm.vm)
     }
     
+    public func kind() -> Kind { return .Nil }
+    
 }
 
 public func ==(lhs: Nil, rhs: Nil) -> Bool {

@@ -2,6 +2,7 @@ import Foundation
 
 public protocol Value {
     func push(vm: VirtualMachine)
+    func kind() -> Kind
 }
 
 public class StoredValue: Value, Equatable {
@@ -21,6 +22,10 @@ public class StoredValue: Value, Equatable {
     
     public func push(vm: VirtualMachine) {
         vm.rawGet(tablePosition: RegistryIndex, index: registryLocation)
+    }
+    
+    public func kind() -> Kind {
+        fatalError("Override kind()")
     }
     
 }

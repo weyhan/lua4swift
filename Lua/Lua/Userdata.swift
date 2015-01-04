@@ -13,9 +13,15 @@ public class Userdata: StoredValue {
         return any as? T
     }
     
+    override public func kind() -> Kind { return .Userdata }
+    
 }
 
-public class LightUserdata: StoredValue {}
+public class LightUserdata: StoredValue {
+    
+    override public func kind() -> Kind { return .LightUserdata }
+    
+}
 
 //public protocol Value {
 //    class func typeName() -> String

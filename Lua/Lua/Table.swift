@@ -25,6 +25,8 @@ public class Table: StoredValue {
         }
     }
     
+    override public func kind() -> Kind { return .Table }
+    
 }
 
 

@@ -13,4 +13,6 @@ extension String: Value {
         lua_pushstring(vm.vm, (self as NSString).UTF8String)
     }
     
+    public func kind() -> Kind { return .String }
+    
 }

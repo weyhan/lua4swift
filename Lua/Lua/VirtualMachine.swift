@@ -11,6 +11,19 @@ public enum MaybeFunction {
 
 public typealias ErrorHandler = (String) -> Void
 
+public enum Kind {
+    case String
+    case Number
+    case Boolean
+    case Function
+    case Table
+    case Userdata
+    case LightUserdata
+    case Thread
+    case Nil
+    case None
+}
+
 public class VirtualMachine {
     
     internal let vm = luaL_newstate()
@@ -27,19 +40,34 @@ public class VirtualMachine {
         lua_close(vm)
     }
     
+    internal func kind(pos: Int) -> Kind {
+        switch lua_type(vm, Int32(pos)) {
+        case LUA_TSTRING: return .String
+        case LUA_TNUMBER: return .Number
+        case LUA_TBOOLEAN: return .Boolean
+        case LUA_TFUNCTION: return .Function
+        case LUA_TTABLE: return .Table
+        case LUA_TUSERDATA: return .Userdata
+        case LUA_TLIGHTUSERDATA: return .LightUserdata
+        case LUA_TTHREAD: return .Thread
+        case LUA_TNIL: return .Nil
+        default: return .None
+        }
+    }
+    
     internal func value(pos: Int) -> Value? {
         moveToStackTop(pos)
         var v: Value?
-        switch lua_type(vm, -1) {
-        case LUA_TSTRING: v = String(self)
-        case LUA_TNUMBER: v = Double(self)
-        case LUA_TBOOLEAN: v = Bool(self)
-        case LUA_TFUNCTION: v = Function(self)
-        case LUA_TTABLE: v = Table(self)
-        case LUA_TUSERDATA: v = Userdata(self)
-        case LUA_TLIGHTUSERDATA: v = LightUserdata(self)
-        case LUA_TTHREAD: v = Thread(self)
-        case LUA_TNIL: v = Nil()
+        switch kind(-1) {
+        case .String: v = String(self)
+        case .Number: v = Double(self)
+        case .Boolean: v = Bool(self)
+        case .Function: v = Function(self)
+        case .Table: v = Table(self)
+        case .Userdata: v = Userdata(self)
+        case .LightUserdata: v = LightUserdata(self)
+        case .Thread: v = Thread(self)
+        case .Nil: v = Nil()
         default: break
         }
         pop()
@@ -67,7 +95,9 @@ public class VirtualMachine {
     
     public func createTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) -> Table {
         lua_createtable(vm, Int32(sequenceCapacity), Int32(keyCapacity))
-        return Table(self)
+        let t = Table(self)
+        pop()
+        return t
     }
     
     internal func popError() -> String {
@@ -131,6 +161,14 @@ public class VirtualMachine {
         luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
         return .Nothing
         // TODO: return .Error instead
+    }
+    
+    public func checkTypes(args: [Value], _ kinds: [Kind]) -> String? {
+        for (i, kind) in enumerate(kinds) {
+            let v = args[0]
+            if v.kind() != kind { return "TODO" }
+        }
+        return nil
     }
     
 //    public func checkTypes(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {

@@ -40,6 +40,8 @@ public class Function: StoredValue {
         }
     }
     
+    override public func kind() -> Kind { return .Function }
+    
 }
 
 public enum SwiftReturnValue {
