@@ -8,15 +8,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
+    let vm = Lua.VirtualMachine()
+    
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
         
         
         
-        let vm = Lua.VirtualMachine()
         
-//        let globals = vm.globalTable()
-//        
+        
+        let globals = vm.globalTable()
+        globals["Hotkey"] = vm.createCustomType(Hotkey)
+        
+        let code = vm.createFunction("print(Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end))")
+        switch code {
+        case let .Value(fn):
+            
+            let result = fn.call([])
+            
+            switch result {
+            case let .Values(vals):
+                println(vals)
+            default:
+                break
+            }
+            
+            println(fn)
+        default:
+            break
+        }
+        
+        
 //        globals["b"] = "a"
 //        globals[globals["b"]] = 32
 //        let d = globals["a"] as Double
@@ -100,6 +122,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        vm.setGlobal("Event")
 //        
 //        vm.doString("e = Event.windowCreated(function(win) end)")
+        
+        
         
 //        vm.pushCustomType(Hotkey)
 //        vm.setGlobal("Hotkey")

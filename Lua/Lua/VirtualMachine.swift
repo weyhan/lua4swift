@@ -14,7 +14,7 @@ public typealias ErrorHandler = (String) -> Void
 public class VirtualMachine {
     
     internal let vm = luaL_newstate()
-    internal var storedSwiftValues = [UserdataPointer : Userdata]()
+    internal var storedSwiftValues = [UserdataPointer : Any]()
     
     public var errorHandler: ErrorHandler? = { println("error: \($0)") }
     
@@ -127,53 +127,21 @@ public class VirtualMachine {
         return function
     }
     
-//    func argError(expectedType: String, argPosition: Int) -> ReturnValue {
-//        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
-//        return .Nothing
-//        // TODO: return .Error instead
-//    }
-//    
-//    public func pushMethod(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
-//        pushString(name)
-//        pushFunction { [weak self] in
-//            if self == nil { return .Nothing }
-//            for (i, (nameFn, testFn)) in enumerate(types) {
-//                if !testFn(self!, i+1) {
-//                    return self!.argError(nameFn, argPosition: i+1)
-//                }
+    func argError(expectedType: String, argPosition: Int) -> SwiftReturnValue {
+        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
+        return .Nothing
+        // TODO: return .Error instead
+    }
+    
+//    public func checkTypes(name: String, _ types: [TypeChecker], _ fn: Function, tablePosition: Int = -1) {
+//        for (i, (nameFn, testFn)) in enumerate(types) {
+//            if !testFn(self!, i+1) {
+//                return self!.argError(nameFn, argPosition: i+1)
 //            }
-//            
-//            return fn()
 //        }
-//        setTable(tablePosition - 2)
 //    }
     
-//    public func insert(position: Int) {
-//        rotate(position, n: 1)
-//    }
-//    
-//    // custom types
-//    
-////    func getUserdataPointer(position: Int) -> UserdataPointer? {
-////        if kind(position) != .Userdata { return nil }
-////        return lua_touserdata(vm, Int32(position))
-////    }
-////    
-////    func pushUserdataBox<T: CustomType>(ud: UserdataBox<T>) -> UserdataPointer {
-////        let ptr = lua_newuserdata(vm, 1)
-////        setMetatable(T.metatableName())
-////        storedSwiftValues[ptr] = ud
-////        return ptr
-////    }
-////    
-////    func getUserdata<T: CustomType>(position: Int) -> UserdataBox<T>? {
-////        if let ptr = getUserdataPointer(position) {
-////            return storedSwiftValues[ptr]! as? UserdataBox<T>
-////        }
-////        return nil
-////    }
-    
-    public func pushCustomType<T: CustomType>(t: T.Type) -> Table {
+    public func createCustomType<T: CustomType>(t: T.Type) -> Table {
         
         let lib = createTable()
         
@@ -187,52 +155,52 @@ public class VirtualMachine {
         
         for (name, var kinds, fn) in t.instanceMethods() {
             kinds.insert(Userdata.self, atIndex: 0)
-            let f: SwiftFunction = { [weak self] (var args: [Value]) in
+            let f = createFunction { [weak self] (var args: [Value]) in
+                // TODO: type checking
                 if self == nil { return .Nothing }
-                
-                let this = args[0] as Userdata
-                
-                
-                
-                
-                let o: UserdataBox<T> = self!.getUserdata(1)!
-                self!.remove(1)
-                return fn(o.object)(self!)
+                let o: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
+                return fn(o)(self!, args)
             }
-//            pushMethod(name, kinds, f)
+            
+            lib[name] = f
         }
         
-//        for (name, kinds, fn) in t.classMethods() {
-//            pushMethod(name, kinds, { [weak self] in
-//                if self == nil { return .Nothing }
-//                return fn(self!)
-//            })
-//        }
-//        
-//        var metaMethods = MetaMethods<T>()
-//        T.setMetaMethods(&metaMethods)
-//        
-//        let gc = metaMethods.gc
-//        pushMethod("__gc", [UserdataBox<T>.arg()]) { [weak self] in
-//            println("called!")
-//            // if self == nil { return .Nothing }
-//            let o: UserdataBox<T> = self!.getUserdata(1)!
-//            gc?(o.object, self!)
-//            self!.storedSwiftValues[self!.getUserdataPointer(1)!] = nil
-//            return .Values([])
-//        }
-//        
-//        if let eq = metaMethods.eq {
-//            pushMethod("__eq", [UserdataBox<T>.arg(), UserdataBox<T>.arg()]) { [weak self] in
-//                if self == nil { return .Nothing }
-//                let a: UserdataBox<T> = self!.getUserdata(1)!
-//                let b: UserdataBox<T> = self!.getUserdata(2)!
-//                return .Values([eq(a.object, b.object)])
-//            }
-//        }
+        for (name, kinds, fn) in t.classMethods() {
+            let f = createFunction { [weak self] (var args: [Value]) in
+                // TODO: type checking
+                if self == nil { return .Nothing }
+                return fn(self!, args)
+            }
+            
+            lib[name] = f
+        }
+        
+        var metaMethods = MetaMethods<T>()
+        T.setMetaMethods(&metaMethods)
+        
+        let gc = metaMethods.gc
+        
+        lib["__gc"] = createFunction { [weak self] (var args: [Value]) in
+            println("called!")
+            // if self == nil { return .Nothing }
+            
+            let ud = args.removeAtIndex(0) as Userdata
+            let o: T = ud.toCustomType()!
+            gc?(o, self!)
+            self!.storedSwiftValues[ud.toUserdataPointer()] = nil
+            return .Values([])
+        }
+        
+        if let eq = metaMethods.eq {
+            lib["__eq"] = createFunction { [weak self] (var args: [Value]) in
+                if self == nil { return .Nothing }
+                let a: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
+                let b: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
+                return .Values([eq(a, b)])
+            }
+        }
         
         return lib
-        
     }
     
     // stack
@@ -250,6 +218,8 @@ public class VirtualMachine {
         lua_setmetatable(vm, -2)
         pop() // thing
     }
+    
+//    internal func insert(position: Int) { rotate(position, n: 1) }
     
     internal func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
     internal func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
