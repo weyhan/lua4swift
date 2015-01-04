@@ -43,7 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         println(globals["Hotkey"].kind() == .Table)
         
-        return;
+//        return;
         
         let code = vm.createFunction("print(Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end))")
         switch code {
@@ -87,7 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let a = args[0] as String
             let b = args[1] as Bool
             let c = args[2] as Bool
-            let d = args[3] as Double
+            let d = args[3] as Int64
             
             println(a)
             println(b)
@@ -101,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let values = fn.call(["sup", false, true, 25])
         switch values {
         case let .Values(vals):
-            let a = vals[0] as Double
+            let a = vals[0] as Int64
             let b = vals[1] as String
             println(a)
             println(b)
