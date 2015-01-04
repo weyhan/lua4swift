@@ -66,8 +66,12 @@ public class VirtualMachine {
             let data = NSData(bytes: str, length: Int(len))
             v = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
         case .Number:
-            v = lua_tonumberx(vm, -1, nil)
-//            v = lua_tointegerx(vm, -1, nil)
+            if lua_isinteger(vm, -1) != 0 {
+                v = lua_tointegerx(vm, -1, nil)
+            }
+            else {
+                v = lua_tonumberx(vm, -1, nil)
+            }
         case .Boolean:
             v = lua_toboolean(vm, -1) == 1 ? true : false
         case .Function:

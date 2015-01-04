@@ -29,26 +29,36 @@ public class Table: StoredValue {
         }
     }
     
+    public func values() -> [(Value, Value)] {
+        if vm == nil { return [] }
+        var v = [(Value, Value)]()
+        push(vm!) // table
+        lua_pushnil(vm!.vm)
+        while lua_next(vm!.vm, -2) != 0 {
+            let val = vm!.value(-1)! // .value() does destructive pop,
+            let key = vm!.value(-1)! // so we reverse the order and use -1
+            v.append((key, val))
+            key.push(vm!)
+        }
+        vm!.pop() // table
+        return v
+    }
+    
     override public func kind() -> Kind { return .Table }
     
     public func asSequence<T: Value>() -> [T] {
         if vm == nil { return [] }
         
-        var array: [T] = []
+        let vals = values()
+        
+        var array = [T]()
         var bag = [Int64:T]()
         
-        push(vm!) // table
-        
-        Nil().push(vm!)
-        while lua_next(vm!.vm, -2) != 0 {
-            let i = vm!.value(-2) as? Double
-            let val = vm!.value(-1) as? T
-            vm!.pop()
-            
-            // non-int key or non-T value
-            if i == nil || val == nil { continue }
-            
-            bag[Int64(i!)] = val!
+        for (key, val) in vals {
+            if key is Double && val is T {
+                let i = Int64(key as Double)
+                bag[i] = (val as T)
+            }
         }
         
         if bag.count != 0 {
@@ -60,8 +70,6 @@ public class Table: StoredValue {
                 array.append(bag[i]!)
             }
         }
-        
-        vm!.pop() // table
         
         return array
     }
