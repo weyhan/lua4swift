@@ -4,8 +4,6 @@ public class Table: StoredValue {
     
     public subscript(key: Value) -> Value {
         get {
-            if vm == nil { return Nil() }
-            
             push(vm)
             
             key.push(vm)
@@ -17,8 +15,6 @@ public class Table: StoredValue {
         }
         
         set {
-            if vm == nil { return }
-            
             push(vm)
             
             key.push(vm)
@@ -30,7 +26,6 @@ public class Table: StoredValue {
     }
     
     public func values() -> [(Value, Value)] {
-        if vm == nil { return [] }
         var v = [(Value, Value)]()
         push(vm) // table
         lua_pushnil(vm.vm)
@@ -47,8 +42,6 @@ public class Table: StoredValue {
     override public func kind() -> Kind { return .Table }
     
     public func asSequence<T: Value>() -> [T] {
-        if vm == nil { return [] }
-        
         let vals = values()
         
         var array = [T]()
@@ -75,14 +68,12 @@ public class Table: StoredValue {
     }
     
     func storeReference(v: Value) -> Int {
-        if vm == nil { return 0 } // ugh; maybe vm shouldn't be weak after all
-        
         v.push(vm)
-        return vm.ref(registryLocation)
+        return vm.ref(RegistryIndex)
     }
     
     func removeReference(ref: Int) {
-        vm.unref(registryLocation, ref)
+        vm.unref(RegistryIndex, ref)
     }
     
 }

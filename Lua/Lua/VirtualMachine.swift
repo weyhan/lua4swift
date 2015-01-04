@@ -126,9 +126,9 @@ public class VirtualMachine {
         // Note: we just alloc 1 byte cuz malloc prolly needs > 0 but we dun use it
         
         let ptr = lua_newuserdata(vm, 1) // this pushes ptr onto stack and returns it too
+        setMetatable(T.metatableName()) // this requires ptr to be on the stack
         let ud = popValue(-1) as Userdata // this pops ptr off stack
-        setMetatable(T.metatableName())
-        storedSwiftValues[ptr] = ud
+        storedSwiftValues[ptr] = o
         return ud
     }
     
@@ -188,19 +188,19 @@ public class VirtualMachine {
     public func createCustomType<T: CustomType>(t: T.Type) -> Table {
         let lib = createTable()
         
-        let registry = registryTable
-        registry[T.metatableName()] = lib
+        registryTable[T.metatableName()] = lib
         
         setMetatable(lib, metaTable: lib)
         
         lib["__index"] = lib
-        lib["__name"] = T.metatableName()  // TODO: seems broken maybe?
+        lib["__name"] = T.metatableName()  // TODO: seems to have no effect
         
         for (name, fn) in t.instanceMethods() {
             let f = createFunction { [weak self] (var args: [Value]) in
                 // TODO: type checking
                 // TODO: first arg is known to be Userdata (and Library of type T)
                 if self == nil { return .Nothing }
+                
                 let o: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
                 return fn(o)(self!, args)
             }
@@ -225,12 +225,12 @@ public class VirtualMachine {
         
         lib["__gc"] = createFunction { [weak self] (var args: [Value]) in
             println("called!")
-            // if self == nil { return .Nothing }
+             if self == nil { return .Nothing }
             
             let ud = args.removeAtIndex(0) as Userdata
             let o: T = ud.toCustomType()!
             gc?(o, self!)
-            self!.storedSwiftValues[ud.toUserdataPointer()] = nil
+            self!.storedSwiftValues[ud.userdataPointer] = nil
             return .Values([])
         }
         

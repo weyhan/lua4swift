@@ -7,8 +7,8 @@ public protocol Value {
 
 public class StoredValue: Value, Equatable {
     
-    internal let registryLocation: Int
-    internal weak var vm: VirtualMachine!
+    private let registryLocation: Int
+    internal var vm: VirtualMachine
     
     internal init(_ vm: VirtualMachine) {
         self.vm = vm
@@ -17,7 +17,7 @@ public class StoredValue: Value, Equatable {
     }
     
     deinit {
-        vm?.unref(RegistryIndex, registryLocation)
+        vm.unref(RegistryIndex, registryLocation)
     }
     
     public func push(vm: VirtualMachine) {
@@ -31,7 +31,6 @@ public class StoredValue: Value, Equatable {
 }
 
 public func ==(lhs: StoredValue, rhs: StoredValue) -> Bool {
-    if lhs.vm == nil { return false }
     if lhs.vm.vm != rhs.vm.vm { return false }
     
     lhs.push(lhs.vm)

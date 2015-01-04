@@ -4,16 +4,15 @@ public typealias UserdataPointer = UnsafeMutablePointer<Void>
 
 public class Userdata: StoredValue {
     
-    internal func toUserdataPointer() -> UserdataPointer {
-        if vm == nil { return nil }
-        
-        return lua_touserdata(vm.vm, -1)
+    internal var userdataPointer: UserdataPointer {
+        push(vm)
+        let ptr = lua_touserdata(vm.vm, -1)
+        vm.pop()
+        return ptr
     }
     
     public func toCustomType<T: CustomType>() -> T? {
-        if vm == nil { return nil }
-        
-        let any = vm.storedSwiftValues[toUserdataPointer()]
+        let any = vm.storedSwiftValues[userdataPointer]
         return any as? T
     }
     

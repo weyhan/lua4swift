@@ -45,7 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
 //        return;
         
-        let code = vm.createFunction("print(Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end))")
+        let code = vm.createFunction("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end); k:disable(); print(k); collectgarbage()")
         switch code {
         case let .Value(fn):
             
@@ -53,6 +53,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             switch result {
             case let .Values(vals):
+                println("bound hotkey!")
                 println(vals)
             default:
                 break
