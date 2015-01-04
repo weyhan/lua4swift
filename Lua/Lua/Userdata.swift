@@ -23,12 +23,6 @@ public class LightUserdata: StoredValue {
     
 }
 
-//public protocol Value {
-//    class func typeName() -> String
-//    class func isValid(vm: VirtualMachine, at position: Int) -> Bool
-//    class func arg() -> TypeChecker
-//}
-
 public protocol CustomType {
     
     class func classMethods() -> [(String, (VirtualMachine, [Value]) -> SwiftReturnValue)]
@@ -39,7 +33,9 @@ public protocol CustomType {
 }
 
 public struct MetaMethods<T> {
-    init() {}
+    
+    internal init() {}
     public var gc: ((T, VirtualMachine) -> Void)?
     public var eq: ((T, T) -> Bool)?
+    
 }

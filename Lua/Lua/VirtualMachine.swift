@@ -60,15 +60,28 @@ public class VirtualMachine {
         moveToStackTop(pos)
         var v: Value?
         switch kind(-1) {
-        case .String: v = String(self)
-        case .Number: v = Double(self)
-        case .Boolean: v = Bool(self)
-        case .Function: v = Function(self)
-        case .Table: v = Table(self)
-        case .Userdata: v = Userdata(self)
-        case .LightUserdata: v = LightUserdata(self)
-        case .Thread: v = Thread(self)
-        case .Nil: v = Nil()
+        case .String:
+            var len: UInt = 0
+            let str = lua_tolstring(vm, -1, &len)
+            let data = NSData(bytes: str, length: Int(len))
+            v = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
+        case .Number:
+            v = lua_tonumberx(vm, -1, nil)
+//            v = lua_tointegerx(vm, -1, nil)
+        case .Boolean:
+            v = lua_toboolean(vm, -1) == 1 ? true : false
+        case .Function:
+            v = Function(self)
+        case .Table:
+            v = Table(self)
+        case .Userdata:
+            v = Userdata(self)
+        case .LightUserdata:
+            v = LightUserdata(self)
+        case .Thread:
+            v = Thread(self)
+        case .Nil:
+            v = Nil()
         default: break
         }
         pop()
@@ -169,7 +182,6 @@ public class VirtualMachine {
     }
     
     public func createCustomType<T: CustomType>(t: T.Type) -> Table {
-        
         let lib = createTable()
         
         let registry = registryTable()
