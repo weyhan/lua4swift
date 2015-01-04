@@ -8,17 +8,42 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
+    func runtest() {
+        let L = Lua.VirtualMachine()
+        
+        let stringxLib = L.createTable()
+        
+        stringxLib["split"] = L.createFunction { args in
+            if let e = L.checkTypes(args, [.String, .String]) { return .Error(e) }
+            
+            let subject = args[0] as String
+            let separator = args[1] as String
+            
+            let results = L.createTable()
+            for (i, fragment) in enumerate(subject.componentsSeparatedByString(separator)) {
+                results[i+1] = fragment
+            }
+            return .Value(results)
+        }
+        
+        L.globalTable["stringx"] = stringxLib
+        
+    }
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        
+        runtest()
         
         
         
         let vm = Lua.VirtualMachine()
         
-        let globals = vm.globalTable()
+        let globals = vm.globalTable
         globals["Hotkey"] = vm.createCustomType(Hotkey)
+        
+        println(globals["Hotkey"].kind() == .Table)
+        
+        return;
         
         let code = vm.createFunction("print(Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end))")
         switch code {
