@@ -175,7 +175,7 @@ public class VirtualMachine {
     
     public func checkTypes(args: [Value], _ kinds: [Kind]) -> String? {
         for (i, kind) in enumerate(kinds) {
-            let v = args[0]
+            let v = args[i]
             if v.kind() != kind { return "TODO" }
         }
         return nil
