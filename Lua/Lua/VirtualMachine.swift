@@ -153,10 +153,10 @@ public class VirtualMachine {
         lib["__index"] = lib
         lib["__name"] = T.metatableName()  // TODO: seems broken maybe?
         
-        for (name, var kinds, fn) in t.instanceMethods() {
-            kinds.insert(Userdata.self, atIndex: 0)
+        for (name, fn) in t.instanceMethods() {
             let f = createFunction { [weak self] (var args: [Value]) in
                 // TODO: type checking
+                // TODO: first arg is known to be Userdata (and Library of type T)
                 if self == nil { return .Nothing }
                 let o: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
                 return fn(o)(self!, args)
@@ -165,7 +165,7 @@ public class VirtualMachine {
             lib[name] = f
         }
         
-        for (name, kinds, fn) in t.classMethods() {
+        for (name, fn) in t.classMethods() {
             let f = createFunction { [weak self] (var args: [Value]) in
                 // TODO: type checking
                 if self == nil { return .Nothing }

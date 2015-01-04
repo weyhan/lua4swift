@@ -45,17 +45,17 @@ final class Hotkey: Lua.CustomType {
         }
     }
     
-    class func classMethods() -> [(String, [Lua.TypeChecker], (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
+    class func classMethods() -> [(String, (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
         return [
-            ("bind", [], Hotkey.bind),
+            ("bind", Hotkey.bind),
 //            ("bind", [String.arg, Lua.Table.arg, Lua.Function.arg], Hotkey.bind),
         ]
     }
     
-    class func instanceMethods() -> [(String, [Lua.TypeChecker], Hotkey -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
+    class func instanceMethods() -> [(String, Hotkey -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
         return [
-            ("enable", [], Hotkey.enable),
-            ("disable", [], Hotkey.disable),
+            ("enable", Hotkey.enable),
+            ("disable", Hotkey.disable),
         ]
     }
     

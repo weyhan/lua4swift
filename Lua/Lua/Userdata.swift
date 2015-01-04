@@ -23,12 +23,10 @@ public class LightUserdata: StoredValue {}
 //    class func arg() -> TypeChecker
 //}
 
-public typealias TypeChecker = Value.Type //(String, (VirtualMachine, Int) -> Bool)
-
 public protocol CustomType {
     
-    class func classMethods() -> [(String, [TypeChecker], (VirtualMachine, [Value]) -> SwiftReturnValue)]
-    class func instanceMethods() -> [(String, [TypeChecker], Self -> (VirtualMachine, [Value]) -> SwiftReturnValue)]
+    class func classMethods() -> [(String, (VirtualMachine, [Value]) -> SwiftReturnValue)]
+    class func instanceMethods() -> [(String, Self -> (VirtualMachine, [Value]) -> SwiftReturnValue)]
     class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Self>)
     class func metatableName() -> String
     
