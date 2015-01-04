@@ -45,7 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
 //        return;
         
-        let code = vm.createFunction("k = Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end); k:disable(); print(k); collectgarbage()")
+        let code = vm.createFunction("Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end) collectgarbage()")
         switch code {
         case let .Value(fn):
             

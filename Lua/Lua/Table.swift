@@ -25,44 +25,58 @@ public class Table: StoredValue {
         }
     }
     
-    public func values() -> [(Value, Value)] {
-        var v = [(Value, Value)]()
+    public func keys() -> [Value] {
+        var k = [Value]()
         push(vm) // table
         lua_pushnil(vm.vm)
         while lua_next(vm.vm, -2) != 0 {
-            let val = vm.popValue(-1)!
+            vm.pop() // val
             let key = vm.popValue(-1)!
-            v.append((key, val))
+            k.append(key)
             key.push(vm)
         }
         vm.pop() // table
+        return k
+    }
+    
+    public func values() -> [(Value, Value)] {
+        var v = [(Value, Value)]()
+        
+        for key in keys() {
+            let val = self[key]
+            v.append((key, val))
+        }
+        
         return v
     }
     
     override public func kind() -> Kind { return .Table }
     
     public func asSequence<T: Value>() -> [T] {
-        let vals = values()
-        
         var array = [T]()
+        
+        let numericKeys = keys().map{$0 as? Int64}.filter{$0 != nil}.map{$0!}
+        
+        // if it has no numeric keys, then it's empty; job well done, team, job well done.
+        if numericKeys.count == 0 { return array }
+        
+        // ensure table has no holes and keys start at 1
+        let sortedKeys = sorted(numericKeys, <)
+        if [Int64](1...sortedKeys.last!) != sortedKeys { return array }
+        
         var bag = [Int64:T]()
         
-        for (key, val) in vals {
-            if key is Double && val is T {
-                let i = Int64(key as Double)
-                bag[i] = (val as T)
-            }
+        for i in sortedKeys {
+            array.append(bag[i]!)
         }
         
-        if bag.count != 0 {
-            // ensure table has no holes and keys start at 1
-            let sortedKeys = sorted(bag.keys, <)
-            if [Int64](1...sortedKeys.last!) != sortedKeys { return [] }
-            
-            for i in sortedKeys {
-                array.append(bag[i]!)
-            }
-        }
+//        for (key, val) in vals {
+//            if key is Double && val is T {
+//                let i = Int64(key as Double)
+//                bag[i] = (val as T)
+//            }
+//        }
+//        
         
         return array
     }
