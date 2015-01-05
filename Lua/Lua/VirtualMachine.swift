@@ -229,8 +229,7 @@ public class VirtualMachine {
         let gc = metaMethods.gc
         
         lib["__gc"] = createFunction { [weak self] (var args: [Value]) in
-            println("called!")
-             if self == nil { return .Nothing }
+            if self == nil { return .Nothing }
             
             let ud = args.removeAtIndex(0) as Userdata
             let o: T = ud.toCustomType()!
