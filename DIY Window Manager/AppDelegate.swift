@@ -13,11 +13,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let stringxLib = L.createTable()
         
-        stringxLib["split"] = L.createFunction { args in
-            if let e = L.checkTypes(args, [.String, .String]) { return .Error(e) }
-            
-            let subject = args[0] as String
-            let separator = args[1] as String
+        stringxLib["split"] = L.createFunction([.String, .String]) { args in
+            let (subject, separator) = (args.string, args.string)
             
             let results = L.createTable()
             for (i, fragment) in enumerate(subject.componentsSeparatedByString(separator)) {
@@ -32,83 +29,83 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        runtest()
-        
-        
-        
-        let vm = Lua.VirtualMachine()
-        
-        let globals = vm.globalTable
-        globals["Hotkey"] = vm.createCustomType(Hotkey)
-        
-        println(globals["Hotkey"].kind() == .Table)
-        
-//        return;
-        
-        let code = vm.createFunction("Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end) collectgarbage()")
-        switch code {
-        case let .Value(fn):
-            
-            let result = fn.call([])
-            
-            switch result {
-            case let .Values(vals):
-                println("bound hotkey!")
-                println(vals)
-            default:
-                break
-            }
-            
-            println(fn)
-        default:
-            break
-        }
-        
-        
-//        globals["b"] = "a"
-//        globals[globals["b"]] = 32
-//        let d = globals["a"] as Double
-//        println(d + 5) // prints 37
-//        
-//        globals["q"] = false
-//        println(globals["q"])
-//        return
+//        runtest()
 //        
 //        
-//        let p = globals["print"] as Function
-//        let values2 = p.call([d])
-//        debugPrintln(values2)
-        
-//        let n = vm.number(3)
-//        let s = vm.string("hi")
-        
-        
-        let fn = vm.createFunction { args in
-            
-            let a = args[0] as String
-            let b = args[1] as Bool
-            let c = args[2] as Bool
-            let d = args[3] as Int64
-            
-            println(a)
-            println(b)
-            println(c)
-            println(d)
-            
-            println(args)
-            return .Values([3, "hi"])
-        }
-        
-        let values = fn.call(["sup", false, true, 25])
-        switch values {
-        case let .Values(vals):
-            let a = vals[0] as Int64
-            let b = vals[1] as String
-            println(a)
-            println(b)
-        case let .Error(err):
-            println("Error! \(err)")
-        }
+//        
+//        let vm = Lua.VirtualMachine()
+//        
+//        let globals = vm.globalTable
+//        globals["Hotkey"] = vm.createCustomType(Hotkey)
+//        
+//        println(globals["Hotkey"].kind() == .Table)
+//        
+////        return;
+//        
+//        let code = vm.createFunction("Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end) collectgarbage()")
+//        switch code {
+//        case let .Value(fn):
+//            
+//            let result = fn.call([])
+//            
+//            switch result {
+//            case let .Values(vals):
+//                println("bound hotkey!")
+//                println(vals)
+//            default:
+//                break
+//            }
+//            
+//            println(fn)
+//        default:
+//            break
+//        }
+//        
+//        
+////        globals["b"] = "a"
+////        globals[globals["b"]] = 32
+////        let d = globals["a"] as Double
+////        println(d + 5) // prints 37
+////        
+////        globals["q"] = false
+////        println(globals["q"])
+////        return
+////        
+////        
+////        let p = globals["print"] as Function
+////        let values2 = p.call([d])
+////        debugPrintln(values2)
+//        
+////        let n = vm.number(3)
+////        let s = vm.string("hi")
+//        
+//        
+//        let fn = vm.createFunction { args in
+//            
+//            let a = args[0] as String
+//            let b = args[1] as Bool
+//            let c = args[2] as Bool
+//            let d = args[3] as Int64
+//            
+//            println(a)
+//            println(b)
+//            println(c)
+//            println(d)
+//            
+//            println(args)
+//            return .Values([3, "hi"])
+//        }
+//        
+//        let values = fn.call(["sup", false, true, 25])
+//        switch values {
+//        case let .Values(vals):
+//            let a = vals[0] as Int64
+//            let b = vals[1] as String
+//            println(a)
+//            println(b)
+//        case let .Error(err):
+//            println("Error! \(err)")
+//        }
         
         
 //        let f = vm.createFunction("return 3, foo + 2")

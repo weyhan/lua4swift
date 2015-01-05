@@ -16,10 +16,10 @@ extension NSPoint: Value {
 extension Table {
     
     public func toPoint() -> NSPoint? {
-        let x = self["x"]
-        let y = self["y"]
-        if x.kind() != .Number || y.kind() != .Number { return nil }
-        return NSPoint(x: Double(x)!, y: Double(y)!)
+        let x = self["x"] as? Number
+        let y = self["y"] as? Number
+        if x == nil || y == nil { return nil }
+        return NSPoint(x: x!.toDouble(), y: y!.toDouble())
     }
     
 }

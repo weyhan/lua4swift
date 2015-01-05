@@ -1,22 +1,19 @@
 import Foundation
 
-public typealias UserdataPointer = UnsafeMutablePointer<Void>
-
 public class Userdata: StoredValue {
     
-    internal var userdataPointer: UserdataPointer {
+    public func userdataPointer<T>() -> UnsafeMutablePointer<T> {
         push(vm)
         let ptr = lua_touserdata(vm.vm, -1)
         vm.pop()
-        return ptr
+        return UnsafeMutablePointer<T>(ptr)
     }
     
-    public func toCustomType<T: CustomType>() -> T? {
-        let any = vm.storedSwiftValues[userdataPointer]
-        return any as? T
+    public func toCustomType<T: CustomType>() -> T {
+        return userdataPointer().memory
     }
     
-    override public func kind() -> Kind { return .Userdata }
+    override public func kind() -> Kind { return .Userdata(nil) }
     
 }
 
@@ -28,17 +25,25 @@ public class LightUserdata: StoredValue {
 
 public protocol CustomType {
     
-    class func classMethods() -> [(String, (VirtualMachine, [Value]) -> SwiftReturnValue)]
-    class func instanceMethods() -> [(String, Self -> (VirtualMachine, [Value]) -> SwiftReturnValue)]
-    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Self>)
     class func metatableName() -> String
     
 }
 
-public struct MetaMethods<T> {
+public class Library<T: CustomType>: Table {
     
-    internal init() {}
-    public var gc: ((T, VirtualMachine) -> Void)?
+    override internal init(_ vm: VirtualMachine) {
+        super.init(vm)
+    }
+    
+    public var gc: ((T) -> Void)?
     public var eq: ((T, T) -> Bool)?
+    
+    public func createMethod(var kinds: [Kind], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
+        kinds.insert(.Userdata(T.metatableName()), atIndex: 0)
+        return vm.createFunction(kinds) { (var args: Arguments) in
+            let o: T = args.userdata.toCustomType()
+            return fn(o, args)
+        }
+    }
     
 }

@@ -1,12 +1,26 @@
 import Foundation
 
-extension Double: Value {
+public class Number: StoredValue {
     
-    init?(_ v: Value) {
-        if v.kind() != .Number { return nil }
-        if let d = v as? Double { self = d }
-        else { self = Double(v as Int64) }
+    override public func kind() -> Kind { return .Number }
+    
+    public func toDouble() -> Double {
+        push(vm)
+        let v = lua_tonumberx(vm.vm, -1, nil)
+        vm.pop()
+        return v
     }
+    
+    public func toInteger() -> Int64 {
+        push(vm)
+        let v = lua_tointegerx(vm.vm, -1, nil)
+        vm.pop()
+        return v
+    }
+    
+}
+
+extension Double: Value {
     
     public func push(vm: VirtualMachine) {
         lua_pushnumber(vm.vm, self)
@@ -18,12 +32,6 @@ extension Double: Value {
 
 extension Int64: Value {
     
-    init?(_ v: Value) {
-        if v.kind() != .Number { return nil }
-        if let d = v as? Int64 { self = d }
-        else { self = Int64(v as Double) }
-    }
-    
     public func push(vm: VirtualMachine) {
         lua_pushinteger(vm.vm, self)
     }
@@ -33,12 +41,6 @@ extension Int64: Value {
 }
 
 extension Int: Value {
-    
-    init?(_ v: Value) {
-        if v.kind() != .Number { return nil }
-        if let d = v as? Int64 { self = Int(d) }
-        else { self = Int(v as Double) }
-    }
     
     public func push(vm: VirtualMachine) {
         lua_pushinteger(vm.vm, Int64(self))

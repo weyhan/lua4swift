@@ -17,17 +17,31 @@ public enum Kind {
     case Boolean
     case Function
     case Table
-    case Userdata
+    case Userdata(Swift.String?) // TODO: change this to CustomType.Type when Swift allows it
     case LightUserdata
     case Thread
     case Nil
     case None
+    
+    internal func luaType() -> Int32 {
+        switch self {
+        case String: return LUA_TSTRING
+        case Number: return LUA_TNUMBER
+        case Boolean: return LUA_TBOOLEAN
+        case Function: return LUA_TFUNCTION
+        case Table: return LUA_TTABLE
+        case Userdata: return LUA_TUSERDATA
+        case LightUserdata: return LUA_TLIGHTUSERDATA
+        case Thread: return LUA_TTHREAD
+        case Nil: return LUA_TNIL
+        case None: return LUA_TNONE
+        }
+    }
 }
 
 public class VirtualMachine {
     
     internal let vm = luaL_newstate()
-    internal var storedSwiftValues = [UserdataPointer : Any]()
     
     public var errorHandler: ErrorHandler? = { println("error: \($0)") }
     
@@ -47,7 +61,7 @@ public class VirtualMachine {
         case LUA_TBOOLEAN: return .Boolean
         case LUA_TFUNCTION: return .Function
         case LUA_TTABLE: return .Table
-        case LUA_TUSERDATA: return .Userdata
+        case LUA_TUSERDATA: return .Userdata(nil)
         case LUA_TLIGHTUSERDATA: return .LightUserdata
         case LUA_TTHREAD: return .Thread
         case LUA_TNIL: return .Nil
@@ -66,12 +80,7 @@ public class VirtualMachine {
             let data = NSData(bytes: str, length: Int(len))
             v = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
         case .Number:
-            if lua_isinteger(vm, -1) != 0 {
-                v = lua_tointegerx(vm, -1, nil)
-            }
-            else {
-                v = lua_tonumberx(vm, -1, nil)
-            }
+            v = Number(self)
         case .Boolean:
             v = lua_toboolean(vm, -1) == 1 ? true : false
         case .Function:
@@ -123,130 +132,103 @@ public class VirtualMachine {
     }
     
     public func createUserdataMaybe<T: CustomType>(o: T?) -> Userdata? {
-        if let u = o { return createUserdata(u) }
+        if let u = o {
+            return createUserdata(u)
+        }
         return nil
     }
     
     public func createUserdata<T: CustomType>(o: T) -> Userdata {
-        // Note: we just alloc 1 byte cuz malloc prolly needs > 0 but we dun use it
+        let ptr = UnsafeMutablePointer<T>(lua_newuserdata(vm, UInt(sizeof(T)))) // this both pushes ptr onto stack and returns it
+        ptr.initialize(o) // creates a new legit reference to o
         
-        let ptr = lua_newuserdata(vm, 1) // this pushes ptr onto stack and returns it too
         setMetatable(T.metatableName()) // this requires ptr to be on the stack
-        let ud = popValue(-1) as Userdata // this pops ptr off stack
-        storedSwiftValues[ptr] = o
-        return ud
+        return popValue(-1) as Userdata // this pops ptr off stack
     }
     
-    public func createFunction(fn: SwiftFunction, upvalues: Int = 0) -> Function {
-        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
-            if self == nil { return 0 }
-            
+    public func createFunction(kinds: [Kind], _ fn: SwiftFunction) -> Function {
+        let f: @objc_block (COpaquePointer) -> Int32 = { [unowned self] _ in
             var args = [Value]()
-            for _ in 0 ..< self!.stackSize() {
-                args.append(self!.popValue(1)!)
+            for i in 0 ..< self.stackSize() {
+                let arg = self.popValue(1)!
+                let kind = arg.kind()
+                
+                switch kind {
+                case let .Userdata(metatableName):
+                    if let name = metatableName {
+                        luaL_checkudata(self.vm, i+1, (name as NSString).UTF8String)
+                    }
+                    else {
+                        fallthrough
+                    }
+                default:
+                    luaL_checktype(self.vm, i+1, kind.luaType())
+                }
+                
+                args.append(arg)
             }
             
-            switch fn(args) {
+            switch fn(Arguments(args: args)) {
             case .Nothing:
                 return 0
             case let .Value(value):
                 if let v = value {
-                    v.push(self!)
+                    v.push(self)
                 }
                 else {
-                    Nil().push(self!)
+                    Nil().push(self)
                 }
                 return 1
             case let .Values(values):
                 for value in values {
-                    value.push(self!)
+                    value.push(self)
                 }
                 return Int32(values.count)
             case let .Error(error):
                 println("pushing error: \(error)")
-                error.push(self!)
-                lua_error(self!.vm)
+                error.push(self)
+                lua_error(self.vm)
                 return 0 // uhh, we don't actually get here
             }
         }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
-        lua_pushcclosure(vm, fp, Int32(upvalues))
+        lua_pushcclosure(vm, fp, 0)
         return popValue(-1) as Function
     }
     
-    func argError(expectedType: String, argPosition: Int) -> SwiftReturnValue {
-        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
-        return .Nothing
-        // TODO: return .Error instead
-    }
+//    func argError(expectedType: String, argPosition: Int) -> SwiftReturnValue {
+//        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
+//        return .Nothing
+//        // TODO: return .Error instead
+//    }
     
-    public func checkTypes(args: [Value], _ kinds: [Kind]) -> String? {
-        for (i, kind) in enumerate(kinds) {
-            let v = args[i]
-            if v.kind() != kind { return "TODO" }
-        }
-        return nil
-    }
-    
-    public func createCustomType<T: CustomType>(t: T.Type) -> Table {
-        let lib = createTable()
+    public func createLibrary<T: CustomType>(setup: (Library<T>) -> Void) -> Library<T> {
+        let lib = Library<T>(self)
+        setup(lib)
         
         registryTable[T.metatableName()] = lib
-        
-        setMetatable(lib, metaTable: lib)
-        
+        lib.becomeMetatableFor(lib)
         lib["__index"] = lib
         lib["__name"] = T.metatableName()  // TODO: seems to have no effect
         
-        for (name, fn) in t.instanceMethods() {
-            let f = createFunction { [weak self] (var args: [Value]) in
-                // TODO: type checking
-                // TODO: first arg is known to be Userdata (and Library of type T)
-                if self == nil { return .Nothing }
-                
-                let o: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
-                return fn(o)(self!, args)
-            }
-            
-            lib[name] = f
+        let gc = lib.gc
+        lib["__gc"] = createFunction([.Userdata(T.metatableName())]) { args in
+            let ud = args.userdata
+            (ud.userdataPointer() as UnsafeMutablePointer<Void>).destroy()
+            let o: T = ud.toCustomType()
+            gc?(o)
+            return .Nothing
         }
         
-        for (name, fn) in t.classMethods() {
-            let f = createFunction { [weak self] (var args: [Value]) in
-                // TODO: type checking
-                if self == nil { return .Nothing }
-                return fn(self!, args)
-            }
-            
-            lib[name] = f
-        }
-        
-        var metaMethods = MetaMethods<T>()
-        T.setMetaMethods(&metaMethods)
-        
-        let gc = metaMethods.gc
-        
-        lib["__gc"] = createFunction { [weak self] (var args: [Value]) in
-            if self == nil { return .Nothing }
-            
-            let ud = args.removeAtIndex(0) as Userdata
-            let o: T = ud.toCustomType()!
-            gc?(o, self!)
-            self!.storedSwiftValues[ud.userdataPointer] = nil
-            return .Values([])
-        }
-        
-        if let eq = metaMethods.eq {
-            lib["__eq"] = createFunction { [weak self] (var args: [Value]) in
-                if self == nil { return .Nothing }
-                let a: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
-                let b: T = (args.removeAtIndex(0) as Userdata).toCustomType()!
-                return .Values([eq(a, b)])
+        if let eq = lib.eq {
+            lib["__eq"] = createFunction([.Userdata(T.metatableName()), .Userdata(T.metatableName())]) { args in
+                let a: T = args.userdata.toCustomType()
+                let b: T = args.userdata.toCustomType()
+                return .Value(eq(a, b))
             }
         }
-        
         return lib
     }
     
@@ -258,15 +240,6 @@ public class VirtualMachine {
         pushFromStack(position)
         remove(position)
     }
-    
-    internal func setMetatable(thing: Value, metaTable: Value) {
-        thing.push(self)
-        metaTable.push(self)
-        lua_setmetatable(vm, -2)
-        pop() // thing
-    }
-    
-//    internal func insert(position: Int) { rotate(position, n: 1) }
     
     internal func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
     internal func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }

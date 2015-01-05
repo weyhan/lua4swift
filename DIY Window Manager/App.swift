@@ -2,89 +2,29 @@ import Foundation
 import Desktop
 import Lua
 
-struct App: Lua.CustomType {
-    
-    let app: Desktop.App!
-    
-    static func metatableName() -> String { return "App" }
-    
-    init(_ app: Desktop.App) {
-        self.app = app
+extension Desktop.App: Lua.CustomType {
+    public class func metatableName() -> String { return "App" }
+}
+
+func appLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.App> {
+    return vm.createLibrary { [unowned vm] lib in
+        
+        lib["title"] = lib.createMethod([]) { app, _ in .Value(app.title()) }
+        lib["quit"] = lib.createMethod([]) { app, _ in .Value(app.terminate())}
+        lib["forceQuit"] = lib.createMethod([]) { app, _ in .Value(app.terminate(force: true)) }
+        lib["hide"] = lib.createMethod([]) { app, _ in .Value(app.hide()) }
+        lib["unhide"] = lib.createMethod([]) { app, _ in .Value(app.unhide()) }
+        lib["isHidden"] = lib.createMethod([]) { app, _ in .Value(app.isHidden()) }
+        lib["focusedWindow"] = lib.createMethod([]) { app, _ in .Value(vm.createUserdataMaybe(app.focusedWindow())) }
+        lib["mainWindow"] = lib.createMethod([]) { app, _ in .Value(vm.createUserdataMaybe(app.mainWindow())) }
+        lib["allApps"] = lib.createMethod([]) { app, _ in .Values(Desktop.App.allApps().map{vm.createUserdata($0)}) }
+        lib["focusedApp"] = lib.createMethod([]) { app, _ in .Value(vm.createUserdataMaybe(Desktop.App.focusedApp())) }
+        lib["appWithPid"] = lib.createMethod([.Number]) { app, args in
+            let pid = args.number
+            return .Value(vm.createUserdataMaybe(Desktop.App(pid_t(pid.toInteger()))))
+        }
+        
+        lib.eq = { $0.pid == $1.pid }
+        
     }
-    
-    init?(_ app: Desktop.App?) {
-        if app == nil { return nil }
-        self.app = app
-    }
-    
-    func title(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(app.title())
-    }
-    
-    func quit(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(app.terminate())
-    }
-    
-    func forceQuit(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(app.terminate(force: true))
-    }
-    
-    func hide(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(app.hide())
-    }
-    
-    func unhide(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(app.unhide())
-    }
-    
-    func isHidden(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(app.isHidden())
-    }
-    
-    func focusedWindow(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(vm.createUserdataMaybe(Window(app.focusedWindow())))
-    }
-    
-    func mainWindow(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(vm.createUserdataMaybe(Window(app.mainWindow())))
-    }
-    
-    static func appWithPid(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        let pid = args[0] as Int64
-        return .Value(vm.createUserdata(App(Desktop.App(pid_t(pid)))))
-    }
-    
-    static func allApps(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Values(Desktop.App.allApps().map{vm.createUserdata(App($0))})
-    }
-    
-    static func focusedApp(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(vm.createUserdataMaybe(App(Desktop.App.focusedApp())))
-    }
-    
-    static func classMethods() -> [(String, (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
-        return [
-            ("appWithPid", App.appWithPid),
-            ("allApps", App.allApps),
-            ("focusedApp", App.focusedApp),
-        ]
-    }
-    
-    static func instanceMethods() -> [(String, App -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
-        return [
-            ("quit", App.quit),
-            ("forceQuit", App.forceQuit),
-            ("hide", App.hide),
-            ("unhide", App.unhide),
-            ("isHidden", App.isHidden),
-            ("title", App.title),
-            ("mainWindow", App.mainWindow),
-            ("focusedWindow", App.focusedWindow),
-        ]
-    }
-    
-    static func setMetaMethods(inout metaMethods: Lua.MetaMethods<App>) {
-        metaMethods.eq = { $0.app.pid == $1.app.pid }
-    }
-    
 }

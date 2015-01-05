@@ -39,6 +39,13 @@ public class Table: StoredValue {
         return k
     }
     
+    public func becomeMetatableFor(thing: Value) {
+        thing.push(vm)
+        self.push(vm)
+        lua_setmetatable(vm.vm, -2)
+        vm.pop() // thing
+    }
+    
     public func values() -> [(Value, Value)] {
         var v = [(Value, Value)]()
         

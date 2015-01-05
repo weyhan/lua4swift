@@ -2,66 +2,27 @@ import Foundation
 import Desktop
 import Lua
 
-struct Window: Lua.CustomType {
-    
-    let win: Desktop.Window!
-    
-    static func metatableName() -> String { return "Window" }
-    
-    init(_ win: Desktop.Window) {
-        self.win = win
-    }
-    
-    init?(_ win: Desktop.Window?) {
-        if win == nil { return nil }
-        self.win = win
-    }
-    
-    func title(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(win.title())
-    }
-    
-    func app(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(vm.createUserdataMaybe(App(win.app())))
-    }
-    
-    func topLeft(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(win.topLeft())
-    }
-    
-    func setTopLeft(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        if let point = (args[0] as Table).toPoint() {
-            win.setTopLeft(point)
+extension Desktop.Window: Lua.CustomType {
+    public class func metatableName() -> String { return "Window" }
+}
+
+func windowLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.Window> {
+    return vm.createLibrary { [unowned vm] lib in
+        
+        lib["title"] = lib.createMethod([]) { win, _ in .Value(win.title()) }
+        lib["topLeft"] = lib.createMethod([]) { win, _ in .Value(win.topLeft()) }
+        lib["app"] = lib.createMethod([]) { win, _ in .Value(vm.createUserdataMaybe(win.app())) }
+        
+        lib["setTopLeft"] = lib.createMethod([.Table]) { win, args in
+            let point = args.table
+            if let p = point.toPoint() { win.setTopLeft(p) }
+            return .Nothing
         }
-        return .Nothing
+        
+        lib["allWindows"] = lib.createMethod([]) { win, _ in .Values(Desktop.Window.allWindows().map{vm.createUserdata($0)}) }
+        lib["focusedWindow"] = lib.createMethod([]) { win, _ in .Value(vm.createUserdataMaybe(Desktop.Window.focusedWindow())) }
+        
+        lib.eq = { $0.id() == $1.id() }
+        
     }
-    
-    static func allWindows(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Values(Desktop.Window.allWindows().map{vm.createUserdata(Window($0))})
-    }
-    
-    static func focusedWindow(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
-        return .Value(vm.createUserdataMaybe(Window(Desktop.Window.focusedWindow())))
-    }
-    
-    static func classMethods() -> [(String, (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
-        return [
-            ("allWindows", Window.allWindows),
-            ("focusedWindow", Window.focusedWindow),
-        ]
-    }
-    
-    static func instanceMethods() -> [(String, Window -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
-        return [
-            ("app", Window.app),
-            ("title", Window.title),
-            ("topLeft", Window.topLeft),
-            ("setTopLeft", Window.setTopLeft),
-        ]
-    }
-    
-    static func setMetaMethods(inout metaMethods: Lua.MetaMethods<Window>) {
-        metaMethods.eq = { $0.win.id() == $1.win.id() }
-    }
-    
 }
