@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		941314AC1A5A123C00079EE5 /* ExtraTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941314AB1A5A123C00079EE5 /* ExtraTypes.swift */; };
 		944A33051A475A6400BF8675 /* Lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 944A33041A475A6400BF8675 /* Lua.h */; };
 		944A33071A475A6400BF8675 /* Lua.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A33061A475A6400BF8675 /* Lua.m */; };
 		944A33601A475A9C00BF8675 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A33251A475A9C00BF8675 /* lapi.c */; };
@@ -81,6 +82,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		941314AB1A5A123C00079EE5 /* ExtraTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtraTypes.swift; sourceTree = "<group>"; };
 		944A33011A475A6400BF8675 /* libLua.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libLua.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		944A33041A475A6400BF8675 /* Lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Lua.h; sourceTree = "<group>"; };
 		944A33061A475A6400BF8675 /* Lua.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Lua.m; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				94C67DEA1A5871B700B18BC2 /* Function.swift */,
 				94C67DEC1A5871D200B18BC2 /* Boolean.swift */,
 				9453AD291A48DE5D00503603 /* Userdata.swift */,
+				941314AB1A5A123C00079EE5 /* ExtraTypes.swift */,
 				944A33041A475A6400BF8675 /* Lua.h */,
 				944A33061A475A6400BF8675 /* Lua.m */,
 				944A33241A475A9C00BF8675 /* LuaSource */,
@@ -367,6 +370,7 @@
 				944A337E1A475A9C00BF8675 /* lobject.c in Sources */,
 				94C67DED1A5871D200B18BC2 /* Boolean.swift in Sources */,
 				9453AD2A1A48DE5D00503603 /* Userdata.swift in Sources */,
+				941314AC1A5A123C00079EE5 /* ExtraTypes.swift in Sources */,
 				944A336E1A475A9C00BF8675 /* ldo.c in Sources */,
 				944A33941A475A9C00BF8675 /* lundump.c in Sources */,
 				944A33821A475A9C00BF8675 /* loslib.c in Sources */,

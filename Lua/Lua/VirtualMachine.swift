@@ -122,6 +122,11 @@ public class VirtualMachine {
         return err
     }
     
+    public func createUserdataMaybe<T: CustomType>(o: T?) -> Userdata? {
+        if let u = o { return createUserdata(u) }
+        return nil
+    }
+    
     public func createUserdata<T: CustomType>(o: T) -> Userdata {
         // Note: we just alloc 1 byte cuz malloc prolly needs > 0 but we dun use it
         
