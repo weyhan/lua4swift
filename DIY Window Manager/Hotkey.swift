@@ -2,17 +2,12 @@ import Foundation
 import Graphite
 import Lua
 
-final class Hotkey: Lua.CustomType {
+struct Hotkey: Lua.CustomType {
     
     let fn: Lua.Function
     let hotkey: Graphite.Hotkey
     
-    class func metatableName() -> String { return "Hotkey" }
-    
-    init(fn: Lua.Function, hotkey: Graphite.Hotkey) {
-        self.fn = fn
-        self.hotkey = hotkey
-    }
+    static func metatableName() -> String { return "Hotkey" }
     
     func enable(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
         hotkey.enable()
@@ -24,7 +19,7 @@ final class Hotkey: Lua.CustomType {
         return .Nothing
     }
     
-    class func bind(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
+    static func bind(vm: Lua.VirtualMachine, args: [Lua.Value]) -> Lua.SwiftReturnValue {
         if let err = vm.checkTypes(args, [.String, .Table, .Function]) { return .Error(err) }
         
         let key = args[0] as String
@@ -50,20 +45,20 @@ final class Hotkey: Lua.CustomType {
         }
     }
     
-    class func classMethods() -> [(String, (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
+    static func classMethods() -> [(String, (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
         return [
             ("bind", Hotkey.bind),
         ]
     }
     
-    class func instanceMethods() -> [(String, Hotkey -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
+    static func instanceMethods() -> [(String, Hotkey -> (Lua.VirtualMachine, [Lua.Value]) -> Lua.SwiftReturnValue)] {
         return [
             ("enable", Hotkey.enable),
             ("disable", Hotkey.disable),
         ]
     }
     
-    class func setMetaMethods(inout metaMethods: Lua.MetaMethods<Hotkey>) {
+    static func setMetaMethods(inout metaMethods: Lua.MetaMethods<Hotkey>) {
         metaMethods.eq = { $0.fn == $1.fn }
         metaMethods.gc = { this, L in
             println("gone hotkey!")
