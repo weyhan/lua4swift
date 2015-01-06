@@ -142,33 +142,39 @@ public class VirtualMachine {
         let ptr = UnsafeMutablePointer<T>(lua_newuserdata(vm, UInt(sizeof(T)))) // this both pushes ptr onto stack and returns it
         ptr.initialize(o) // creates a new legit reference to o
         
-        setMetatable(T.metatableName()) // this requires ptr to be on the stack
+        luaL_setmetatable(vm, (T.metatableName() as NSString).UTF8String) // this requires ptr to be on the stack
         return popValue(-1) as Userdata // this pops ptr off stack
     }
     
     public func createFunction(kinds: [Kind], _ fn: SwiftFunction) -> Function {
         let f: @objc_block (COpaquePointer) -> Int32 = { [unowned self] _ in
-            var args = [Value]()
+            // check types
             for i in 0 ..< self.stackSize() {
-                let arg = self.popValue(1)!
-                let kind = arg.kind()
-                
-                switch kind {
+                let expectedKind = kinds[i]
+                switch expectedKind {
                 case let .Userdata(metatableName):
                     if let name = metatableName {
+                        debugPrintln(name)
                         luaL_checkudata(self.vm, i+1, (name as NSString).UTF8String)
                     }
                     else {
                         fallthrough
                     }
                 default:
-                    luaL_checktype(self.vm, i+1, kind.luaType())
+                    debugPrintln(expectedKind.luaType())
+                    luaL_checktype(self.vm, i+1, expectedKind.luaType())
                 }
-                
-                args.append(arg)
             }
             
-            switch fn(Arguments(args: args)) {
+            // build args list
+            var args = Arguments()
+            for i in 0 ..< self.stackSize() {
+                let arg = self.popValue(1)!
+                args.values.append(arg)
+            }
+            
+            // call fn
+            switch fn(args) {
             case .Nothing:
                 return 0
             case let .Value(value):
@@ -244,7 +250,6 @@ public class VirtualMachine {
         remove(position)
     }
     
-    internal func setMetatable(metatableName: String) { luaL_setmetatable(vm, (metatableName as NSString).UTF8String) }
     internal func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
     internal func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
     internal func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }

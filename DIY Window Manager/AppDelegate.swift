@@ -87,16 +87,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             println(c)
             println(d)
             
-            println(args)
             return .Values([3, "hi"])
         }
         
         let values = fn.call(["sup", false, true, 25])
         switch values {
         case let .Values(vals):
-            let a = vals[0] as Int64
+            let a = vals[0] as Number
             let b = vals[1] as String
-            println(a)
+            println(a.toInteger())
             println(b)
         case let .Error(err):
             println("Error! \(err)")

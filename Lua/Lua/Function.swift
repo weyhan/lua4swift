@@ -55,18 +55,15 @@ public typealias SwiftFunction = Arguments -> SwiftReturnValue
 
 public class Arguments {
     
-    internal var args: [Value]
-    internal init(args: [Value]) {
-        self.args = args
-    }
+    internal var values = [Value]()
     
-    public var string: String { return args.removeAtIndex(0) as String }
-    public var number: Number { return args.removeAtIndex(0) as Number }
-    public var boolean: Bool { return args.removeAtIndex(0) as Bool }
-    public var function: Function { return args.removeAtIndex(0) as Function }
-    public var table: Table { return args.removeAtIndex(0) as Table }
-    public var userdata: Userdata { return args.removeAtIndex(0) as Userdata }
-    public var lightUserdata: LightUserdata { return args.removeAtIndex(0) as LightUserdata }
-    public var thread: Thread { return args.removeAtIndex(0) as Thread }
+    public var string: String { return values.removeAtIndex(0) as String }
+    public var number: Number { return values.removeAtIndex(0) as Number }
+    public var boolean: Bool { return values.removeAtIndex(0) as Bool }
+    public var function: Function { return values.removeAtIndex(0) as Function }
+    public var table: Table { return values.removeAtIndex(0) as Table }
+    public var userdata: Userdata { return values.removeAtIndex(0) as Userdata }
+    public var lightUserdata: LightUserdata { return values.removeAtIndex(0) as LightUserdata }
+    public var thread: Thread { return values.removeAtIndex(0) as Thread }
     
 }
