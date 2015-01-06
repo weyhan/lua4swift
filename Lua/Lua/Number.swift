@@ -1,6 +1,6 @@
 import Foundation
 
-public class Number: StoredValue {
+public class Number: StoredValue, DebugPrintable {
     
     override public func kind() -> Kind { return .Number }
     
@@ -16,6 +16,15 @@ public class Number: StoredValue {
         let v = lua_tointegerx(vm.vm, -1, nil)
         vm.pop()
         return v
+    }
+    
+    public var debugDescription: String {
+        push(vm)
+        let isInteger = lua_isinteger(vm.vm, -1) != 0
+        vm.pop()
+        
+        if isInteger { return toInteger().description }
+        else { return toDouble().description }
     }
     
 }
