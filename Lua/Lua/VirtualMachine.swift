@@ -205,7 +205,10 @@ public class VirtualMachine {
 //    }
     
     public func createLibrary<T: CustomType>(setup: (Library<T>) -> Void) -> Library<T> {
+        lua_createtable(vm, 0, 0)
         let lib = Library<T>(self)
+        pop()
+        
         setup(lib)
         
         registryTable[T.metatableName()] = lib
