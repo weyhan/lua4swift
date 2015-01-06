@@ -8,9 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
 //    let prefs = PreferencesController()
     
-    func runtest() {
-        let L = Lua.VirtualMachine()
-        
+    func runtest(L: Lua.VirtualMachine) {
         let stringxLib = L.createTable()
         
         stringxLib["split"] = L.createFunction([.String, .String]) { args in
@@ -29,11 +27,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         
-        runtest()
-        
-        
-        
         let vm = Lua.VirtualMachine()
+        
+        vm.globalTable["Window"] = windowLib(vm)
+        vm.globalTable["App"] = appLib(vm)
+        vm.eval("w = Window.focusedWindow()")
+        vm.eval("p = w:topLeft()")
+        vm.eval("p.x = p.x + 10")
+        vm.eval("w:setTopLeft(p)")
+        vm.eval("print(w:belongsToApp(3))")
+        vm.eval("w = nil")
+        vm.eval("collectgarbage()")
+        
+        return;
+        
+        runtest(vm)
+        
+        
         
         let globals = vm.globalTable
         globals["Hotkey"] = hotkeyLib(vm)
@@ -42,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
 //        return;
         
-        let code = vm.createFunction("Hotkey.bind('s', {'cmd', 'shift'}, function() print('ha') end) collectgarbage()")
+        let code = vm.createFunction("return stringx.split('hello', 'el')")
         switch code {
         case let .Value(fn):
             
@@ -52,6 +62,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             case let .Values(vals):
                 println("bound hotkey!")
                 println(vals)
+                
+                if let t = vals[0] as? Table {
+                    println(t.values())
+                }
             default:
                 break
             }
@@ -148,18 +162,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        prefs.showWindow(nil)
 //        return;
         
-//        vm.pushCustomType(Window)
-//        vm.setGlobal("Window")
-//        
-//        vm.pushCustomType(App)
-//        vm.setGlobal("App")
-        
-//        vm.doString("App.focusedApp():forceQuit()")
-        
-//        vm.doString("w = Window.focusedWindow()")
-//        vm.doString("p = w:topLeft()")
-//        vm.doString("p.x = p.x + 10")
-//        vm.doString("w:setTopLeft(p)")
         
 //        L.doString("Hotkey.bind(3)")
 //        L.doString("print(34 + 2)")

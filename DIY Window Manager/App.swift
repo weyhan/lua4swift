@@ -9,6 +9,17 @@ extension Desktop.App: Lua.CustomType {
 func appLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.App> {
     return vm.createLibrary { [unowned vm] lib in
         
+        // class methods
+        
+        lib["allApps"] = vm.createFunction([]) { _ in .Values(Desktop.App.allApps().map{vm.createUserdata($0)}) }
+        lib["focusedApp"] = vm.createFunction([]) { _ in .Value(vm.createUserdataMaybe(Desktop.App.focusedApp())) }
+        lib["appWithPid"] = vm.createFunction([.Number]) { args in
+            let pid = args.number
+            return .Value(vm.createUserdataMaybe(Desktop.App(pid_t(pid.toInteger()))))
+        }
+        
+        // instance methods
+        
         lib["title"] = lib.createMethod([]) { app, _ in .Value(app.title()) }
         lib["quit"] = lib.createMethod([]) { app, _ in .Value(app.terminate())}
         lib["forceQuit"] = lib.createMethod([]) { app, _ in .Value(app.terminate(force: true)) }
@@ -17,12 +28,6 @@ func appLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.App> {
         lib["isHidden"] = lib.createMethod([]) { app, _ in .Value(app.isHidden()) }
         lib["focusedWindow"] = lib.createMethod([]) { app, _ in .Value(vm.createUserdataMaybe(app.focusedWindow())) }
         lib["mainWindow"] = lib.createMethod([]) { app, _ in .Value(vm.createUserdataMaybe(app.mainWindow())) }
-        lib["allApps"] = lib.createMethod([]) { app, _ in .Values(Desktop.App.allApps().map{vm.createUserdata($0)}) }
-        lib["focusedApp"] = lib.createMethod([]) { app, _ in .Value(vm.createUserdataMaybe(Desktop.App.focusedApp())) }
-        lib["appWithPid"] = lib.createMethod([.Number]) { app, args in
-            let pid = args.number
-            return .Value(vm.createUserdataMaybe(Desktop.App(pid_t(pid.toInteger()))))
-        }
         
         lib.eq = { $0.pid == $1.pid }
         

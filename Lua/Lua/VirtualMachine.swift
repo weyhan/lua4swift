@@ -146,30 +146,52 @@ public class VirtualMachine {
         return popValue(-1) as Userdata // this pops ptr off stack
     }
     
+    public enum EvalResults {
+        case Values([Value])
+        case Error(String)
+    }
+    
+    public func eval(str: String, args: [Value] = []) -> EvalResults {
+        let fn = createFunction(str)
+        switch fn {
+        case let .Value(f):
+            let results = f.call(args)
+            switch results {
+            case let .Values(vs):
+                return .Values(vs)
+            case let .Error(e):
+                return .Error(e)
+            }
+        case let .Error(e):
+            return .Error(e)
+        }
+    }
+    
     public func createFunction(kinds: [Kind], _ fn: SwiftFunction) -> Function {
-        let f: @objc_block (COpaquePointer) -> Int32 = { [unowned self] _ in
+        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
+            if self == nil { return 0 }
+            let vm = self!
+            
             // check types
-            for i in 0 ..< self.stackSize() {
+            for i in 0 ..< vm.stackSize() {
                 let expectedKind = kinds[i]
                 switch expectedKind {
                 case let .Userdata(metatableName):
                     if let name = metatableName {
-                        debugPrintln(name)
-                        luaL_checkudata(self.vm, i+1, (name as NSString).UTF8String)
+                        luaL_checkudata(vm.vm, i+1, (name as NSString).UTF8String)
                     }
                     else {
                         fallthrough
                     }
                 default:
-                    debugPrintln(expectedKind.luaType())
-                    luaL_checktype(self.vm, i+1, expectedKind.luaType())
+                    luaL_checktype(vm.vm, i+1, expectedKind.luaType())
                 }
             }
             
             // build args list
             var args = Arguments()
-            for i in 0 ..< self.stackSize() {
-                let arg = self.popValue(1)!
+            for i in 0 ..< vm.stackSize() {
+                let arg = vm.popValue(1)!
                 args.values.append(arg)
             }
             
@@ -179,21 +201,21 @@ public class VirtualMachine {
                 return 0
             case let .Value(value):
                 if let v = value {
-                    v.push(self)
+                    v.push(vm)
                 }
                 else {
-                    Nil().push(self)
+                    Nil().push(vm)
                 }
                 return 1
             case let .Values(values):
                 for value in values {
-                    value.push(self)
+                    value.push(vm)
                 }
                 return Int32(values.count)
             case let .Error(error):
                 println("pushing error: \(error)")
-                error.push(self)
-                lua_error(self.vm)
+                error.push(vm)
+                lua_error(vm.vm)
                 return 0 // uhh, we don't actually get here
             }
         }
@@ -220,7 +242,7 @@ public class VirtualMachine {
         registryTable[T.metatableName()] = lib
         lib.becomeMetatableFor(lib)
         lib["__index"] = lib
-        lib["__name"] = T.metatableName()  // TODO: seems to have no effect
+        lib["__name"] = T.metatableName()
         
         let gc = lib.gc
         lib["__gc"] = createFunction([.Userdata(T.metatableName())]) { args in
