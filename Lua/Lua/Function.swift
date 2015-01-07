@@ -8,7 +8,7 @@ public enum FunctionResults {
 public class Function: StoredValue {
     
     public func call(args: [Value]) -> FunctionResults {
-        let globals = vm.globalTable
+        let globals = vm.globals
         let debugTable = globals["debug"] as Table
         let messageHandler = debugTable["traceback"]
         

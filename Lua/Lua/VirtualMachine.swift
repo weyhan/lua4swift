@@ -101,12 +101,12 @@ public class VirtualMachine {
         return v
     }
     
-    public var globalTable: Table {
+    public var globals: Table {
         rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
         return popValue(-1) as Table
     }
     
-    public var registryTable: Table {
+    public var registry: Table {
         pushFromStack(RegistryIndex)
         return popValue(-1) as Table
     }
@@ -239,7 +239,7 @@ public class VirtualMachine {
         
         setup(lib)
         
-        registryTable[T.metatableName()] = lib
+        registry[T.metatableName()] = lib
         lib.becomeMetatableFor(lib)
         lib["__index"] = lib
         lib["__name"] = T.metatableName()

@@ -1,8 +1,8 @@
 import Foundation
 
-public class DesktopEventHandler {
+public class DesktopObserver {
     
-    public enum Event {
+    public enum Callback {
         case AppLaunched(App -> Void)
         case AppTerminated(App -> Void)
         case AppHidden(App -> Void)
@@ -40,16 +40,16 @@ public class DesktopEventHandler {
     }
     
     private var observer: NSObjectProtocol?
-    public let event: Event
+    public let event: Callback
     
-    public init(_ event: Event) {
+    public init(_ event: Callback) {
         self.event = event
     }
     
     public func enable() {
-        observer = NSWorkspace.sharedWorkspace().notificationCenter.addObserverForName(event.name(), object: nil, queue: NSOperationQueue.mainQueue()) { notification in
+        observer = NSWorkspace.sharedWorkspace().notificationCenter.addObserverForName(event.name(), object: nil, queue: NSOperationQueue.mainQueue()) { [weak self] notification in
             if let dict = notification.userInfo {
-                self.event.call(dict)
+                self?.event.call(dict)
             }
         }
     }
@@ -67,11 +67,11 @@ public class DesktopEventHandler {
     
 }
 
-public class AppEventHandler {
+public class AppObserver {
     
-    public enum Event {
+    public enum Callback {
         case WindowCreated(Window -> Void)
-        case ElementDestroyed(Window -> Void)
+        case WindowDestroyed(Window -> Void)
         case WindowMoved(Window -> Void)
         case WindowResized(Window -> Void)
         case WindowMiniaturized(Window -> Void)
@@ -85,7 +85,7 @@ public class AppEventHandler {
         private func name() -> String {
             switch self {
             case WindowCreated:        return "AXWindowCreated"
-            case ElementDestroyed:     return "AXUIElementDestroyed"
+            case WindowDestroyed:     return "AXUIElementDestroyed"
             case WindowMoved:          return "AXWindowMoved"
             case WindowResized:        return "AXWindowResized"
             case WindowMiniaturized:   return "AXWindowMiniaturized"
@@ -101,7 +101,7 @@ public class AppEventHandler {
         private func call(element: AXUIElement!) {
             switch self {
             case let WindowCreated(fn):        fn(Window(element))
-            case let ElementDestroyed(fn):     fn(Window(element))
+            case let WindowDestroyed(fn):      fn(Window(element))
             case let WindowMoved(fn):          fn(Window(element))
             case let WindowResized(fn):        fn(Window(element))
             case let WindowMiniaturized(fn):   fn(Window(element))
@@ -118,9 +118,9 @@ public class AppEventHandler {
     private var observer: AXObserver?
     private let fn: AXUIElement! -> Void
     public let app: App
-    public let event: Event
+    public let event: Callback
     
-    public init?(app: App, event: Event) {
+    public init?(app: App, event: Callback) {
         self.app = app
         self.event = event
         fn = { event.call($0) }
@@ -150,6 +150,69 @@ public class AppEventHandler {
     
     deinit {
         disable()
+    }
+    
+}
+
+public class GlobalAppObserver {
+    
+    var handlers = Array<Desktop.AppObserver>()
+    let fn: Desktop.AppObserver.Callback
+    
+    private var appLaunchedWatcher: Desktop.DesktopObserver?
+    private var appTerminatedWatcher: Desktop.DesktopObserver?
+    
+    public init(_ fn: Desktop.AppObserver.Callback) {
+        self.fn = fn
+    }
+    
+    deinit {
+        disable()
+    }
+    
+    private func watch(app: Desktop.App) {
+        if let handler = Desktop.AppObserver(app: app, event: fn) {
+            let result = handler.enable()
+            if result == nil {
+                handlers.append(handler)
+            }
+        }
+    }
+    
+    public func enable() {
+        if appLaunchedWatcher != nil { return }
+        
+        for app in Desktop.App.allApps() {
+            watch(app)
+        }
+        
+        appLaunchedWatcher = Desktop.DesktopObserver(.AppLaunched({ [unowned self] app in
+            self.watch(app)
+        }))
+        
+        appTerminatedWatcher = Desktop.DesktopObserver(.AppTerminated({ [unowned self] app in
+            for handler in self.handlers.filter({$0.app == app}) {
+                handler.disable()
+            }
+            
+            self.handlers = self.handlers.filter{$0.app != app}
+        }))
+        
+        appTerminatedWatcher?.enable()
+        appLaunchedWatcher?.enable()
+    }
+    
+    public func disable() {
+        appLaunchedWatcher?.disable()
+        appTerminatedWatcher?.disable()
+        
+        appLaunchedWatcher = nil
+        appTerminatedWatcher = nil
+        
+        for handler in handlers {
+            handler.disable()
+        }
+        handlers = []
     }
     
 }

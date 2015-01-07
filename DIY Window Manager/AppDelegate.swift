@@ -15,13 +15,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let (subject, separator) = (args.string, args.string)
             
             let results = L.createTable()
-            for (i, fragment) in enumerate(subject.componentsSeparatedByString(separator)) {
+            let fragments = subject.componentsSeparatedByString(separator)
+            for (i, fragment) in enumerate(fragments) {
                 results[i+1] = fragment
             }
             return .Value(results)
         }
         
-        L.globalTable["stringx"] = stringxLib
+        L.globals["stringx"] = stringxLib
         
     }
     
@@ -29,8 +30,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let vm = Lua.VirtualMachine()
         
-        vm.globalTable["Window"] = windowLib(vm)
-        vm.globalTable["App"] = appLib(vm)
+        vm.globals["Window"] = windowLib(vm)
+        vm.globals["App"] = appLib(vm)
         vm.eval("w = Window.focusedWindow()")
         vm.eval("p = w:topLeft()")
         vm.eval("p.x = p.x + 10")
@@ -45,7 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         
-        let globals = vm.globalTable
+        let globals = vm.globals
         globals["Hotkey"] = hotkeyLib(vm)
         
 //        println(globals["Hotkey"].kind() == .Table)
