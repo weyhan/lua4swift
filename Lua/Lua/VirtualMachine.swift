@@ -220,9 +220,9 @@ public class VirtualMachine {
         return popValue(-1) as Function
     }
     
+    @noreturn
     private func argError(expectedType: String, at argPosition: Int) -> Int32 {
-//        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
-        return 0
+        luaL_typerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
     }
     
     public func createUserType<T: CustomType>(setup: (UserType<T>) -> Void) -> UserType<T> {
