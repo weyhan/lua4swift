@@ -9,7 +9,7 @@ public class Userdata: StoredValue {
         return UnsafeMutablePointer<T>(ptr)
     }
     
-    public func toCustomType<T: CustomType>() -> T {
+    public func toCustomType<T: CustomTypeInstance>() -> T {
         return userdataPointer().memory
     }
     
@@ -32,19 +32,19 @@ public class LightUserdata: StoredValue {
     
 }
 
-public protocol CustomType {
+public protocol CustomTypeInstance {
     
-    class func metatableName() -> String
+    class func luaTypeName() -> String
     
 }
 
-public class UserType<T: CustomType>: Table {
+public class CustomType<T: CustomTypeInstance>: Table {
     
     override public class func arg(vm: VirtualMachine, value: Value) -> String? {
         value.push(vm)
-        let isLegit = luaL_testudata(vm.vm, -1, (T.metatableName() as NSString).UTF8String) != nil
+        let isLegit = luaL_testudata(vm.vm, -1, (T.luaTypeName() as NSString).UTF8String) != nil
         vm.pop()
-        if !isLegit { return T.metatableName() }
+        if !isLegit { return T.luaTypeName() }
         return nil
     }
     
@@ -56,7 +56,7 @@ public class UserType<T: CustomType>: Table {
     public var eq: ((T, T) -> Bool)?
     
     public func createMethod(var typeCheckers: [TypeChecker], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
-        typeCheckers.insert(UserType<T>.arg, atIndex: 0)
+        typeCheckers.insert(CustomType<T>.arg, atIndex: 0)
         return vm.createFunction(typeCheckers) { (var args: Arguments) in
             let o: T = args.userdata.toCustomType()
             return fn(o, args)

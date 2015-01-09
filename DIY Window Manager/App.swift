@@ -2,12 +2,12 @@ import Foundation
 import Desktop
 import Lua
 
-extension Desktop.App: Lua.CustomType {
-    public class func metatableName() -> String { return "App" }
+extension Desktop.App: Lua.CustomTypeInstance {
+    public class func luaTypeName() -> String { return "App" }
 }
 
-func appLib(vm: Lua.VirtualMachine) -> Lua.UserType<Desktop.App> {
-    return vm.createUserType { [unowned vm] lib in
+func appLib(vm: Lua.VirtualMachine) -> Lua.CustomType<Desktop.App> {
+    return vm.createCustomType { [unowned vm] lib in
         
         // class methods
         

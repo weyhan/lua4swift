@@ -2,11 +2,11 @@ import Foundation
 import Desktop
 import Lua
 
-enum EventHandler: Lua.CustomType {
+enum EventHandler: Lua.CustomTypeInstance {
     
     case AllApps(Desktop.GlobalAppObserver)
     
-    static func metatableName() -> String { return "Event" }
+    static func luaTypeName() -> String { return "Event" }
     
     func enable() {
         switch self {
@@ -24,8 +24,8 @@ enum EventHandler: Lua.CustomType {
     
 }
 
-func eventLib(vm: Lua.VirtualMachine) -> Lua.UserType<EventHandler> {
-    return vm.createUserType { [unowned vm] lib in
+func eventLib(vm: Lua.VirtualMachine) -> Lua.CustomType<EventHandler> {
+    return vm.createCustomType { [unowned vm] lib in
         
         // class methods
         

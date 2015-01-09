@@ -131,18 +131,18 @@ public class VirtualMachine {
         return err
     }
     
-    public func createUserdataMaybe<T: CustomType>(o: T?) -> Userdata? {
+    public func createUserdataMaybe<T: CustomTypeInstance>(o: T?) -> Userdata? {
         if let u = o {
             return createUserdata(u)
         }
         return nil
     }
     
-    public func createUserdata<T: CustomType>(o: T) -> Userdata {
+    public func createUserdata<T: CustomTypeInstance>(o: T) -> Userdata {
         let ptr = UnsafeMutablePointer<T>(lua_newuserdata(vm, UInt(sizeof(T)))) // this both pushes ptr onto stack and returns it
         ptr.initialize(o) // creates a new legit reference to o
         
-        luaL_setmetatable(vm, (T.metatableName() as NSString).UTF8String) // this requires ptr to be on the stack
+        luaL_setmetatable(vm, (T.luaTypeName() as NSString).UTF8String) // this requires ptr to be on the stack
         return popValue(-1) as Userdata // this pops ptr off stack
     }
     
@@ -178,7 +178,7 @@ public class VirtualMachine {
                 vm.pushFromStack(i+1)
                 if let expectedType = typeChecker(vm, vm.popValue(-1)!) {
                     println("got wrong type: \(expectedType)")
-                    return vm.argError(expectedType, at: i+1)
+                    vm.argError(expectedType, at: i+1)
                 }
             }
             
@@ -225,20 +225,20 @@ public class VirtualMachine {
         luaL_typerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
     }
     
-    public func createUserType<T: CustomType>(setup: (UserType<T>) -> Void) -> UserType<T> {
+    public func createCustomType<T: CustomTypeInstance>(setup: (CustomType<T>) -> Void) -> CustomType<T> {
         lua_createtable(vm, 0, 0)
-        let lib = UserType<T>(self)
+        let lib = CustomType<T>(self)
         pop()
         
         setup(lib)
         
-        registry[T.metatableName()] = lib
+        registry[T.luaTypeName()] = lib
         lib.becomeMetatableFor(lib)
         lib["__index"] = lib
-        lib["__name"] = T.metatableName()
+        lib["__name"] = T.luaTypeName()
         
         let gc = lib.gc
-        lib["__gc"] = createFunction([UserType<T>.arg]) { args in
+        lib["__gc"] = createFunction([CustomType<T>.arg]) { args in
             let ud = args.userdata
             (ud.userdataPointer() as UnsafeMutablePointer<Void>).destroy()
             let o: T = ud.toCustomType()
@@ -247,7 +247,7 @@ public class VirtualMachine {
         }
         
         if let eq = lib.eq {
-            lib["__eq"] = createFunction([UserType<T>.arg, UserType<T>.arg]) { args in
+            lib["__eq"] = createFunction([CustomType<T>.arg, CustomType<T>.arg]) { args in
                 let a: T = args.userdata.toCustomType()
                 let b: T = args.userdata.toCustomType()
                 return .Value(eq(a, b))

@@ -2,12 +2,12 @@ import Foundation
 import Desktop
 import Lua
 
-extension Desktop.Window: Lua.CustomType {
-    public class func metatableName() -> String { return "Window" }
+extension Desktop.Window: Lua.CustomTypeInstance {
+    public class func luaTypeName() -> String { return "Window" }
 }
 
-func windowLib(vm: Lua.VirtualMachine) -> Lua.UserType<Desktop.Window> {
-    return vm.createUserType { [unowned vm] lib in
+func windowLib(vm: Lua.VirtualMachine) -> Lua.CustomType<Desktop.Window> {
+    return vm.createCustomType { [unowned vm] lib in
         
         // class methods
         
@@ -26,7 +26,7 @@ func windowLib(vm: Lua.VirtualMachine) -> Lua.UserType<Desktop.Window> {
             return .Nothing
         }
         
-        lib["belongsToApp"] = lib.createMethod([Lua.UserType<Desktop.App>.arg]) { win, args in
+        lib["belongsToApp"] = lib.createMethod([Lua.CustomType<Desktop.App>.arg]) { win, args in
             let app: Desktop.App = args.userdata.toCustomType()
             return .Value(win.app() == app)
         }

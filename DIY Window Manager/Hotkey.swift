@@ -2,12 +2,12 @@ import Foundation
 import Graphite
 import Lua
 
-extension Graphite.Hotkey: Lua.CustomType {
-    public class func metatableName() -> String { return "Hotkey" }
+extension Graphite.Hotkey: Lua.CustomTypeInstance {
+    public class func luaTypeName() -> String { return "Hotkey" }
 }
 
-func hotkeyLib(vm: Lua.VirtualMachine) -> Lua.UserType<Graphite.Hotkey> {
-    return vm.createUserType { [unowned vm] lib in
+func hotkeyLib(vm: Lua.VirtualMachine) -> Lua.CustomType<Graphite.Hotkey> {
+    return vm.createCustomType { [unowned vm] lib in
         
         lib["bind"] = vm.createFunction([String.arg, Table.arg, Function.arg]) { args in
             let (key, modStrings: [String], downFn) = (args.string, args.table.asSequence(), args.function)
