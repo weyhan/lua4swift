@@ -225,9 +225,9 @@ public class VirtualMachine {
         return 0
     }
     
-    public func createLibrary<T: CustomType>(setup: (Library<T>) -> Void) -> Library<T> {
+    public func createUserType<T: CustomType>(setup: (UserType<T>) -> Void) -> UserType<T> {
         lua_createtable(vm, 0, 0)
-        let lib = Library<T>(self)
+        let lib = UserType<T>(self)
         pop()
         
         setup(lib)
@@ -238,7 +238,7 @@ public class VirtualMachine {
         lib["__name"] = T.metatableName()
         
         let gc = lib.gc
-        lib["__gc"] = createFunction([Library<T>.arg]) { args in
+        lib["__gc"] = createFunction([UserType<T>.arg]) { args in
             let ud = args.userdata
             (ud.userdataPointer() as UnsafeMutablePointer<Void>).destroy()
             let o: T = ud.toCustomType()
@@ -247,7 +247,7 @@ public class VirtualMachine {
         }
         
         if let eq = lib.eq {
-            lib["__eq"] = createFunction([Library<T>.arg, Library<T>.arg]) { args in
+            lib["__eq"] = createFunction([UserType<T>.arg, UserType<T>.arg]) { args in
                 let a: T = args.userdata.toCustomType()
                 let b: T = args.userdata.toCustomType()
                 return .Value(eq(a, b))

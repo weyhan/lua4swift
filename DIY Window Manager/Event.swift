@@ -24,8 +24,8 @@ enum EventHandler: Lua.CustomType {
     
 }
 
-func eventLib(vm: Lua.VirtualMachine) -> Lua.Library<EventHandler> {
-    return vm.createLibrary { [unowned vm] lib in
+func eventLib(vm: Lua.VirtualMachine) -> Lua.UserType<EventHandler> {
+    return vm.createUserType { [unowned vm] lib in
         
         // class methods
         

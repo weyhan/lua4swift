@@ -6,8 +6,8 @@ extension Desktop.Window: Lua.CustomType {
     public class func metatableName() -> String { return "Window" }
 }
 
-func windowLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.Window> {
-    return vm.createLibrary { [unowned vm] lib in
+func windowLib(vm: Lua.VirtualMachine) -> Lua.UserType<Desktop.Window> {
+    return vm.createUserType { [unowned vm] lib in
         
         // class methods
         
@@ -26,7 +26,7 @@ func windowLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.Window> {
             return .Nothing
         }
         
-        lib["belongsToApp"] = lib.createMethod([Lua.Library<Desktop.App>.arg]) { win, args in
+        lib["belongsToApp"] = lib.createMethod([Lua.UserType<Desktop.App>.arg]) { win, args in
             let app: Desktop.App = args.userdata.toCustomType()
             return .Value(win.app() == app)
         }

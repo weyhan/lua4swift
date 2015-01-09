@@ -6,8 +6,8 @@ extension Desktop.App: Lua.CustomType {
     public class func metatableName() -> String { return "App" }
 }
 
-func appLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.App> {
-    return vm.createLibrary { [unowned vm] lib in
+func appLib(vm: Lua.VirtualMachine) -> Lua.UserType<Desktop.App> {
+    return vm.createUserType { [unowned vm] lib in
         
         // class methods
         

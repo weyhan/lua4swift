@@ -6,8 +6,8 @@ extension Graphite.Hotkey: Lua.CustomType {
     public class func metatableName() -> String { return "Hotkey" }
 }
 
-func hotkeyLib(vm: Lua.VirtualMachine) -> Lua.Library<Graphite.Hotkey> {
-    return vm.createLibrary { [unowned vm] lib in
+func hotkeyLib(vm: Lua.VirtualMachine) -> Lua.UserType<Graphite.Hotkey> {
+    return vm.createUserType { [unowned vm] lib in
         
         lib["bind"] = vm.createFunction([String.arg, Table.arg, Function.arg]) { args in
             let (key, modStrings: [String], downFn) = (args.string, args.table.asSequence(), args.function)

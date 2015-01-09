@@ -38,7 +38,7 @@ public protocol CustomType {
     
 }
 
-public class Library<T: CustomType>: Table {
+public class UserType<T: CustomType>: Table {
     
     override public class func arg(vm: VirtualMachine, value: Value) -> String? {
         value.push(vm)
@@ -56,7 +56,7 @@ public class Library<T: CustomType>: Table {
     public var eq: ((T, T) -> Bool)?
     
     public func createMethod(var typeCheckers: [TypeChecker], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
-        typeCheckers.insert(Library<T>.arg, atIndex: 0)
+        typeCheckers.insert(UserType<T>.arg, atIndex: 0)
         return vm.createFunction(typeCheckers) { (var args: Arguments) in
             let o: T = args.userdata.toCustomType()
             return fn(o, args)
