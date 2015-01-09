@@ -17,13 +17,18 @@ public class Userdata: StoredValue {
         return userdataPointer().memory
     }
     
-    override public func kind() -> Kind { return .Userdata(nil) }
+    override public func kind() -> Kind { return .Userdata }
     
 }
 
 public class LightUserdata: StoredValue {
     
     override public func kind() -> Kind { return .LightUserdata }
+    
+    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .LightUserdata { return "light userdata" }
+        return nil
+    }
     
 }
 
@@ -35,6 +40,14 @@ public protocol CustomType {
 
 public class Library<T: CustomType>: Table {
     
+    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
+        value.push(vm)
+        let isLegit = luaL_testudata(vm.vm, -1, (T.metatableName() as NSString).UTF8String) != nil
+        vm.pop()
+        if !isLegit { return T.metatableName() }
+        return nil
+    }
+    
     override internal init(_ vm: VirtualMachine) {
         super.init(vm)
     }
@@ -42,9 +55,9 @@ public class Library<T: CustomType>: Table {
     public var gc: ((T) -> Void)?
     public var eq: ((T, T) -> Bool)?
     
-    public func createMethod(var kinds: [Kind], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
-        kinds.insert(.Userdata(T.metatableName()), atIndex: 0)
-        return vm.createFunction(kinds) { (var args: Arguments) in
+    public func createMethod(var typeCheckers: [TypeChecker], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
+        typeCheckers.insert(Library<T>.arg, atIndex: 0)
+        return vm.createFunction(typeCheckers) { (var args: Arguments) in
             let o: T = args.userdata.toCustomType()
             return fn(o, args)
         }

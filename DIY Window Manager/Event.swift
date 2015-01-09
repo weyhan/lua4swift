@@ -30,7 +30,7 @@ func eventLib(vm: Lua.VirtualMachine) -> Lua.Library<EventHandler> {
         // class methods
         
         func globalAppObserver(name: String, fn: Lua.Function -> Desktop.AppObserver.Callback) {
-            lib[name] = vm.createFunction([.Function]) { args in
+            lib[name] = vm.createFunction([Function.arg]) { args in
                 let callbackFunction = args.function
                 let observer = Desktop.GlobalAppObserver(fn(callbackFunction))
                 observer.enable()

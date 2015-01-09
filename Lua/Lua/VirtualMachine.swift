@@ -17,7 +17,7 @@ public enum Kind {
     case Boolean
     case Function
     case Table
-    case Userdata(Swift.String?) // TODO: change this to CustomType.Type when Swift allows it
+    case Userdata
     case LightUserdata
     case Thread
     case Nil
@@ -61,7 +61,7 @@ public class VirtualMachine {
         case LUA_TBOOLEAN: return .Boolean
         case LUA_TFUNCTION: return .Function
         case LUA_TTABLE: return .Table
-        case LUA_TUSERDATA: return .Userdata(nil)
+        case LUA_TUSERDATA: return .Userdata
         case LUA_TLIGHTUSERDATA: return .LightUserdata
         case LUA_TTHREAD: return .Thread
         case LUA_TNIL: return .Nil
@@ -167,24 +167,18 @@ public class VirtualMachine {
         }
     }
     
-    public func createFunction(kinds: [Kind], _ fn: SwiftFunction) -> Function {
+    public func createFunction(typeCheckers: [TypeChecker], _ fn: SwiftFunction) -> Function {
         let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
             if self == nil { return 0 }
             let vm = self!
             
             // check types
             for i in 0 ..< vm.stackSize() {
-                let expectedKind = kinds[i]
-                switch expectedKind {
-                case let .Userdata(metatableName):
-                    if let name = metatableName {
-                        luaL_checkudata(vm.vm, i+1, (name as NSString).UTF8String)
-                    }
-                    else {
-                        fallthrough
-                    }
-                default:
-                    luaL_checktype(vm.vm, i+1, expectedKind.luaType())
+                let typeChecker = typeCheckers[i]
+                vm.pushFromStack(i+1)
+                if let expectedType = typeChecker(vm, vm.popValue(-1)!) {
+                    println("got wrong type: \(expectedType)")
+                    return vm.argError(expectedType, at: i+1)
                 }
             }
             
@@ -226,11 +220,10 @@ public class VirtualMachine {
         return popValue(-1) as Function
     }
     
-//    func argError(expectedType: String, argPosition: Int) -> SwiftReturnValue {
+    private func argError(expectedType: String, at argPosition: Int) -> Int32 {
 //        luaL_typeerror(vm, Int32(argPosition), (expectedType as NSString).UTF8String)
-//        return .Nothing
-//        // TODO: return .Error instead
-//    }
+        return 0
+    }
     
     public func createLibrary<T: CustomType>(setup: (Library<T>) -> Void) -> Library<T> {
         lua_createtable(vm, 0, 0)
@@ -245,7 +238,7 @@ public class VirtualMachine {
         lib["__name"] = T.metatableName()
         
         let gc = lib.gc
-        lib["__gc"] = createFunction([.Userdata(T.metatableName())]) { args in
+        lib["__gc"] = createFunction([Library<T>.arg]) { args in
             let ud = args.userdata
             (ud.userdataPointer() as UnsafeMutablePointer<Void>).destroy()
             let o: T = ud.toCustomType()
@@ -254,7 +247,7 @@ public class VirtualMachine {
         }
         
         if let eq = lib.eq {
-            lib["__eq"] = createFunction([.Userdata(T.metatableName()), .Userdata(T.metatableName())]) { args in
+            lib["__eq"] = createFunction([Library<T>.arg, Library<T>.arg]) { args in
                 let a: T = args.userdata.toCustomType()
                 let b: T = args.userdata.toCustomType()
                 return .Value(eq(a, b))

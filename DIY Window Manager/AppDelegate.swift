@@ -11,7 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func runtest(L: Lua.VirtualMachine) {
         let stringxLib = L.createTable()
         
-        stringxLib["split"] = L.createFunction([.String, .String]) { args in
+        stringxLib["split"] = L.createFunction([String.arg, String.arg]) { args in
             let (subject, separator) = (args.string, args.string)
             
             let results = L.createTable()
@@ -95,7 +95,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        let n = vm.number(3)
 //        let s = vm.string("hi")
         
-        let fn = vm.createFunction([.String, .Boolean, .Boolean, .Number]) { args in
+        let fn = vm.createFunction([String.arg, Bool.arg, Bool.arg, Number.arg]) { args in
             let (a, b, c, d) = (args.string, args.boolean, args.boolean, args.number)
             
             println(a)

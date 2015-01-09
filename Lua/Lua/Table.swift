@@ -4,6 +4,11 @@ public class Table: StoredValue {
     
     override public func kind() -> Kind { return .Table }
     
+    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .Table { return "table" }
+        return nil
+    }
+    
     public subscript(key: Value) -> Value {
         get {
             push(vm)

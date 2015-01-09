@@ -3,6 +3,7 @@ import Foundation
 public protocol Value {
     func push(vm: VirtualMachine)
     func kind() -> Kind
+    class func arg(vm: VirtualMachine, value: Value) -> String?
 }
 
 public class StoredValue: Value, Equatable {
@@ -26,6 +27,10 @@ public class StoredValue: Value, Equatable {
     
     public func kind() -> Kind {
         fatalError("Override kind()")
+    }
+    
+    public class func arg(vm: VirtualMachine, value: Value) -> String? {
+        fatalError("Override arg()")
     }
     
 }

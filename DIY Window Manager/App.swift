@@ -13,7 +13,7 @@ func appLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.App> {
         
         lib["allApps"] = vm.createFunction([]) { _ in .Values(Desktop.App.allApps().map{vm.createUserdata($0)}) }
         lib["focusedApp"] = vm.createFunction([]) { _ in .Value(vm.createUserdataMaybe(Desktop.App.focusedApp())) }
-        lib["appWithPid"] = vm.createFunction([.Number]) { args in
+        lib["appWithPid"] = vm.createFunction([Number.arg]) { args in
             let pid = args.number
             return .Value(vm.createUserdataMaybe(Desktop.App(pid_t(pid.toInteger()))))
         }

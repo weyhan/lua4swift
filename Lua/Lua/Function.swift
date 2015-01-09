@@ -42,7 +42,14 @@ public class Function: StoredValue {
     
     override public func kind() -> Kind { return .Function }
     
+    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .Function { return "function" }
+        return nil
+    }
+    
 }
+
+public typealias TypeChecker = (VirtualMachine, Value) -> String?
 
 public enum SwiftReturnValue {
     case Value(Lua.Value?)

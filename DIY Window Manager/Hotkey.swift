@@ -9,7 +9,7 @@ extension Graphite.Hotkey: Lua.CustomType {
 func hotkeyLib(vm: Lua.VirtualMachine) -> Lua.Library<Graphite.Hotkey> {
     return vm.createLibrary { [unowned vm] lib in
         
-        lib["bind"] = vm.createFunction([.String, .Table, .Function]) { args in
+        lib["bind"] = vm.createFunction([String.arg, Table.arg, Function.arg]) { args in
             let (key, modStrings: [String], downFn) = (args.string, args.table.asSequence(), args.function)
             
             let downSwiftFn: Graphite.Hotkey.Callback = {

@@ -8,4 +8,9 @@ extension Bool: Value {
     
     public func kind() -> Kind { return .Boolean }
     
+    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .Boolean { return "boolean" }
+        return nil
+    }
+    
 }

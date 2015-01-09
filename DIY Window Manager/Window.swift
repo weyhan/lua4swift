@@ -20,13 +20,13 @@ func windowLib(vm: Lua.VirtualMachine) -> Lua.Library<Desktop.Window> {
         lib["topLeft"] = lib.createMethod([]) { win, _ in .Value(win.topLeft()) }
         lib["app"] = lib.createMethod([]) { win, _ in .Value(vm.createUserdataMaybe(win.app())) }
         
-        lib["setTopLeft"] = lib.createMethod([.Table]) { win, args in
+        lib["setTopLeft"] = lib.createMethod([Table.arg]) { win, args in
             let point = args.table
             if let p = point.toPoint() { win.setTopLeft(p) }
             return .Nothing
         }
         
-        lib["belongsToApp"] = lib.createMethod([.Userdata(Desktop.App.metatableName())]) { win, args in
+        lib["belongsToApp"] = lib.createMethod([Lua.Library<Desktop.App>.arg]) { win, args in
             let app: Desktop.App = args.userdata.toCustomType()
             return .Value(win.app() == app)
         }

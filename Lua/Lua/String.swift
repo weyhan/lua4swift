@@ -8,4 +8,9 @@ extension String: Value {
     
     public func kind() -> Kind { return .String }
     
+    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .String { return "string" }
+        return nil
+    }
+    
 }

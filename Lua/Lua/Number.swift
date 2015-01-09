@@ -27,6 +27,11 @@ public class Number: StoredValue, DebugPrintable {
         else { return toDouble().description }
     }
     
+    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .Number { return "number" }
+        return nil
+    }
+    
 }
 
 extension Double: Value {
@@ -36,6 +41,14 @@ extension Double: Value {
     }
     
     public func kind() -> Kind { return .Number }
+    
+    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+        value.push(vm)
+        let isDouble = lua_isinteger(vm.vm, -1) != 0
+        vm.pop()
+        if !isDouble { return "double" }
+        return nil
+    }
     
 }
 
@@ -47,6 +60,14 @@ extension Int64: Value {
     
     public func kind() -> Kind { return .Number }
     
+    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+        value.push(vm)
+        let isDouble = lua_isinteger(vm.vm, -1) != 0
+        vm.pop()
+        if !isDouble { return "integer" }
+        return nil
+    }
+    
 }
 
 extension Int: Value {
@@ -56,5 +77,9 @@ extension Int: Value {
     }
     
     public func kind() -> Kind { return .Number }
+    
+    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+        return Int64.arg(vm, value: value)
+    }
     
 }
