@@ -30,3 +30,9 @@ extension Table {
     }
     
 }
+
+extension Arguments {
+    
+    public var point: NSPoint { return (values.removeAtIndex(0) as Table).toPoint()! }
+    
+}

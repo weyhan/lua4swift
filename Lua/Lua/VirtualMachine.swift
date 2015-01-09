@@ -248,8 +248,8 @@ public class VirtualMachine {
         
         if let eq = lib.eq {
             lib["__eq"] = createFunction([CustomType<T>.arg, CustomType<T>.arg]) { args in
-                let a: T = args.userdata.toCustomType()
-                let b: T = args.userdata.toCustomType()
+                let a: T = args.customType()
+                let b: T = args.customType()
                 return .Value(eq(a, b))
             }
         }

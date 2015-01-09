@@ -46,8 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         
-        let globals = vm.globals
-        globals["Hotkey"] = hotkeyLib(vm)
+        vm.globals["Hotkey"] = hotkeyLib(vm)
         
 //        println(globals["Hotkey"].kind() == .Table)
         

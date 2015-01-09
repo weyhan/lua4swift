@@ -31,7 +31,7 @@ func eventLib(vm: Lua.VirtualMachine) -> Lua.CustomType<EventHandler> {
         
         func globalAppObserver(name: String, fn: Lua.Function -> Desktop.AppObserver.Callback) {
             lib[name] = vm.createFunction([Function.arg]) { args in
-                let callbackFunction = args.function
+                let (callbackFunction) = (args.function)
                 let observer = Desktop.GlobalAppObserver(fn(callbackFunction))
                 observer.enable()
                 return .Value(vm.createUserdata(EventHandler.AllApps(observer)))

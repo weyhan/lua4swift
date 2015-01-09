@@ -14,8 +14,8 @@ func appLib(vm: Lua.VirtualMachine) -> Lua.CustomType<Desktop.App> {
         lib["allApps"] = vm.createFunction([]) { _ in .Values(Desktop.App.allApps().map{vm.createUserdata($0)}) }
         lib["focusedApp"] = vm.createFunction([]) { _ in .Value(vm.createUserdataMaybe(Desktop.App.focusedApp())) }
         lib["appWithPid"] = vm.createFunction([Number.arg]) { args in
-            let pid = args.number
-            return .Value(vm.createUserdataMaybe(Desktop.App(pid_t(pid.toInteger()))))
+            let (pid) = (args.integer)
+            return .Value(vm.createUserdataMaybe(Desktop.App(pid_t(pid))))
         }
         
         // instance methods
