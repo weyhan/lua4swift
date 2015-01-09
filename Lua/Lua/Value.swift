@@ -8,7 +8,7 @@ public protocol Value {
 public class StoredValue: Value, Equatable {
     
     private let registryLocation: Int
-    internal var vm: VirtualMachine
+    internal unowned var vm: VirtualMachine
     
     internal init(_ vm: VirtualMachine) {
         self.vm = vm
