@@ -13,6 +13,10 @@ public class Userdata: StoredValue {
         return userdataPointer().memory
     }
     
+    public func toAny() -> Any {
+        return userdataPointer().memory
+    }
+    
     override public func kind() -> Kind { return .Userdata(nil) }
     
 }

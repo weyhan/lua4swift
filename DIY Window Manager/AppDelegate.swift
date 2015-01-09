@@ -65,7 +65,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 println(vals)
                 
                 if let t = vals[0] as? Table {
-                    println(t.values())
+                    let tt: [String: String] = t.asDictionary({$0 as String}, {$0 as String})
+                    println(tt)
                 }
             default:
                 break
