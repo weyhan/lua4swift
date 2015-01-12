@@ -177,7 +177,6 @@ public class VirtualMachine {
                 let typeChecker = typeCheckers[i]
                 vm.pushFromStack(i+1)
                 if let expectedType = typeChecker(vm, vm.popValue(-1)!) {
-                    println("got wrong type: \(expectedType)")
                     vm.argError(expectedType, at: i+1)
                 }
             }
