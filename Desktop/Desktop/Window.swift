@@ -21,13 +21,10 @@ public class Window: Object {
     }
     
     public func app() -> App? {
-        var pid: pid_t = 0
-        if AXUIElementGetPid(self.element, &pid) == AXError(kAXErrorSuccess) {
-            return App(pid)
-        }
-        else {
-            return nil
-        }
+        var pid = pid_t(0)
+        var app: App?
+        if AXUIElementGetPid(self.element, &pid) == AXError(kAXErrorSuccess) { app = App(pid) }
+        return app
     }
     
     public func frame() -> NSRect? {
@@ -57,10 +54,10 @@ public class Window: Object {
     
     public func id() -> Int? {
         if winid != nil { return winid }
-        var _winid: CGWindowID = 0
-        let result = _AXUIElementGetWindow(element, &_winid)
+        var id = CGWindowID(0)
+        let result = _AXUIElementGetWindow(element, &id)
         if result != AXError(kAXErrorSuccess) { return nil }
-        winid = Int(_winid)
+        winid = Int(id)
         return winid
     }
     

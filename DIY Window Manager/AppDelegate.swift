@@ -35,7 +35,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         vm.eval("w = Window.focusedWindow()")
         vm.eval("p = w:topLeft()")
         vm.eval("p.x = p.x + 10")
-        vm.eval("w:setTopLeft(p)")
+        vm.eval("w:setTopLeft(2)")
         vm.eval("print(w:belongsToApp(3))")
         vm.eval("w = nil")
         vm.eval("collectgarbage()")
