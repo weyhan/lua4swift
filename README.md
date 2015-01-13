@@ -9,7 +9,7 @@ DIY Window Manager will almost definitely:
 
 - Crash
 - Eat your computer
-- Accidentally make you lose all your money somehow
+- Accidentally make you lose all your socks somehow
 - Eat all your food
 - Make carnivorous dinosaurs come back alive at the worst possible time in the middle of a crowded city
 - Probably cause a singularity?
