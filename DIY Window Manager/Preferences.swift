@@ -1,39 +1,70 @@
 import Cocoa
 
-private var _autoLogin: Bool = false
+protocol BooleanBindableStorage {
+    func set(Bool)
+    func get() -> Bool
+}
 
-class FakeAutoLoginManager {
-    class func autoLogin() -> Bool {
+protocol BooleanBindableControl {
+    func set(Bool)
+    func get() -> Bool
+    weak var target: AnyObject? { get set }
+    var action: Selector { get set }
+}
+
+class FakeAutoLoginManager: BooleanBindableStorage {
+    private var _autoLogin: Bool = false
+    
+    func get() -> Bool {
         println("getting autologin!")
         return _autoLogin
     }
     
-    class func setAutoLogin(enabled: Bool) {
+    func set(enabled: Bool) {
         println("setting autologin! \(enabled)")
         _autoLogin = enabled
     }
 }
 
-class ActionBinding: NSObject {
+extension NSButton: BooleanBindableControl {
+    func set(value: Bool) { self.state = value ? NSOnState : NSOffState }
+    func get() -> Bool    { return self.state == NSOnState }
+}
+
+enum Binder {
     
-    let setter: (Bool) -> Void
-    let initialValue: Bool
+    case CheckboxValue(BooleanBindableStorage, BooleanBindableControl)
     
-    init(setter: Bool -> Void, getter: Void -> Bool) {
-        println("in here")
-        self.setter = setter
-        initialValue = getter()
+    func trampoline() -> NSObject {
+        switch self {
+        case let .CheckboxValue(storage, control):
+            return CheckboxBinding
+        }
     }
     
-    func bind(button: NSButton) {
+}
+
+class CheckboxBinding: NSObject {
+    
+    let b: BooleanBindableStorage
+    let initialValue: Bool
+    
+    init(_ b: BooleanBindableStorage) {
+        println("in here")
+        self.b = b
+        initialValue = b.get()
+    }
+    
+    func bind(var button: BooleanBindableControl) {
         println("binding: \(button)")
-        button.state = initialValue ? NSOnState : NSOffState
+        button.set(initialValue)
         button.target = self
         button.action = "clickedButton:"
     }
     
-    func clickedButton(sender: NSButton?) {
-        setter(sender?.state == NSOnState)
+    func clickedButton(sender: NSButton!) {
+        if sender == nil { return }
+        b.set(sender.get())
     }
     
     deinit {
@@ -42,19 +73,14 @@ class ActionBinding: NSObject {
     
 }
 
-class Thing {
-    init() {
-        println("THING")
-    }
-}
-
 class PreferencesController: NSWindowController {
     
     @IBOutlet weak var checkbox: NSButton!
-    let checkboxBinding = ActionBinding(setter: FakeAutoLoginManager.setAutoLogin, getter: FakeAutoLoginManager.autoLogin)
-    let a = Thing()
+    let checkboxBinding = CheckboxBinding(FakeAutoLoginManager())
     
-    override var windowNibName: String? { return "Preferences" }
+    override convenience init() {
+        self.init(windowNibName: "Preferences")
+    }
     
     override func windowDidLoad() {
         println("wloaded")
