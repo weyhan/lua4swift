@@ -50,7 +50,6 @@ public class VirtualMachine {
     }
     
     deinit {
-        println("lua state is dead.")
         lua_close(vm)
     }
     
