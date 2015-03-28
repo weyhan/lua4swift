@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:DIY Window Manager.xcodeproj">
+      location = "self:Lua.xcodeproj">
    </FileRef>
 </Workspace>

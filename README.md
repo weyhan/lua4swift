@@ -1,36 +1,33 @@
-# DIY Window Manager
+# Lua
 
-* Current version: 0.1
-* Requires: OS X 10.10 or higher
+*High-level (convenient) Lua bindings for Swift*
 
-## Current status
+* **Version**: 1.0
 
-DIY Window Manager will almost definitely:
+## Usage
 
-- Crash
-- Eat your computer
-- Accidentally make you lose all your socks somehow
-- Eat all your food
-- Make carnivorous dinosaurs come back alive at the worst possible time in the middle of a crowded city
-- Probably cause a singularity?
-- Accidentally fix the singularity by trying to use an invalid C pointer
+Coming soon.
 
-## What does it do?
+## License
 
-This app gives you simple Lua APIs that let you interact with your
-system. The main classes are Window, App, Screen, Hotkey, and Event.
-
-Since it uses Lua, it's naturally geared towards programmers who want
-to customize their system very specifically.
-
-That said, it also provides a higher-level API layer to give you easy
-access to common layouts.
-
-## Extensible
-
-The source code is designed to be very easy to extend, so that anyone
-with a little knowledge of the underlying system APIs can easily add
-features.
-
-If you're interested in adding features and sending them in a pull
-request, see [Contributing.md](Contributing.md).
+> Released under MIT license.
+>
+> Copyright (c) 2015 Steven Degutis
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+> THE SOFTWARE.
