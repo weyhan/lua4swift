@@ -74,7 +74,7 @@ public class VirtualMachine {
         var v: Value?
         switch kind(-1) {
         case .String:
-            var len: UInt = 0
+            var len: Int = 0
             let str = lua_tolstring(vm, -1, &len)
             let data = NSData(bytes: str, length: Int(len))
             v = NSString(data: data, encoding: NSUTF8StringEncoding)! as String

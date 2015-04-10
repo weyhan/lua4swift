@@ -9,7 +9,7 @@ class Lua_Tests: XCTestCase {
         let table = vm.createTable()
         table[3] = "foo"
         XCTAssert(table[3] is String)
-        XCTAssertEqual(table[3] as String, "foo")
+        XCTAssertEqual(table[3] as! String, "foo")
     }
     
     func testStringX() {
@@ -34,7 +34,7 @@ class Lua_Tests: XCTestCase {
         case let .Values(values):
             XCTAssertEqual(values.count, 1)
             XCTAssert(values[0] is Table)
-            let array: [String] = (values[0] as Table).asSequence()
+            let array: [String] = (values[0] as! Table).asSequence()
             XCTAssertEqual(array, ["hello", "world"])
         case let .Error(e):
             XCTFail(e)
