@@ -15,7 +15,7 @@ extension NSPoint: Value {
     public static func arg(vm: VirtualMachine, value: Value) -> String? {
         if value.kind() != .Table { return typeName }
         if let result = Table.arg(vm, value: value) { return result }
-        let t = value as Table
+        let t = value as! Table
         if !(t["x"] is Number) || !(t["y"] is Number) { return typeName }
         return nil
     }
@@ -37,7 +37,7 @@ extension NSSize: Value {
     public static func arg(vm: VirtualMachine, value: Value) -> String? {
         if value.kind() != .Table { return typeName }
         if let result = Table.arg(vm, value: value) { return result }
-        let t = value as Table
+        let t = value as! Table
         if !(t["w"] is Number) || !(t["h"] is Number) { return typeName }
         return nil
     }
@@ -64,7 +64,7 @@ extension Table {
 
 extension Arguments {
     
-    public var point: NSPoint { return (values.removeAtIndex(0) as Table).toPoint()! }
-    public var size:  NSSize  { return (values.removeAtIndex(0) as Table).toSize()!  }
+    public var point: NSPoint { return (values.removeAtIndex(0) as! Table).toPoint()! }
+    public var size:  NSSize  { return (values.removeAtIndex(0) as! Table).toSize()!  }
     
 }

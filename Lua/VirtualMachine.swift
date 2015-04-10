@@ -102,17 +102,17 @@ public class VirtualMachine {
     
     public var globals: Table {
         rawGet(tablePosition: RegistryIndex, index: GlobalsTable)
-        return popValue(-1) as Table
+        return popValue(-1) as! Table
     }
     
     public var registry: Table {
         pushFromStack(RegistryIndex)
-        return popValue(-1) as Table
+        return popValue(-1) as! Table
     }
     
     public func createFunction(body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).UTF8String) == LUA_OK {
-            return .Value(popValue(-1) as Function)
+            return .Value(popValue(-1) as! Function)
         }
         else {
             return .Error(popError())
@@ -121,11 +121,11 @@ public class VirtualMachine {
     
     public func createTable(sequenceCapacity: Int = 0, keyCapacity: Int = 0) -> Table {
         lua_createtable(vm, Int32(sequenceCapacity), Int32(keyCapacity))
-        return popValue(-1) as Table
+        return popValue(-1) as! Table
     }
     
     internal func popError() -> String {
-        let err = popValue(-1) as String
+        let err = popValue(-1) as! String
         if let fn = errorHandler { fn(err) }
         return err
     }
@@ -138,11 +138,11 @@ public class VirtualMachine {
     }
     
     public func createUserdata<T: CustomTypeInstance>(o: T) -> Userdata {
-        let ptr = UnsafeMutablePointer<T>(lua_newuserdata(vm, UInt(sizeof(T)))) // this both pushes ptr onto stack and returns it
+        let ptr = UnsafeMutablePointer<T>(lua_newuserdata(vm, sizeof(T))) // this both pushes ptr onto stack and returns it
         ptr.initialize(o) // creates a new legit reference to o
         
         luaL_setmetatable(vm, (T.luaTypeName() as NSString).UTF8String) // this requires ptr to be on the stack
-        return popValue(-1) as Userdata // this pops ptr off stack
+        return popValue(-1) as! Userdata // this pops ptr off stack
     }
     
     public enum EvalResults {
@@ -215,7 +215,7 @@ public class VirtualMachine {
         let imp = imp_implementationWithBlock(block)
         let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
         lua_pushcclosure(vm, fp, 0)
-        return popValue(-1) as Function
+        return popValue(-1) as! Function
     }
     
     @noreturn

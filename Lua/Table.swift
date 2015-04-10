@@ -53,18 +53,18 @@ public class Table: StoredValue {
         vm.pop() // thing
     }
     
-    public func asTupleArray<K1: Value, V1: Value, K2: Value, V2: Value>(_ kfn: K1 -> K2 = {$0 as K2}, _ vfn: V1 -> V2 = {$0 as V2}) -> [(K2, V2)] {
+    public func asTupleArray<K1: Value, V1: Value, K2: Value, V2: Value>(_ kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [(K2, V2)] {
         var v = [(K2, V2)]()
         for key in keys() {
             let val = self[key]
             if key is K1 && val is V1 {
-                v.append((kfn(key as K1), vfn(val as V1)))
+                v.append((kfn(key as! K1), vfn(val as! V1)))
             }
         }
         return v
     }
     
-    public func asDictionary<K1: Value, V1: Value, K2: Value, V2: Value where K2: Hashable>(_ kfn: K1 -> K2 = {$0 as K2}, _ vfn: V1 -> V2 = {$0 as V2}) -> [K2: V2] {
+    public func asDictionary<K1: Value, V1: Value, K2: Value, V2: Value where K2: Hashable>(_ kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [K2: V2] {
         var v = [K2: V2]()
         for (key, val) in asTupleArray(kfn, vfn) {
             v[key] = val

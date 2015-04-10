@@ -34,7 +34,7 @@ public class LightUserdata: StoredValue {
 
 public protocol CustomTypeInstance {
     
-    class func luaTypeName() -> String
+    static func luaTypeName() -> String
     
 }
 

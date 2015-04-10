@@ -3,7 +3,7 @@ import Foundation
 public protocol Value {
     func push(vm: VirtualMachine)
     func kind() -> Kind
-    class func arg(vm: VirtualMachine, value: Value) -> String?
+    static func arg(vm: VirtualMachine, value: Value) -> String?
 }
 
 public class StoredValue: Value, Equatable {

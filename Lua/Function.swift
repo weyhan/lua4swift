@@ -8,7 +8,7 @@ public enum FunctionResults {
 public class Function: StoredValue {
     
     public func call(args: [Value]) -> FunctionResults {
-        let debugTable = vm.globals["debug"] as Table
+        let debugTable = vm.globals["debug"] as! Table
         let messageHandler = debugTable["traceback"]
         
         let originalStackTop = vm.stackSize()
@@ -63,18 +63,18 @@ public class Arguments {
     
     internal var values = [Value]()
     
-    public var string: String { return values.removeAtIndex(0) as String }
-    public var number: Number { return values.removeAtIndex(0) as Number }
-    public var boolean: Bool { return values.removeAtIndex(0) as Bool }
-    public var function: Function { return values.removeAtIndex(0) as Function }
-    public var table: Table { return values.removeAtIndex(0) as Table }
-    public var userdata: Userdata { return values.removeAtIndex(0) as Userdata }
-    public var lightUserdata: LightUserdata { return values.removeAtIndex(0) as LightUserdata }
-    public var thread: Thread { return values.removeAtIndex(0) as Thread }
+    public var string: String { return values.removeAtIndex(0) as! String }
+    public var number: Number { return values.removeAtIndex(0) as! Number }
+    public var boolean: Bool { return values.removeAtIndex(0) as! Bool }
+    public var function: Function { return values.removeAtIndex(0) as! Function }
+    public var table: Table { return values.removeAtIndex(0) as! Table }
+    public var userdata: Userdata { return values.removeAtIndex(0) as! Userdata }
+    public var lightUserdata: LightUserdata { return values.removeAtIndex(0) as! LightUserdata }
+    public var thread: Thread { return values.removeAtIndex(0) as! Thread }
     
-    public var integer: Int64 { return (values.removeAtIndex(0) as Number).toInteger() }
-    public var double: Double { return (values.removeAtIndex(0) as Number).toDouble() }
+    public var integer: Int64 { return (values.removeAtIndex(0) as! Number).toInteger() }
+    public var double: Double { return (values.removeAtIndex(0) as! Number).toDouble() }
     
-    public func customType<T: CustomTypeInstance>() -> T { return (values.removeAtIndex(0) as Userdata).toCustomType() }
+    public func customType<T: CustomTypeInstance>() -> T { return (values.removeAtIndex(0) as! Userdata).toCustomType() }
     
 }
