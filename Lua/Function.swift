@@ -26,7 +26,7 @@ public class Function: StoredValue {
             var values = [Value]()
             let numReturnValues = vm.stackSize() - originalStackTop
             
-            for i in 0..<numReturnValues {
+            for _ in 0..<numReturnValues {
                 let v = vm.popValue(originalStackTop+1)!
                 values.append(v)
             }

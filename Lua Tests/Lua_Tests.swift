@@ -22,7 +22,7 @@ class Lua_Tests: XCTestCase {
             let fragments = subject.componentsSeparatedByString(separator)
             
             let results = vm.createTable()
-            for (i, fragment) in enumerate(fragments) {
+            for (i, fragment) in fragments.enumerate() {
                 results[i+1] = fragment
             }
             return .Value(results)
