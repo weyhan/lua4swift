@@ -43,7 +43,7 @@ public class VirtualMachine {
     
     internal let vm = luaL_newstate()
     
-    public var errorHandler: ErrorHandler? = { println("error: \($0)") }
+    public var errorHandler: ErrorHandler? = { print("error: \($0)") }
     
     public init(openLibs: Bool = true) {
         if openLibs { luaL_openlibs(vm) }
@@ -167,7 +167,7 @@ public class VirtualMachine {
     }
     
     public func createFunction(typeCheckers: [TypeChecker], _ fn: SwiftFunction) -> Function {
-        let f: @objc_block (COpaquePointer) -> Int32 = { [weak self] _ in
+        let f: @convention(block) (COpaquePointer) -> Int32 = { [weak self] _ in
             if self == nil { return 0 }
             let vm = self!
             
@@ -181,8 +181,8 @@ public class VirtualMachine {
             }
             
             // build args list
-            var args = Arguments()
-            for i in 0 ..< vm.stackSize() {
+            let args = Arguments()
+            for _ in 0 ..< vm.stackSize() {
                 let arg = vm.popValue(1)!
                 args.values.append(arg)
             }
@@ -205,7 +205,7 @@ public class VirtualMachine {
                 }
                 return Int32(values.count)
             case let .Error(error):
-                println("pushing error: \(error)")
+                print("pushing error: \(error)")
                 error.push(vm)
                 lua_error(vm.vm)
                 return 0 // uhh, we don't actually get here
@@ -213,7 +213,9 @@ public class VirtualMachine {
         }
         let block: AnyObject = unsafeBitCast(f, AnyObject.self)
         let imp = imp_implementationWithBlock(block)
-        let fp = CFunctionPointer<(COpaquePointer) -> Int32>(imp)
+        
+        typealias CFunction = @convention(c) (COpaquePointer) -> Int32
+        let fp = unsafeBitCast(imp, CFunction.self)
         lua_pushcclosure(vm, fp, 0)
         return popValue(-1) as! Function
     }
@@ -266,13 +268,13 @@ public class VirtualMachine {
     internal func ref(position: Int) -> Int { return Int(luaL_ref(vm, Int32(position))) }
     internal func unref(table: Int, _ position: Int) { luaL_unref(vm, Int32(table), Int32(position)) }
     internal func absolutePosition(position: Int) -> Int { return Int(lua_absindex(vm, Int32(position))) }
-    internal func rawGet(#tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
+    internal func rawGet(tablePosition tablePosition: Int, index: Int) { lua_rawgeti(vm, Int32(tablePosition), lua_Integer(index)) }
     
     internal func pushFromStack(position: Int) {
         lua_pushvalue(vm, Int32(position))
     }
     
-    internal func pop(_ n: Int = 1) {
+    internal func pop(n: Int = 1) {
         lua_settop(vm, -Int32(n)-1)
     }
     

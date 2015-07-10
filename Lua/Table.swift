@@ -53,7 +53,7 @@ public class Table: StoredValue {
         vm.pop() // thing
     }
     
-    public func asTupleArray<K1: Value, V1: Value, K2: Value, V2: Value>(_ kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [(K2, V2)] {
+    public func asTupleArray<K1: Value, V1: Value, K2: Value, V2: Value>(kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [(K2, V2)] {
         var v = [(K2, V2)]()
         for key in keys() {
             let val = self[key]
@@ -64,7 +64,7 @@ public class Table: StoredValue {
         return v
     }
     
-    public func asDictionary<K1: Value, V1: Value, K2: Value, V2: Value where K2: Hashable>(_ kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [K2: V2] {
+    public func asDictionary<K1: Value, V1: Value, K2: Value, V2: Value where K2: Hashable>(kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [K2: V2] {
         var v = [K2: V2]()
         for (key, val) in asTupleArray(kfn, vfn) {
             v[key] = val
@@ -81,7 +81,7 @@ public class Table: StoredValue {
         if dict.count == 0 { return sequence }
         
         // ensure table has no holes and keys start at 1
-        let sortedKeys = sorted(dict.keys, <)
+        let sortedKeys = dict.keys.sort(<)
         if [Int64](1...sortedKeys.last!) != sortedKeys { return sequence }
         
         // append values to the array, in order

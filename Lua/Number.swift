@@ -1,6 +1,6 @@
 import Foundation
 
-public class Number: StoredValue, DebugPrintable {
+public class Number: StoredValue, CustomDebugStringConvertible {
     
     override public func kind() -> Kind { return .Number }
     

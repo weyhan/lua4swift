@@ -57,7 +57,7 @@ public class CustomType<T: CustomTypeInstance>: Table {
     
     public func createMethod(var typeCheckers: [TypeChecker], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
         typeCheckers.insert(CustomType<T>.arg, atIndex: 0)
-        return vm.createFunction(typeCheckers) { (var args: Arguments) in
+        return vm.createFunction(typeCheckers) { (args: Arguments) in
             let o: T = args.customType()
             return fn(o, args)
         }
