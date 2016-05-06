@@ -41,4 +41,68 @@ class Lua_Tests: XCTestCase {
         }
     }
     
+        func testCustomType() {
+        
+        class Note : CustomTypeInstance {
+            var name = ""
+            static func luaTypeName() -> String {
+                return "note"
+            }
+        }
+    
+        let vm = Lua.VirtualMachine()
+        
+        let noteLib:CustomType<Note> = vm.createCustomType {
+            type in
+            type["setName"] = type.createMethod([String.arg]) {
+                note, args in
+                note.name = args.string
+                return .Nothing
+            }
+            type["getName"] = type.createMethod([]) {
+                note, args in
+                return .Value(note.name)
+            }
+        }
+        
+        noteLib["new"] = vm.createFunction([String.arg]) {
+            args in
+            let note = Note()
+            note.name = args.string
+            let data = vm.createUserdata(note)
+            return .Value(data)
+        }
+
+        // setup the note class
+        vm.globals["note"] = noteLib
+        
+        vm.eval("myNote = note.new('a custom note')")
+        XCTAssert(vm.globals["myNote"] is Userdata)
+        
+        // extract the note
+        // and see if the name is the same
+        
+        let myNote:Note = (vm.globals["myNote"] as! Userdata).toCustomType()
+        XCTAssert(myNote.name == "a custom note")
+        
+        // This is just to highlight changes in Swift
+        // will get reflected in Lua as well
+        // TODO: redirect output from Lua to check if both
+        // are equal
+        
+        myNote.name = "now from XCTest"
+        vm.eval("print(myNote:getName())")
+        
+        // further checks to change name in Lua
+        // and see change reflected in the Swift object
+        
+        vm.eval("myNote:setName('even')")
+        XCTAssert(myNote.name == "even")
+        
+        vm.eval("myNote:setName('odd')")
+        XCTAssert(myNote.name == "odd")
+        
+    }
+
+    
 }
