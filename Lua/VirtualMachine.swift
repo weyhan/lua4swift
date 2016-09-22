@@ -1,5 +1,4 @@
 import Foundation
-import Cocoa
 
 internal let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 private let GlobalsTable = Int(LUA_RIDX_GLOBALS)
