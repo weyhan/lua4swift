@@ -2,14 +2,14 @@ import Foundation
 
 extension Bool: Value {
     
-    public func push(vm: VirtualMachine) {
+    public func push(_ vm: VirtualMachine) {
         lua_pushboolean(vm.vm, self ? 1 : 0)
     }
     
-    public func kind() -> Kind { return .Boolean }
+    public func kind() -> Kind { return .boolean }
     
-    public static func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Boolean { return "boolean" }
+    public static func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .boolean { return "boolean" }
         return nil
     }
     

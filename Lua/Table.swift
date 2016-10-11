@@ -1,15 +1,15 @@
 import Foundation
 
-public class Table: StoredValue {
+open class Table: StoredValue {
     
-    override public func kind() -> Kind { return .Table }
+    override open func kind() -> Kind { return .table }
     
-    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Table { return "table" }
+    override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .table { return "table" }
         return nil
     }
     
-    public subscript(key: Value) -> Value {
+    open subscript(key: Value) -> Value {
         get {
             push(vm)
             
@@ -32,7 +32,7 @@ public class Table: StoredValue {
         }
     }
     
-    public func keys() -> [Value] {
+    open func keys() -> [Value] {
         var k = [Value]()
         push(vm) // table
         lua_pushnil(vm.vm)
@@ -46,14 +46,14 @@ public class Table: StoredValue {
         return k
     }
     
-    public func becomeMetatableFor(thing: Value) {
+    open func becomeMetatableFor(_ thing: Value) {
         thing.push(vm)
         self.push(vm)
         lua_setmetatable(vm.vm, -2)
         vm.pop() // thing
     }
     
-    public func asTupleArray<K1: Value, V1: Value, K2: Value, V2: Value>(kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [(K2, V2)] {
+    open func asTupleArray<K1: Value, V1: Value, K2: Value, V2: Value>(_ kfn: (K1) -> K2 = {$0 as! K2}, _ vfn: (V1) -> V2 = {$0 as! V2}) -> [(K2, V2)] {
         var v = [(K2, V2)]()
         for key in keys() {
             let val = self[key]
@@ -64,7 +64,7 @@ public class Table: StoredValue {
         return v
     }
     
-    public func asDictionary<K1: Value, V1: Value, K2: Value, V2: Value where K2: Hashable>(kfn: K1 -> K2 = {$0 as! K2}, _ vfn: V1 -> V2 = {$0 as! V2}) -> [K2: V2] {
+    open func asDictionary<K1: Value, V1: Value, K2: Value, V2: Value>(_ kfn: (K1) -> K2 = {$0 as! K2}, _ vfn: (V1) -> V2 = {$0 as! V2}) -> [K2: V2] where K2: Hashable {
         var v = [K2: V2]()
         for (key, val) in asTupleArray(kfn, vfn) {
             v[key] = val
@@ -72,7 +72,7 @@ public class Table: StoredValue {
         return v
     }
     
-    public func asSequence<T: Value>() -> [T] {
+    open func asSequence<T: Value>() -> [T] {
         var sequence = [T]()
         
         let dict: [Int64 : T] = asDictionary({ (k: Number) in k.toInteger() }, { $0 as T })
@@ -81,7 +81,7 @@ public class Table: StoredValue {
         if dict.count == 0 { return sequence }
         
         // ensure table has no holes and keys start at 1
-        let sortedKeys = dict.keys.sort(<)
+        let sortedKeys = dict.keys.sorted(by: <)
         if [Int64](1...sortedKeys.last!) != sortedKeys { return sequence }
         
         // append values to the array, in order
@@ -92,12 +92,12 @@ public class Table: StoredValue {
         return sequence
     }
     
-    func storeReference(v: Value) -> Int {
+    func storeReference(_ v: Value) -> Int {
         v.push(vm)
         return vm.ref(RegistryIndex)
     }
     
-    func removeReference(ref: Int) {
+    func removeReference(_ ref: Int) {
         vm.unref(RegistryIndex, ref)
     }
     

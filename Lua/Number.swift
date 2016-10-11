@@ -1,24 +1,24 @@
 import Foundation
 
-public class Number: StoredValue, CustomDebugStringConvertible {
+open class Number: StoredValue, CustomDebugStringConvertible {
     
-    override public func kind() -> Kind { return .Number }
+    override open func kind() -> Kind { return .number }
     
-    public func toDouble() -> Double {
+    open func toDouble() -> Double {
         push(vm)
         let v = lua_tonumberx(vm.vm, -1, nil)
         vm.pop()
         return v
     }
     
-    public func toInteger() -> Int64 {
+    open func toInteger() -> Int64 {
         push(vm)
         let v = lua_tointegerx(vm.vm, -1, nil)
         vm.pop()
         return v
     }
     
-    public var debugDescription: String {
+    open var debugDescription: String {
         push(vm)
         let isInteger = lua_isinteger(vm.vm, -1) != 0
         vm.pop()
@@ -27,8 +27,8 @@ public class Number: StoredValue, CustomDebugStringConvertible {
         else { return toDouble().description }
     }
     
-    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Number { return "number" }
+    override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .number { return "number" }
         return nil
     }
     
@@ -36,13 +36,13 @@ public class Number: StoredValue, CustomDebugStringConvertible {
 
 extension Double: Value {
     
-    public func push(vm: VirtualMachine) {
+    public func push(_ vm: VirtualMachine) {
         lua_pushnumber(vm.vm, self)
     }
     
-    public func kind() -> Kind { return .Number }
+    public func kind() -> Kind { return .number }
     
-    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+    public static func arg(_ vm: VirtualMachine, value: Value) -> String? {
         value.push(vm)
         let isDouble = lua_isinteger(vm.vm, -1) != 0
         vm.pop()
@@ -54,13 +54,13 @@ extension Double: Value {
 
 extension Int64: Value {
     
-    public func push(vm: VirtualMachine) {
+    public func push(_ vm: VirtualMachine) {
         lua_pushinteger(vm.vm, self)
     }
     
-    public func kind() -> Kind { return .Number }
+    public func kind() -> Kind { return .number }
     
-    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+    public static func arg(_ vm: VirtualMachine, value: Value) -> String? {
         value.push(vm)
         let isDouble = lua_isinteger(vm.vm, -1) != 0
         vm.pop()
@@ -72,13 +72,13 @@ extension Int64: Value {
 
 extension Int: Value {
     
-    public func push(vm: VirtualMachine) {
+    public func push(_ vm: VirtualMachine) {
         lua_pushinteger(vm.vm, Int64(self))
     }
     
-    public func kind() -> Kind { return .Number }
+    public func kind() -> Kind { return .number }
     
-    public static func arg(vm: VirtualMachine, value: Value) -> String? {
+    public static func arg(_ vm: VirtualMachine, value: Value) -> String? {
         return Int64.arg(vm, value: value)
     }
     

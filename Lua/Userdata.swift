@@ -1,32 +1,32 @@
 import Foundation
 
-public class Userdata: StoredValue {
+open class Userdata: StoredValue {
     
-    public func userdataPointer<T>() -> UnsafeMutablePointer<T> {
+    open func userdataPointer<T>() -> UnsafeMutablePointer<T> {
         push(vm)
         let ptr = lua_touserdata(vm.vm, -1)
         vm.pop()
-        return UnsafeMutablePointer<T>(ptr)
+        return (ptr?.assumingMemoryBound(to: T.self))!
+    }
+
+    open func toCustomType<T: CustomTypeInstance>() -> T {
+        return userdataPointer().pointee
     }
     
-    public func toCustomType<T: CustomTypeInstance>() -> T {
-        return userdataPointer().memory
+    open func toAny() -> Any {
+        return userdataPointer().pointee
     }
     
-    public func toAny() -> Any {
-        return userdataPointer().memory
-    }
-    
-    override public func kind() -> Kind { return .Userdata }
+    override open func kind() -> Kind { return .userdata }
     
 }
 
-public class LightUserdata: StoredValue {
+open class LightUserdata: StoredValue {
     
-    override public func kind() -> Kind { return .LightUserdata }
+    override open func kind() -> Kind { return .lightUserdata }
     
-    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .LightUserdata { return "light userdata" }
+    override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .lightUserdata { return "light userdata" }
         return nil
     }
     
@@ -38,11 +38,11 @@ public protocol CustomTypeInstance {
     
 }
 
-public class CustomType<T: CustomTypeInstance>: Table {
+open class CustomType<T: CustomTypeInstance>: Table {
     
-    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
+    override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
         value.push(vm)
-        let isLegit = luaL_testudata(vm.vm, -1, (T.luaTypeName() as NSString).UTF8String) != nil
+        let isLegit = luaL_testudata(vm.vm, -1, (T.luaTypeName() as NSString).utf8String) != nil
         vm.pop()
         if !isLegit { return T.luaTypeName() }
         return nil
@@ -52,11 +52,12 @@ public class CustomType<T: CustomTypeInstance>: Table {
         super.init(vm)
     }
     
-    public var gc: ((T) -> Void)?
-    public var eq: ((T, T) -> Bool)?
+    open var gc: ((T) -> Void)?
+    open var eq: ((T, T) -> Bool)?
     
-    public func createMethod(var typeCheckers: [TypeChecker], _ fn: (T, Arguments) -> SwiftReturnValue) -> Function {
-        typeCheckers.insert(CustomType<T>.arg, atIndex: 0)
+    public func createMethod(_ typeCheckers: [TypeChecker], _ fn: @escaping (T, Arguments) -> SwiftReturnValue) -> Function {
+        var typeCheckers = typeCheckers
+        typeCheckers.insert(CustomType<T>.arg, at: 0)
         return vm.createFunction(typeCheckers) { (args: Arguments) in
             let o: T = args.customType()
             return fn(o, args)

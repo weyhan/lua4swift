@@ -1,11 +1,11 @@
 import Foundation
 
-public class Thread: StoredValue {
+open class Thread: StoredValue {
     
-    override public func kind() -> Kind { return .Thread }
+    override open func kind() -> Kind { return .thread }
     
-    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Thread { return "thread" }
+    override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .thread { return "thread" }
         return nil
     }
     

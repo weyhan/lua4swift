@@ -1,14 +1,14 @@
 import Foundation
 
 public protocol Value {
-    func push(vm: VirtualMachine)
+    func push(_ vm: VirtualMachine)
     func kind() -> Kind
-    static func arg(vm: VirtualMachine, value: Value) -> String?
+    static func arg(_ vm: VirtualMachine, value: Value) -> String?
 }
 
-public class StoredValue: Value, Equatable {
+open class StoredValue: Value, Equatable {
     
-    private let registryLocation: Int
+    fileprivate let registryLocation: Int
     internal unowned var vm: VirtualMachine
     
     internal init(_ vm: VirtualMachine) {
@@ -21,15 +21,15 @@ public class StoredValue: Value, Equatable {
         vm.unref(RegistryIndex, registryLocation)
     }
     
-    public func push(vm: VirtualMachine) {
+    open func push(_ vm: VirtualMachine) {
         vm.rawGet(tablePosition: RegistryIndex, index: registryLocation)
     }
     
-    public func kind() -> Kind {
+    open func kind() -> Kind {
         fatalError("Override kind()")
     }
     
-    public class func arg(vm: VirtualMachine, value: Value) -> String? {
+    open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
         fatalError("Override arg()")
     }
     

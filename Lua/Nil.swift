@@ -1,15 +1,15 @@
 import Foundation
 
-public class Nil: Value, Equatable {
+open class Nil: Value, Equatable {
     
-    public func push(vm: VirtualMachine) {
+    open func push(_ vm: VirtualMachine) {
         lua_pushnil(vm.vm)
     }
     
-    public func kind() -> Kind { return .Nil }
+    open func kind() -> Kind { return .nil }
     
-    public class func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Nil { return "nil" }
+    open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .nil { return "nil" }
         return nil
     }
     

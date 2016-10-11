@@ -2,18 +2,18 @@ import Foundation
 
 extension NSPoint: Value {
     
-    public func push(vm: VirtualMachine) {
+    public func push(_ vm: VirtualMachine) {
         let t = vm.createTable()
         t["x"] = Double(self.x)
         t["y"] = Double(self.y)
         t.push(vm)
     }
     
-    public func kind() -> Kind { return .Table }
+    public func kind() -> Kind { return .table }
     
-    private static let typeName: String = "point (table with numeric keys x,y)"
-    public static func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Table { return typeName }
+    fileprivate static let typeName: String = "point (table with numeric keys x,y)"
+    public static func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .table { return typeName }
         if let result = Table.arg(vm, value: value) { return result }
         let t = value as! Table
         if !(t["x"] is Number) || !(t["y"] is Number) { return typeName }
@@ -24,18 +24,18 @@ extension NSPoint: Value {
 
 extension NSSize: Value {
     
-    public func push(vm: VirtualMachine) {
+    public func push(_ vm: VirtualMachine) {
         let t = vm.createTable()
         t["w"] = Double(self.width)
         t["h"] = Double(self.height)
         t.push(vm)
     }
     
-    public func kind() -> Kind { return .Table }
+    public func kind() -> Kind { return .table }
     
-    private static let typeName: String = "size (table with numeric keys w,h)"
-    public static func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Table { return typeName }
+    fileprivate static let typeName: String = "size (table with numeric keys w,h)"
+    public static func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .table { return typeName }
         if let result = Table.arg(vm, value: value) { return result }
         let t = value as! Table
         if !(t["w"] is Number) || !(t["h"] is Number) { return typeName }
@@ -64,7 +64,7 @@ extension Table {
 
 extension Arguments {
     
-    public var point: NSPoint { return (values.removeAtIndex(0) as! Table).toPoint()! }
-    public var size:  NSSize  { return (values.removeAtIndex(0) as! Table).toSize()!  }
+    public var point: NSPoint { return (values.remove(at: 0) as! Table).toPoint()! }
+    public var size:  NSSize  { return (values.remove(at: 0) as! Table).toSize()!  }
     
 }

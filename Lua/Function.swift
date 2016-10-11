@@ -1,13 +1,13 @@
 import Foundation
 
 public enum FunctionResults {
-    case Values([Value])
-    case Error(String)
+    case values([Value])
+    case error(String)
 }
 
-public class Function: StoredValue {
+open class Function: StoredValue {
     
-    public func call(args: [Value]) -> FunctionResults {
+    open func call(_ args: [Value]) -> FunctionResults {
         let debugTable = vm.globals["debug"] as! Table
         let messageHandler = debugTable["traceback"]
         
@@ -31,18 +31,18 @@ public class Function: StoredValue {
                 values.append(v)
             }
             
-            return .Values(values)
+            return .values(values)
         }
         else {
             let err = vm.popError()
-            return .Error(err)
+            return .error(err)
         }
     }
     
-    override public func kind() -> Kind { return .Function }
+    override open func kind() -> Kind { return .function }
     
-    override public class func arg(vm: VirtualMachine, value: Value) -> String? {
-        if value.kind() != .Function { return "function" }
+    override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
+        if value.kind() != .function { return "function" }
         return nil
     }
     
@@ -51,30 +51,30 @@ public class Function: StoredValue {
 public typealias TypeChecker = (VirtualMachine, Value) -> String?
 
 public enum SwiftReturnValue {
-    case Value(Lua.Value?)
-    case Values([Lua.Value])
-    case Nothing // convenience for Values([])
-    case Error(String)
+    case value(Lua.Value?)
+    case values([Lua.Value])
+    case nothing // convenience for Values([])
+    case error(String)
 }
 
-public typealias SwiftFunction = Arguments -> SwiftReturnValue
+public typealias SwiftFunction = (Arguments) -> SwiftReturnValue
 
-public class Arguments {
+open class Arguments {
     
     internal var values = [Value]()
     
-    public var string: String { return values.removeAtIndex(0) as! String }
-    public var number: Number { return values.removeAtIndex(0) as! Number }
-    public var boolean: Bool { return values.removeAtIndex(0) as! Bool }
-    public var function: Function { return values.removeAtIndex(0) as! Function }
-    public var table: Table { return values.removeAtIndex(0) as! Table }
-    public var userdata: Userdata { return values.removeAtIndex(0) as! Userdata }
-    public var lightUserdata: LightUserdata { return values.removeAtIndex(0) as! LightUserdata }
-    public var thread: Thread { return values.removeAtIndex(0) as! Thread }
+    open var string: String { return values.remove(at: 0) as! String }
+    open var number: Number { return values.remove(at: 0) as! Number }
+    open var boolean: Bool { return values.remove(at: 0) as! Bool }
+    open var function: Function { return values.remove(at: 0) as! Function }
+    open var table: Table { return values.remove(at: 0) as! Table }
+    open var userdata: Userdata { return values.remove(at: 0) as! Userdata }
+    open var lightUserdata: LightUserdata { return values.remove(at: 0) as! LightUserdata }
+    open var thread: Thread { return values.remove(at: 0) as! Thread }
     
-    public var integer: Int64 { return (values.removeAtIndex(0) as! Number).toInteger() }
-    public var double: Double { return (values.removeAtIndex(0) as! Number).toDouble() }
+    open var integer: Int64 { return (values.remove(at: 0) as! Number).toInteger() }
+    open var double: Double { return (values.remove(at: 0) as! Number).toDouble() }
     
-    public func customType<T: CustomTypeInstance>() -> T { return (values.removeAtIndex(0) as! Userdata).toCustomType() }
+    open func customType<T: CustomTypeInstance>() -> T { return (values.remove(at: 0) as! Userdata).toCustomType() }
     
 }
