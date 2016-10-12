@@ -19,24 +19,24 @@ class Lua_Tests: XCTestCase {
         
         stringxLib["split"] = vm.createFunction([String.arg, String.arg]) { args in
             let (subject, separator) = (args.string, args.string)
-            let fragments = subject.componentsSeparatedByString(separator)
+            let fragments = subject.components(separatedBy: separator)
             
             let results = vm.createTable()
-            for (i, fragment) in fragments.enumerate() {
+            for (i, fragment) in fragments.enumerated() {
                 results[i+1] = fragment
             }
-            return .Value(results)
+            return .value(results)
         }
         
         vm.globals["stringx"] = stringxLib
         
         switch vm.eval("return stringx.split('hello world', ' ')", args: []) {
-        case let .Values(values):
+        case let .values(values):
             XCTAssertEqual(values.count, 1)
             XCTAssert(values[0] is Table)
             let array: [String] = (values[0] as! Table).asSequence()
             XCTAssertEqual(array, ["hello", "world"])
-        case let .Error(e):
+        case let .error(e):
             XCTFail(e)
         }
     }
@@ -57,11 +57,11 @@ class Lua_Tests: XCTestCase {
             type["setName"] = type.createMethod([String.arg]) {
                 note, args in
                 note.name = args.string
-                return .Nothing
+                return .nothing
             }
             type["getName"] = type.createMethod([]) {
                 note, args in
-                return .Value(note.name)
+                return .value(note.name)
             }
         }
         
@@ -70,7 +70,7 @@ class Lua_Tests: XCTestCase {
             let note = Note()
             note.name = args.string
             let data = vm.createUserdata(note)
-            return .Value(data)
+            return .value(data)
         }
 
         // setup the note class
