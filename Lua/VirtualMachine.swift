@@ -1,4 +1,3 @@
-import Foundation
 
 internal let RegistryIndex = Int(SDegutisLuaRegistryIndex)
 private let GlobalsTable = Int(LUA_RIDX_GLOBALS)
@@ -111,7 +110,16 @@ open class VirtualMachine {
         pushFromStack(RegistryIndex)
         return popValue(-1) as! Table
     }
-    
+
+    open func createFunction(_ body: URL) -> MaybeFunction {
+        if luaL_loadfilex(vm, body.path, nil) == LUA_OK {
+            return .value(popValue(-1) as! Function)
+        }
+        else {
+            return .error(popError())
+        }
+    }
+
     open func createFunction(_ body: String) -> MaybeFunction {
         if luaL_loadstring(vm, (body as NSString).utf8String) == LUA_OK {
             return .value(popValue(-1) as! Function)
@@ -153,9 +161,20 @@ open class VirtualMachine {
         case values([Value])
         case error(String)
     }
-    
+
+    open func eval(_ url: URL, args: [Value] = []) -> EvalResults {
+        let fn = createFunction(url)
+
+        return eval(function: fn, args: args)
+    }
+
     open func eval(_ str: String, args: [Value] = []) -> EvalResults {
         let fn = createFunction(str)
+
+        return eval(function: fn, args: args)
+    }
+
+    private func eval(function fn: MaybeFunction, args: [Value])  -> EvalResults {
         switch fn {
         case let .value(f):
             let results = f.call(args)
@@ -169,7 +188,7 @@ open class VirtualMachine {
             return .error(e)
         }
     }
-    
+
     open func createFunction(_ typeCheckers: [TypeChecker], _ fn: @escaping SwiftFunction) -> Function {
         let f: @convention(block) (OpaquePointer) -> Int32 = { [weak self] _ in
             if self == nil { return 0 }

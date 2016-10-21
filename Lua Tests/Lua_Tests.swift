@@ -76,7 +76,7 @@ class Lua_Tests: XCTestCase {
         // setup the note class
         vm.globals["note"] = noteLib
         
-        vm.eval("myNote = note.new('a custom note')")
+        _ = vm.eval("myNote = note.new('a custom note')")
         XCTAssert(vm.globals["myNote"] is Userdata)
         
         // extract the note
@@ -91,15 +91,15 @@ class Lua_Tests: XCTestCase {
         // are equal
         
         myNote.name = "now from XCTest"
-        vm.eval("print(myNote:getName())")
+        _ = vm.eval("print(myNote:getName())")
         
         // further checks to change name in Lua
         // and see change reflected in the Swift object
         
-        vm.eval("myNote:setName('even')")
+        _ = vm.eval("myNote:setName('even')")
         XCTAssert(myNote.name == "even")
         
-        vm.eval("myNote:setName('odd')")
+        _ = vm.eval("myNote:setName('odd')")
         XCTAssert(myNote.name == "odd")
         
     }
