@@ -26,6 +26,13 @@ open class Number: StoredValue, CustomDebugStringConvertible {
         else { return toDouble().description }
     }
     
+    open var isInteger: Bool {
+        push(vm)
+        let isInteger = lua_isinteger(vm.vm, -1) != 0
+        vm.pop()
+        return isInteger
+    }
+    
     override open class func arg(_ vm: VirtualMachine, value: Value) -> String? {
         if value.kind() != .number { return "number" }
         return nil
