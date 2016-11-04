@@ -1,3 +1,3 @@
-#import "Lua.h"
+#import "LuaSource.h"
 
 int SDegutisLuaRegistryIndex = LUA_REGISTRYINDEX;

@@ -1,6 +1,11 @@
-#import <Foundation/Foundation.h>
+@import Foundation;
+@import LuaSource;
 
-#import "LuaSource/lua.h"
-#import "LuaSource/lauxlib.h"
-#import "LuaSource/lualib.h"
-extern int SDegutisLuaRegistryIndex;
+//! Project version number for Lua.
+FOUNDATION_EXPORT double LuaVersionNumber;
+
+//! Project version string for Lua.
+FOUNDATION_EXPORT const unsigned char LuaVersionString[];
+
+// In this header, you should import all the public headers of your framework using statements like #import <Lua/PublicHeader.h>
+
