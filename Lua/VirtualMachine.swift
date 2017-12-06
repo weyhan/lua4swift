@@ -246,7 +246,7 @@ open class VirtualMachine {
         luaL_typerror(vm, Int32(argPosition), (expectedType as NSString).utf8String)
     }
     
-    open func createCustomType<T: CustomTypeInstance>(_ setup: (CustomType<T>) -> Void) -> CustomType<T> {
+    open func createCustomType<T>(_ setup: (CustomType<T>) -> Void) -> CustomType<T> {
         lua_createtable(vm, 0, 0)
         let lib = CustomType<T>(self)
         pop()

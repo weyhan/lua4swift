@@ -65,12 +65,34 @@
 #endif
 
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_OS_IOS || TARGET_OS_WATCH || TARGET_OS_TV || TARGET_OS_SIMULATOR
+#define LUA_USE_IOS
+#elif TARGET_OS_OSX
+#define LUA_USE_MACOSX
+#endif
+#endif
+
 #if defined(LUA_USE_MACOSX)
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* MacOS does not need -ldl */
 #define LUA_USE_READLINE	/* needs an extra library: -lreadline */
 #endif
 
+
+#if defined(LUA_USE_IOS)
+#define LUA_USE_POSIX
+#undef LUA_USE_DLOPEN
+#define LUA_USE_READLINE    /* needs an extra library: -lreadline */
+
+/*
+** Starting from iOS 11, system function made unavailable to apps. Simulate
+** call fails to system function on iOS.
+*/
+#define system(s) ((s)==NULL ? 0 : -1)
+
+#endif
 
 /*
 @@ LUA_C89_NUMBERS ensures that Lua uses the largest types available for
