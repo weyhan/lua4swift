@@ -261,7 +261,7 @@ open class VirtualMachine {
         let gc = lib.gc
         lib["__gc"] = createFunction([CustomType<T>.arg]) { args in
             let ud = args.userdata
-            (ud.userdataPointer() as UnsafeMutablePointer<T>).deinitialize()
+            (ud.userdataPointer() as UnsafeMutablePointer<T>).deinitialize(count: 1)
             let o: T = ud.toCustomType()
             gc?(o)
             return .nothing
