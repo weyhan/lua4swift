@@ -44,7 +44,7 @@ public enum Kind {
 open class VirtualMachine {
     
     internal let vm = luaL_newstate()
-    
+
     open var errorHandler: ErrorHandler? = { print("error: \($0)") }
     
     public init(openLibs: Bool = true) {
@@ -54,7 +54,23 @@ open class VirtualMachine {
     deinit {
         lua_close(vm)
     }
-    
+
+    public func preloadModules(_ modules: UnsafeMutablePointer<luaL_Reg>) {
+        lua_getglobal(vm, "package")
+        lua_getfield(vm, -1, "preload");
+
+        var module = modules.pointee
+
+        while let name = module.name, let function = module.func {
+            lua_pushcclosure(vm, function, 0)
+            lua_setfield(vm, -2, name)
+
+            module = modules.advanced(by: 1).pointee
+        }
+
+        lua_settop(vm, -(2)-1)
+    }
+
     internal func kind(_ pos: Int) -> Kind {
         switch lua_type(vm, Int32(pos)) {
         case LUA_TSTRING: return .string
