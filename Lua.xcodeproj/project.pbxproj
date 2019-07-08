@@ -575,12 +575,12 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0930;
-				ORGANIZATIONNAME = "Tiny Robot Software";
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = Motileware;
 				TargetAttributes = {
 					1680CA541DBA0D3600333F1F = {
 						CreatedOnToolsVersion = 8.0;
-						LastSwiftMigration = "";
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
 					168D386C1DB9D00A00087970 = {
@@ -589,20 +589,21 @@
 					};
 					944A33001A475A6400BF8675 = {
 						CreatedOnToolsVersion = 6.1.1;
-						LastSwiftMigration = "";
+						LastSwiftMigration = 1020;
 					};
 					94697A8D1AC712CB0047447A = {
 						CreatedOnToolsVersion = 6.2;
-						LastSwiftMigration = "";
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
 			buildConfigurationList = 944A32FC1A475A6300BF8675 /* Build configuration list for PBXProject "Lua" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 944A32F81A475A6300BF8675;
 			productRefGroup = 944A33021A475A6400BF8675 /* Products */;
@@ -801,7 +802,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -830,7 +831,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -908,6 +909,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -960,6 +962,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -1015,7 +1018,7 @@
 				PRODUCT_NAME = Lua;
 				SWIFT_OBJC_BRIDGING_HEADER = LuaSource/LuaSource.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -1030,7 +1033,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = Lua;
 				SWIFT_OBJC_BRIDGING_HEADER = LuaSource/LuaSource.h;
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -1051,7 +1054,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tinyrobotsoftware.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -1068,7 +1071,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tinyrobotsoftware.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
